@@ -1,0 +1,30 @@
+# NoSky
+
+> NoSky is a cloud backup and ransomware recovery platform for small and mid-sized businesses. Automated, encrypted, immutable backups with 15-minute recovery.
+
+## Key Pages
+
+- [Home](https://nosky.io/): Overview of NoSky cloud backup and ransomware recovery platform
+- [Cloud Backup](https://nosky.io/product/cloud-backup): Automated cloud backup for servers, endpoints, SaaS apps, and VMs
+- [Disaster Recovery](https://nosky.io/product/disaster-recovery): Full VM spin-up in under 15 minutes from any recovery point
+- [Ransomware Protection](https://nosky.io/product/ransomware-protection): Immutable, air-gapped backups that ransomware cannot touch
+- [Microsoft 365 Backup](https://nosky.io/product/microsoft-365-backup): Complete backup for Exchange, OneDrive, SharePoint, Teams
+- [Endpoint Backup](https://nosky.io/product/endpoint-backup): Protect every laptop and workstation
+- [Pricing](https://nosky.io/pricing): Flexible plans for small business to enterprise
+- [Security](https://nosky.io/security): AES-256 encryption, ISO 27001, SOC 2, GDPR, HIPAA, DPDP Act
+- [About](https://nosky.io/about): Our mission to make SMB backup bulletproof
+- [Contact](https://nosky.io/contact): Sales, support, and partnerships
+- [Blog](https://nosky.io/blog): Guides on backup, ransomware defense, and business continuity
+
+## Product Details
+
+- **Company**: NoSky by Elcom Digital Solutions
+- **Founded**: 2023
+- **Headquarters**: Ghaziabad, India
+- **Founder**: Himanshu Kumar
+- **Category**: Cloud Backup & Disaster Recovery SaaS
+- **Target Market**: Small and mid-sized businesses (SMBs)
+- **Key Differentiators**: Immutable backup by default, 15-minute recovery, India data residency, DPDP Act compliance
+- **Encryption**: AES-256 at rest, TLS 1.3 in transit
+- **Certifications**: ISO 27001, SOC 2 Type II, GDPR, HIPAA, DPDP Act, PCI-DSS
+- **Data Centers**: Mumbai, Singapore, Frankfurt, Virginia
