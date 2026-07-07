@@ -3,6 +3,7 @@ import FAQ from '@/components/ui/FAQ';
 import CTASection from '@/components/ui/CTASection';
 import NoskyGlassSection from '@/components/ui/NoskyGlassSection';
 import GlassCard from '@/components/ui/GlassCard';
+import HowItWorksTimeline from '@/components/ui/HowItWorksTimeline';
 import HomeClient from './HomeClient';
 
 export const metadata = {
@@ -179,32 +180,7 @@ export default function HomePage() {
       </section>
 
       {/* BLOCK 5 — How it Works */}
-      <section className="section section-alt" id="how-it-works">
-        <div className="container">
-          <div className="section-header">
-            <span className="badge badge-blue">Simple Setup</span>
-            <h2>How NoSky works</h2>
-            <p>Three steps. Ten minutes. Complete protection.</p>
-          </div>
-          <div className="steps">
-            <div className="step">
-              <div className="step-number">1</div>
-              <h3>Install in 10 minutes</h3>
-              <p>Deploy the lightweight agent on any server or endpoint. Windows, macOS, or Linux.</p>
-            </div>
-            <div className="step">
-              <div className="step-number">2</div>
-              <h3>Backups run automatically</h3>
-              <p>Files, folders, databases, and VMs are backed up continuously to encrypted immutable storage.</p>
-            </div>
-            <div className="step">
-              <div className="step-number">3</div>
-              <h3>Recover in one click</h3>
-              <p>Restore a single file or spin up a full VM in under 15 minutes from any point in time.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HowItWorksTimeline />
 
       {/* BLOCK 6 — Feature Grid */}
       <NoskyGlassSection />

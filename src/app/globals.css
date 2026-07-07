@@ -884,16 +884,8 @@ tbody tr:hover {
   position: relative;
 }
 
-.steps::before {
-  content: '';
-  position: absolute;
-  top: 32px;
-  left: 15%;
-  right: 15%;
-  height: 2px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-blue), var(--color-cyan));
-  opacity: 0.3;
-}
+
+
 
 .step {
   text-align: center;
@@ -1444,7 +1436,7 @@ tbody tr:hover {
   .footer-grid { grid-template-columns: repeat(3, 1fr); }
 
   .steps { grid-template-columns: 1fr; }
-  .steps::before { display: none; }
+  .steps-line { display: none; }
 
   .header-nav { display: none; }
   .mobile-toggle { display: flex; }
