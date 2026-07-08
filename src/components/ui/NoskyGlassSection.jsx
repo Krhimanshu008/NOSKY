@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import GlassCard from './GlassCard';
 
 export default function NoskyGlassSection() {
@@ -22,15 +23,9 @@ export default function NoskyGlassSection() {
         {/* Featured Suite Card */}
         <GlassCard className="hero-card" isHero={true} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: 'var(--space-6)', padding: 'var(--space-6) var(--space-8)', alignItems: 'center', margin: '0 auto var(--space-8)', maxWidth: '900px', position: 'relative' }}>
           <div className="hero-glow" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}></div>
-          <div className="hero-icon-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-            <div className="hero-icon" style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-accent), #E09515)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-glow)' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 40, height: 40 }}>
-                <path d="M4 12a8 8 0 0116 0"/>
-                <path d="M12 3v1"/>
-                <path d="M12 12v9"/>
-                <path d="M3 12h1"/>
-                <path d="M20 12h1"/>
-              </svg>
+          <div className="hero-icon-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1, padding: 'var(--space-4)' }}>
+            <div className="hero-icon" style={{ position: 'relative', width: '100%', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image src="/noskywhite.webp" alt="Nosky Suite" fill style={{ objectFit: 'contain', objectPosition: 'center' }} />
             </div>
           </div>
           <div className="hero-text" style={{ zIndex: 1 }}>
@@ -59,10 +54,8 @@ export default function NoskyGlassSection() {
           {/* Card 1 */}
           <Link href="/product/nosky-backup" style={{ textDecoration: 'none' }}>
             <GlassCard className="platform-card" style={{ padding: 'var(--space-8)', height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <div className="card-icon" style={{ width: 72, height: 72, borderRadius: 'var(--radius-md)', background: 'var(--color-accent-light)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-6)' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 36, height: 36 }}>
-                  <path d="M17.5 19a4.5 4.5 0 100-9 6 6 0 00-11.6 1.5A4 4 0 006 19h11.5z"/>
-                </svg>
+              <div className="card-icon" style={{ position: 'relative', width: '100%', height: 100, borderRadius: 'var(--radius-md)', background: 'transparent', marginBottom: 'var(--space-6)', overflow: 'hidden' }}>
+                <Image src="/logos/Layer-1.png" alt="Nosky Backup Pro" fill style={{ objectFit: 'contain', objectPosition: 'left center' }} />
               </div>
               <div className="card-body" style={{ flexGrow: 1 }}>
                 <div className="card-eyebrow" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: 'var(--space-2)' }}>Backup</div>
@@ -94,12 +87,8 @@ export default function NoskyGlassSection() {
           {/* Card 3 */}
           <Link href="/product/nosky-manage" style={{ textDecoration: 'none' }}>
             <GlassCard className="platform-card" style={{ padding: 'var(--space-8)', height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <div className="card-icon" style={{ width: 72, height: 72, borderRadius: 'var(--radius-md)', background: 'var(--color-accent-light)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-6)' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 36, height: 36 }}>
-                  <rect x="3" y="7" width="18" height="13" rx="2"/>
-                  <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                  <path d="M3 13h18"/>
-                </svg>
+              <div className="card-icon" style={{ position: 'relative', width: '100%', height: 100, borderRadius: 'var(--radius-md)', background: 'transparent', marginBottom: 'var(--space-6)', overflow: 'hidden' }}>
+                <Image src="/logos/Manage  - White.png" alt="Nosky Manage 2.0" fill style={{ objectFit: 'contain', objectPosition: 'left center', transform: 'scale(1.6)', transformOrigin: 'left center' }} />
               </div>
               <div className="card-body" style={{ flexGrow: 1 }}>
                 <div className="card-eyebrow" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: 'var(--space-2)' }}>HR</div>
@@ -112,13 +101,8 @@ export default function NoskyGlassSection() {
           {/* Card 4 */}
           <Link href="/product/nosky-finvault" style={{ textDecoration: 'none' }}>
             <GlassCard className="platform-card" style={{ padding: 'var(--space-8)', height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <div className="card-icon" style={{ width: 72, height: 72, borderRadius: 'var(--radius-md)', background: 'var(--color-accent-light)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-6)' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 36, height: 36 }}>
-                  <rect x="4" y="4" width="16" height="16" rx="2"/>
-                  <path d="M12 8v6"/>
-                  <path d="M9 11h6"/>
-                  <path d="M8 18h8"/>
-                </svg>
+              <div className="card-icon" style={{ position: 'relative', width: '100%', height: 100, borderRadius: 'var(--radius-md)', background: 'transparent', marginBottom: 'var(--space-6)', overflow: 'hidden' }}>
+                <Image src="/logos/finvault-white.png" alt="Nosky Finvault" fill style={{ objectFit: 'contain', objectPosition: 'left center' }} />
               </div>
               <div className="card-body" style={{ flexGrow: 1 }}>
                 <div className="card-eyebrow" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: 'var(--space-2)' }}>Finance</div>

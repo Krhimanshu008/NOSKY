@@ -23,17 +23,17 @@ export default function Header() {
   }, [mobileOpen]);
 
   const productLinks = [
-    { label: 'Nosky Backup Pro', href: '/product/nosky-backup-pro' },
-    { label: 'Nosky CRM', href: '/product/nosky-crm' },
-    { label: 'Nosky Manage 2.0', href: '/product/nosky-manage' },
-    { label: 'Nosky Finvault', href: '/product/nosky-finvault' },
+    { label: 'Nosky Backup Pro', href: '/product/nosky-backup-pro', logo: '/logos/Layer-1.png' },
+    { label: 'Nosky CRM', href: '/product/nosky-crm', logo: null },
+    { label: 'Nosky Manage 2.0', href: '/product/nosky-manage', logo: '/logos/Manage  - White.png' },
+    { label: 'Nosky Finvault', href: '/product/nosky-finvault', logo: '/logos/finvault-white.png' },
   ];
 
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`} id="site-header">
       <div className="header-inner">
         <Link href="/" className="header-logo" aria-label="NoSky Home">
-          <Image src="/noskywhite.webp" alt="NoSky" width={100} height={28} priority />
+          <Image src="/noskywhite.webp" alt="NoSky" width={160} height={44} style={{ objectFit: 'contain' }} priority />
         </Link>
 
         <nav className="header-nav" aria-label="Main navigation">
@@ -50,7 +50,18 @@ export default function Header() {
             </span>
             <div className="nav-dropdown">
               {productLinks.map(link => (
-                <Link key={link.href} href={link.href}>{link.label}</Link>
+                <Link key={link.href} href={link.href} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {link.logo ? (
+                    <Image src={link.logo} alt="" width={24} height={24} style={{ objectFit: 'contain', flexShrink: 0 }} />
+                  ) : (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.6 }}>
+                      <circle cx="9" cy="8" r="3"/>
+                      <circle cx="17" cy="10" r="2.4"/>
+                      <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                    </svg>
+                  )}
+                  {link.label}
+                </Link>
               ))}
             </div>
           </div>

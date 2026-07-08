@@ -112,7 +112,7 @@ export default function HowItWorksTimeline() {
     <section className="how-section" id="how-it-works">
       {/* Background ambience */}
       <div className="how-bg-glow" aria-hidden="true"></div>
-      <div className="how-bg-grid" aria-hidden="true"></div>
+
 
       <div className="how-section-inner">
         <div className="how-head">

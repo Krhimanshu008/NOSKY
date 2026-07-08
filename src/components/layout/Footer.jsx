@@ -38,7 +38,7 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <Image src="/noskywhite.webp" alt="NoSky" width={100} height={28} />
+            <Image src="/noskywhite.webp" alt="NoSky" width={150} height={40} style={{ objectFit: 'contain' }} />
             <p>
               Automated cloud backup and ransomware recovery for small and mid-sized businesses. 
               Immutable by default. Recovery in minutes.
