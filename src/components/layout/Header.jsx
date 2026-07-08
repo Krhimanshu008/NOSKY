@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function Header() {
+export default function Header({ isAuthenticated }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -75,10 +75,11 @@ export default function Header() {
         </nav>
 
         <div className="header-actions">
-          <Link href="/admin" className="header-signin">Sign in</Link>
-          <Link href="/contact" className="btn btn-primary btn-sm">
-            Contact Sales <span className="btn-icon">→</span>
-          </Link>
+          {isAuthenticated ? (
+            <Link href="/admin/dashboard" className="header-signin">Dashboard</Link>
+          ) : (
+            <Link href="/admin" className="header-signin">Sign in</Link>
+          )}
         </div>
 
         <button

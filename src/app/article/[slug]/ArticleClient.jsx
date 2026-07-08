@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion } from 'framer-motion';
+import BackButton from '@/components/ui/BackButton';
 
 export default function ArticleClient({ article }) {
   const [isMobile, setIsMobile] = useState(false);
@@ -104,6 +105,7 @@ export default function ArticleClient({ article }) {
         )}
 
         <div style={{ marginBottom: 'var(--space-12)' }}>
+          <BackButton label="← Back" />
           <h1 style={{ fontSize: 'var(--text-4xl)', lineHeight: 1.15, marginBottom: 'var(--space-6)', fontWeight: '800', letterSpacing: '-0.02em', background: 'linear-gradient(to right, #fff, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             {article.title}
           </h1>
@@ -340,12 +342,22 @@ export default function ArticleClient({ article }) {
               color: var(--color-text-primary);
               font-weight: 600;
             }
+            .prose img {
+              max-width: 100px;
+              height: auto;
+              display: inline-block;
+              vertical-align: middle;
+              margin: 0 0.5rem;
+              border-radius: var(--radius-sm);
+              box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            }
           `}} />
 
           {/* Heading */}
           <div style={{ marginBottom: 'var(--space-8)' }}>
             {isScrolled ? (
               <>
+                <BackButton label="← Back" />
                 <motion.h1 
                   layoutId="article-title" 
                   transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} 

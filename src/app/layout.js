@@ -2,6 +2,7 @@ import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import GlobalAurora from '@/components/ui/GlobalAurora';
+import FloatingConnect from '@/components/ui/FloatingConnect';
 
 export const metadata = {
   title: {
@@ -82,9 +83,11 @@ const organizationSchema = {
     },
   ],
   sameAs: [
-    'https://linkedin.com/company/nosky',
-    'https://twitter.com/nosky_io',
-    'https://youtube.com/@nosky',
+    'https://www.facebook.com/elcomdigital',
+    'https://www.instagram.com/elcom.digital/',
+    'https://x.com/ElcomDigital22',
+    'https://www.linkedin.com/company/elcom-digital/',
+    'https://www.youtube.com/@ElcomDigital',
   ],
 };
 
@@ -128,7 +131,11 @@ const softwareSchema = {
   },
 };
 
-export default function RootLayout({ children }) {
+import { verifyAuth } from '@/lib/auth';
+
+export default async function RootLayout({ children }) {
+  const isAuthenticated = await verifyAuth();
+
   return (
     <html lang="en">
       <head>
@@ -147,9 +154,10 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <GlobalAurora />
-        <Header />
+        <Header isAuthenticated={isAuthenticated} />
         <main>{children}</main>
         <Footer />
+        <FloatingConnect />
       </body>
     </html>
   );

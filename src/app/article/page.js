@@ -12,7 +12,7 @@ export const metadata = {
 export default async function ArticlesPage() {
   const db = await getDb();
   
-  const articles = await db.all('SELECT * FROM Article WHERE published = 1 ORDER BY createdAt DESC');
+  const articles = await db.all("SELECT * FROM Article WHERE published = 1 AND category = 'article' ORDER BY createdAt DESC");
 
   return (
     <div className="container" style={{ padding: 'var(--space-12) 0', minHeight: '80vh' }}>

@@ -29,10 +29,18 @@ export async function getDb() {
       geoRegion TEXT,
       cityLocation TEXT,
       published INTEGER DEFAULT 0,
+      category TEXT DEFAULT 'article',
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
       updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+    // Safely add the 'category' column to existing DBs if it doesn't exist
+    try {
+      await db.exec(`ALTER TABLE Article ADD COLUMN category TEXT DEFAULT 'article'`);
+    } catch (err) {
+      // Ignore if column already exists (sqlite throws error if column exists)
+    }
 
     return db;
   })();

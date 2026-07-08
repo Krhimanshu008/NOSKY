@@ -16,12 +16,12 @@ export async function PUT(request, { params }) {
     await db.run(`
       UPDATE Article SET
         title = ?, slug = ?, content = ?, metaDescription = ?, metaKeywords = ?,
-        coverImage = ?, geoRegion = ?, cityLocation = ?, published = ?,
+        coverImage = ?, geoRegion = ?, cityLocation = ?, published = ?, category = ?,
         updatedAt = CURRENT_TIMESTAMP
       WHERE id = ?
     `, [
       body.title, body.slug, body.content, body.metaDescription, body.metaKeywords,
-      body.coverImage, body.geoRegion, body.cityLocation, body.published ? 1 : 0,
+      body.coverImage, body.geoRegion, body.cityLocation, body.published ? 1 : 0, body.category || 'article',
       id
     ]);
 

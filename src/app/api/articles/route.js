@@ -50,12 +50,12 @@ export async function POST(request) {
     const id = generateId();
     await db.run(`
       INSERT INTO Article (
-        id, title, slug, content, metaDescription, metaKeywords, coverImage, geoRegion, cityLocation, published
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        id, title, slug, content, metaDescription, metaKeywords, coverImage, geoRegion, cityLocation, published, category
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       id, body.title, slug, body.content, body.metaDescription || '', body.metaKeywords || '',
       body.coverImage || '', body.geoRegion || '', body.cityLocation || '',
-      body.published ? 1 : 0
+      body.published ? 1 : 0, body.category || 'article'
     ]);
 
     const article = await db.get('SELECT * FROM Article WHERE id = ?', [id]);

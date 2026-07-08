@@ -79,6 +79,7 @@ export default function AdminDashboard() {
                 <div>
                   <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-2)' }}>{article.title}</h3>
                   <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+                    <span style={{ textTransform: 'capitalize' }}>Type: {article.category || 'article'}</span>
                     <span>Status: {article.published ? <span style={{ color: 'var(--color-success)' }}>Published</span> : <span style={{ color: 'var(--color-accent)' }}>Draft</span>}</span>
                     <span>Date: {new Date(article.createdAt).toLocaleDateString()}</span>
                   </div>
