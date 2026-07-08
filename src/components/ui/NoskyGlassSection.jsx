@@ -24,8 +24,8 @@ export default function NoskyGlassSection() {
         <GlassCard className="hero-card" isHero={true} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: 'var(--space-6)', padding: 'var(--space-6) var(--space-8)', alignItems: 'center', margin: '0 auto var(--space-8)', maxWidth: '900px', position: 'relative' }}>
           <div className="hero-glow" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}></div>
           <div className="hero-icon-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1, padding: 'var(--space-4)' }}>
-            <div className="hero-icon" style={{ position: 'relative', width: '100%', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Image src="/noskywhite.webp" alt="Nosky Suite" fill style={{ objectFit: 'contain', objectPosition: 'center' }} />
+            <div className="hero-icon" style={{ position: 'relative', width: '100%', height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image src="/logos/SUITE.png" alt="Nosky Suite" fill style={{ objectFit: 'contain', objectPosition: 'center', transform: 'scale(1.4)' }} />
             </div>
           </div>
           <div className="hero-text" style={{ zIndex: 1 }}>
@@ -68,13 +68,8 @@ export default function NoskyGlassSection() {
           {/* Card 2 */}
           <Link href="/product/nosky-crm" style={{ textDecoration: 'none' }}>
             <GlassCard className="platform-card" style={{ padding: 'var(--space-8)', height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <div className="card-icon" style={{ width: 72, height: 72, borderRadius: 'var(--radius-md)', background: 'var(--color-accent-light)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-6)' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 36, height: 36 }}>
-                  <circle cx="9" cy="8" r="3"/>
-                  <circle cx="17" cy="10" r="2.4"/>
-                  <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
-                  <path d="M15 19c0-2.2 1.6-4 4-4s2 1.4 2 3"/>
-                </svg>
+              <div className="card-icon" style={{ position: 'relative', width: '100%', height: 100, borderRadius: 'var(--radius-md)', background: 'transparent', marginBottom: 'var(--space-6)', overflow: 'hidden' }}>
+                <Image src="/logos/CRM - White.png" alt="Nosky CRM" fill style={{ objectFit: 'contain', objectPosition: 'left center', transform: 'scale(1.3)', transformOrigin: 'left center' }} />
               </div>
               <div className="card-body" style={{ flexGrow: 1 }}>
                 <div className="card-eyebrow" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: 'var(--space-2)' }}>CRM</div>

@@ -24,7 +24,7 @@ export default function Header() {
 
   const productLinks = [
     { label: 'Nosky Backup Pro', href: '/product/nosky-backup-pro', logo: '/logos/Layer-1.png' },
-    { label: 'Nosky CRM', href: '/product/nosky-crm', logo: null },
+    { label: 'Nosky CRM', href: '/product/nosky-crm', logo: '/logos/CRM - White.png' },
     { label: 'Nosky Manage 2.0', href: '/product/nosky-manage', logo: '/logos/Manage  - White.png' },
     { label: 'Nosky Finvault', href: '/product/nosky-finvault', logo: '/logos/finvault-white.png' },
   ];
