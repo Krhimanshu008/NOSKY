@@ -5,8 +5,37 @@ import GlassCard from './GlassCard';
 
 export default function NoskyGlassSection() {
   return (
-    <section className="section platform-section" id="features">
-      <div className="container platform-section-inner">
+    <section className="section platform-section" id="features" style={{ 
+      position: 'relative', 
+      paddingTop: 'var(--space-24)', 
+      paddingBottom: 'var(--space-24)',
+      background: 'linear-gradient(180deg, #0a0d18 0%, #06070d 100%)',
+      overflow: 'hidden'
+    }}>
+      {/* Top Premium Divider */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '1px',
+        background: 'linear-gradient(90deg, transparent, rgba(245, 166, 35, 0.4), transparent)'
+      }} />
+
+      {/* Ambient Top Glow */}
+      <div style={{
+        position: 'absolute',
+        top: '-150px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '800px',
+        height: '400px',
+        background: 'radial-gradient(ellipse at center, rgba(245, 166, 35, 0.12) 0%, transparent 70%)',
+        pointerEvents: 'none',
+        zIndex: 0
+      }} />
+
+      <div className="container platform-section-inner" style={{ position: 'relative', zIndex: 1 }}>
         <div className="pill-wrap">
           <span className="pill">
             <span className="pill-dot"></span>

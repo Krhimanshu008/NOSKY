@@ -5,6 +5,7 @@ import NoskyGlassSection from '@/components/ui/NoskyGlassSection';
 import GlassCard from '@/components/ui/GlassCard';
 import HowItWorksTimeline from '@/components/ui/HowItWorksTimeline';
 import HomeClient from './HomeClient';
+import RansomwareReality from '@/components/ui/RansomwareReality';
 
 export const metadata = {
   title: 'NoSky — Cloud Backup & Ransomware Recovery for Small Businesses',
@@ -93,11 +94,9 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* BLOCK 2 — Trust Bar */}
-      <section className="section-sm section-border" id="trust-bar">
-        <div className="container" style={{ textAlign: 'center' }}>
+        
+        {/* Integrated Trust Bar at bottom of Hero */}
+        <div className="container" style={{ textAlign: 'center', marginTop: 'auto', paddingBottom: 'var(--space-8)' }}>
           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', marginBottom: 'var(--space-6)' }}>
             Trusted by 500+ businesses across India, MENA, and Southeast Asia
           </p>
@@ -127,57 +126,7 @@ export default function HomePage() {
       </section>
 
       {/* BLOCK 3 — Problem Statement */}
-      <section className="section section-alt" id="problem-statement">
-        <div className="container container-narrow" style={{ textAlign: 'center' }}>
-          <span className="badge badge-accent" style={{ marginBottom: 'var(--space-4)', display: 'inline-flex' }}>The Reality</span>
-          <h2 style={{ marginBottom: 'var(--space-6)' }}>
-            Every <span className="text-gradient">11 seconds</span>, a business is hit by ransomware.
-          </h2>
-          <p style={{ fontSize: 'var(--text-lg)', lineHeight: 'var(--leading-relaxed)', maxWidth: 700, margin: '0 auto' }}>
-            Ransomware attacks on SMBs rose 300% between 2022 and 2025 
-            (<a href="https://www.verizon.com/business/resources/reports/dbir/" target="_blank" rel="noopener noreferrer">Verizon DBIR 2025</a>). 
-            60% of small businesses close within six months of a major data-loss event 
-            (<a href="https://staysafeonline.org/" target="_blank" rel="noopener noreferrer">National Cyber Security Alliance</a>). 
-            And 85% of breaches involve a human element 
-            (<a href="https://www.verizon.com/business/resources/reports/dbir/" target="_blank" rel="noopener noreferrer">Verizon</a>). 
-            NoSky was built for this reality — automated, encrypted, immutable backups 
-            that restore your business in minutes, not days.
-          </p>
-        </div>
-      </section>
-
-      {/* BLOCK 4 — Value Props */}
-      <section className="section" id="value-props">
-        <div className="container">
-          <div className="grid grid-3">
-            <GlassCard className="card">
-              <div className="card-icon">🔐</div>
-              <h3 className="card-title">Immutable by default</h3>
-              <p className="card-desc">
-                Every backup is write-locked so ransomware cannot encrypt or delete 
-                your recovery point. Not even a compromised admin can alter your data.
-              </p>
-            </GlassCard>
-            <GlassCard className="card">
-              <div className="card-icon">⚡</div>
-              <h3 className="card-title">15-minute recovery</h3>
-              <p className="card-desc">
-                Restore any file, folder, or entire server in under 15 minutes 
-                with one-click restore. Get your business back online before 
-                anyone notices it was down.
-              </p>
-            </GlassCard>
-            <GlassCard className="card">
-              <div className="card-icon">🔄</div>
-              <h3 className="card-title">Set it and forget it</h3>
-              <p className="card-desc">
-                Continuous, incremental backups run silently in the background. 
-                Zero user action required after initial setup. Your data is always protected.
-              </p>
-            </GlassCard>
-          </div>
-        </div>
-      </section>
+      <RansomwareReality />
 
       {/* BLOCK 5 — How it Works */}
       <HowItWorksTimeline />
