@@ -13,21 +13,25 @@ export async function PUT(request, { params }) {
 
     const { id } = await params;
     const body = await request.json();
-    const db = await getDb();
+    const collection = await getDb();
 
-    await db.run(`
-      UPDATE Article SET
-        title = ?, slug = ?, content = ?, metaDescription = ?, metaKeywords = ?,
-        coverImage = ?, geoRegion = ?, cityLocation = ?, published = ?, category = ?,
-        updatedAt = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `, [
-      body.title, body.slug, body.content, body.metaDescription, body.metaKeywords,
-      body.coverImage, body.geoRegion, body.cityLocation, body.published ? 1 : 0, body.category || 'article',
-      id
-    ]);
+    await collection.updateOne({ id }, {
+      $set: {
+        title: body.title,
+        slug: body.slug,
+        content: body.content,
+        metaDescription: body.metaDescription,
+        metaKeywords: body.metaKeywords,
+        coverImage: body.coverImage,
+        geoRegion: body.geoRegion,
+        cityLocation: body.cityLocation,
+        published: body.published ? 1 : 0,
+        category: body.category || 'article',
+        updatedAt: new Date()
+      }
+    });
 
-    const article = await db.get('SELECT * FROM Article WHERE id = ?', [id]);
+    const article = await collection.findOne({ id });
     if (article) article.published = Boolean(article.published);
 
     // Invalidate caches and trigger ISR revalidation
@@ -55,12 +59,12 @@ export async function DELETE(request, { params }) {
     }
 
     const { id } = await params;
-    const db = await getDb();
+    const collection = await getDb();
     
     // Get slug before deleting for cache invalidation
-    const article = await db.get('SELECT slug FROM Article WHERE id = ?', [id]);
+    const article = await collection.findOne({ id }, { projection: { slug: 1 } });
     
-    await db.run('DELETE FROM Article WHERE id = ?', [id]);
+    await collection.deleteOne({ id });
 
     // Invalidate all content caches
     cache.invalidatePrefix('articles:');

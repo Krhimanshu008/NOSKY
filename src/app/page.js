@@ -56,11 +56,12 @@ const faqItems = [
 ];
 
 export default async function Home() {
-  const db = await getDb();
+  const collection = await getDb();
   
-  // Fetch top 5 latest articles and achievements for the carousel
-  const latestArticles = await db.all("SELECT * FROM Article WHERE published = 1 AND category = 'article' ORDER BY createdAt DESC LIMIT 5");
-  const latestAchievements = await db.all("SELECT * FROM Article WHERE published = 1 AND category = 'achievement' ORDER BY createdAt DESC LIMIT 5");
+  // Fetch latest 5 articles
+  const latestArticles = await collection.find({ published: 1, category: 'article' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray();
+  // Fetch latest 5 achievements
+  const latestAchievements = await collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray();
 
   return (
     <>

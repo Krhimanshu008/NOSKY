@@ -22,10 +22,8 @@ export default async function sitemap() {
   // Dynamic pages from database
   let articlePages = [];
   try {
-    const db = await getDb();
-    const articles = await db.all(
-      "SELECT slug, category, updatedAt FROM Article WHERE published = 1 ORDER BY createdAt DESC"
-    );
+    const collection = await getDb();
+    const articles = await collection.find({ published: 1 }).sort({ createdAt: -1 }).toArray();
 
     articlePages = articles.map((article) => {
       const prefix = article.category === 'achievement' ? 'achievement' : 'article';

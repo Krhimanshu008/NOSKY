@@ -10,16 +10,16 @@ export async function GET(request) {
 
   try {
     const isAdmin = await verifyAuth();
-    const db = await getDb();
+    const collection = await getDb();
     
     let articles;
     if (isAdmin && includeUnpublished) {
-      articles = await db.all('SELECT * FROM Article ORDER BY createdAt DESC');
+      articles = await collection.find({}).sort({ createdAt: -1 }).toArray();
     } else {
-      articles = await db.all('SELECT * FROM Article WHERE published = 1 ORDER BY createdAt DESC');
+      articles = await collection.find({ published: 1 }).sort({ createdAt: -1 }).toArray();
     }
     
-    // SQLite stores booleans as 0/1, map them to true/false
+    // Convert to boolean for frontend
     articles = articles.map(a => ({
       ...a,
       published: Boolean(a.published)
@@ -40,27 +40,35 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const db = await getDb();
+    const collection = await getDb();
     
     let slug = body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     
-    const existing = await db.get('SELECT id FROM Article WHERE slug = ?', [slug]);
+    const existing = await collection.findOne({ slug });
     if (existing) {
       slug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
     }
 
     const id = generateId();
-    await db.run(`
-      INSERT INTO Article (
-        id, title, slug, content, metaDescription, metaKeywords, coverImage, geoRegion, cityLocation, published, category
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      id, body.title, slug, body.content, body.metaDescription || '', body.metaKeywords || '',
-      body.coverImage || '', body.geoRegion || '', body.cityLocation || '',
-      body.published ? 1 : 0, body.category || 'article'
-    ]);
+    const newArticle = {
+      id,
+      title: body.title,
+      slug,
+      content: body.content,
+      metaDescription: body.metaDescription || '',
+      metaKeywords: body.metaKeywords || '',
+      coverImage: body.coverImage || '',
+      geoRegion: body.geoRegion || '',
+      cityLocation: body.cityLocation || '',
+      published: body.published ? 1 : 0,
+      category: body.category || 'article',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    await collection.insertOne(newArticle);
 
-    const article = await db.get('SELECT * FROM Article WHERE id = ?', [id]);
+    const article = await collection.findOne({ id });
     if (article) article.published = Boolean(article.published);
 
     // Invalidate caches and trigger ISR revalidation

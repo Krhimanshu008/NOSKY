@@ -17,8 +17,8 @@ async function getAchievements() {
   const cached = cache.get(cacheKey);
   if (cached) return cached;
 
-  const db = await getDb();
-  const articles = await db.all("SELECT * FROM Article WHERE published = 1 AND category = 'achievement' ORDER BY createdAt DESC");
+  const collection = await getDb();
+  const articles = await collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).toArray();
 
   cache.set(cacheKey, articles, CACHE_TTL.ACHIEVEMENTS_LIST);
   return articles;

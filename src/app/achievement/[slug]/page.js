@@ -9,10 +9,8 @@ export const revalidate = 300;
 // Pre-generate the most recent achievements at build time
 export async function generateStaticParams() {
   try {
-    const db = await getDb();
-    const articles = await db.all(
-      "SELECT slug FROM Article WHERE published = 1 AND category = 'achievement' ORDER BY createdAt DESC LIMIT 20"
-    );
+    const collection = await getDb();
+    const articles = await collection.find({ published: 1, category: 'achievement' }).sort({ createdAt: -1 }).limit(20).project({ slug: 1 }).toArray();
     return articles.map((a) => ({ slug: a.slug }));
   } catch {
     return [];
@@ -24,8 +22,8 @@ async function getAchievementBySlug(slug) {
   const cached = cache.get(cacheKey);
   if (cached) return cached;
 
-  const db = await getDb();
-  const article = await db.get('SELECT * FROM Article WHERE slug = ?', [slug]);
+  const collection = await getDb();
+  const article = await collection.findOne({ slug }, { projection: { _id: 0 } });
 
   if (article) {
     cache.set(cacheKey, article, CACHE_TTL.ACHIEVEMENT_DETAIL);
