@@ -11,7 +11,7 @@ import InsightsCarousel from '@/components/ui/InsightsCarousel';
 import DelayedPrefetch from '@/components/ui/DelayedPrefetch';
 
 export const metadata = {
-  title: 'NoSky — Cloud Backup & Ransomware Recovery for Small Businesses',
+  title: 'NoSky',
   description: 'NoSky protects SMB data with automated cloud backup, immutable storage, and 15-minute ransomware recovery. Start a free 14-day trial. No credit card required.',
 };
 

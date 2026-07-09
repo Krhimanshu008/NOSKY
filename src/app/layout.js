@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata = {
   title: {
-    default: 'NoSky — Cloud Backup & Ransomware Recovery for Small Businesses',
+    default: 'NoSky',
     template: '%s | NoSky',
   },
   description: 'NoSky protects SMB data with automated cloud backup, immutable storage, and 15-minute ransomware recovery. Contact us for a free demo.',
@@ -54,9 +54,6 @@ export const metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  icons: {
-    icon: '/favicon.ico',
   },
 };
 
