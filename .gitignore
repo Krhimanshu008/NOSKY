@@ -44,4 +44,6 @@ next-env.d.ts
 # ignore zip and db files
 *.zip
 *.db
+*.db-shm
+*.db-wal
 backup_unnecessary_files/

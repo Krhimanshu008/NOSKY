@@ -1,13 +1,41 @@
 import { notFound } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import ArticleClient from './ArticleClient';
+import cache, { CACHE_TTL, CACHE_KEYS } from '@/lib/cache';
 
-export const dynamic = 'force-dynamic';
+// ISR: rebuild individual articles every 5 minutes
+export const revalidate = 300;
+
+// Pre-generate the most recent articles at build time
+export async function generateStaticParams() {
+  try {
+    const db = await getDb();
+    const articles = await db.all(
+      "SELECT slug FROM Article WHERE published = 1 AND category = 'article' ORDER BY createdAt DESC LIMIT 20"
+    );
+    return articles.map((a) => ({ slug: a.slug }));
+  } catch {
+    return [];
+  }
+}
+
+async function getArticleBySlug(slug) {
+  const cacheKey = CACHE_KEYS.articleBySlug(slug);
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
+  const db = await getDb();
+  const article = await db.get('SELECT * FROM Article WHERE slug = ?', [slug]);
+
+  if (article) {
+    cache.set(cacheKey, article, CACHE_TTL.ARTICLE_DETAIL);
+  }
+  return article;
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const db = await getDb();
-  const article = await db.get('SELECT * FROM Article WHERE slug = ?', [slug]);
+  const article = await getArticleBySlug(slug);
 
   if (!article) return { title: 'Article Not Found' };
 
@@ -28,8 +56,7 @@ export async function generateMetadata({ params }) {
 
 export default async function ArticleSinglePage({ params }) {
   const { slug } = await params;
-  const db = await getDb();
-  const article = await db.get('SELECT * FROM Article WHERE slug = ?', [slug]);
+  const article = await getArticleBySlug(slug);
 
   if (!article || !article.published) {
     notFound();

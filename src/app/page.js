@@ -88,38 +88,45 @@ export default function HomePage() {
                   <span className="pill-dot"></span> 256-bit encryption
                 </span>
               </div>
+              
+              {/* Integrated Trust Bar at bottom of Hero Content */}
+              <div style={{ textAlign: 'left', marginTop: 'var(--space-10)' }}>
+                <p style={{ 
+                  fontSize: '11px', 
+                  color: 'var(--color-text-muted)', 
+                  marginBottom: 'var(--space-3)', 
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  Trusted by 500+ businesses across India, MENA, and Southeast Asia
+                </p>
+                <div className="trust-bar" style={{ justifyContent: 'flex-start', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
+                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🔒</span>
+                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>ISO 27001</span>
+                  </div>
+                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
+                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🛡️</span>
+                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>SOC 2</span>
+                  </div>
+                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
+                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🇪🇺</span>
+                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>GDPR</span>
+                  </div>
+                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
+                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🏥</span>
+                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>HIPAA</span>
+                  </div>
+                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
+                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🇮🇳</span>
+                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>DPDP Act</span>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="hero-visual">
               <HomeClient />
-            </div>
-          </div>
-        </div>
-        
-        {/* Integrated Trust Bar at bottom of Hero */}
-        <div className="container" style={{ textAlign: 'center', marginTop: 'auto', paddingBottom: 'var(--space-8)' }}>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', marginBottom: 'var(--space-6)' }}>
-            Trusted by 500+ businesses across India, MENA, and Southeast Asia
-          </p>
-          <div className="trust-bar">
-            <div className="cert-badge glass" style={{ flexDirection: 'row', padding: 'var(--space-3) var(--space-5)' }}>
-              <span className="cert-badge-icon" style={{ width: 32, height: 32, fontSize: 'var(--text-sm)' }}>🔒</span>
-              <span className="cert-badge-label">ISO 27001</span>
-            </div>
-            <div className="cert-badge glass" style={{ flexDirection: 'row', padding: 'var(--space-3) var(--space-5)' }}>
-              <span className="cert-badge-icon" style={{ width: 32, height: 32, fontSize: 'var(--text-sm)' }}>🛡️</span>
-              <span className="cert-badge-label">SOC 2 Type II</span>
-            </div>
-            <div className="cert-badge glass" style={{ flexDirection: 'row', padding: 'var(--space-3) var(--space-5)' }}>
-              <span className="cert-badge-icon" style={{ width: 32, height: 32, fontSize: 'var(--text-sm)' }}>🇪🇺</span>
-              <span className="cert-badge-label">GDPR</span>
-            </div>
-            <div className="cert-badge glass" style={{ flexDirection: 'row', padding: 'var(--space-3) var(--space-5)' }}>
-              <span className="cert-badge-icon" style={{ width: 32, height: 32, fontSize: 'var(--text-sm)' }}>🏥</span>
-              <span className="cert-badge-label">HIPAA</span>
-            </div>
-            <div className="cert-badge glass" style={{ flexDirection: 'row', padding: 'var(--space-3) var(--space-5)' }}>
-              <span className="cert-badge-icon" style={{ width: 32, height: 32, fontSize: 'var(--text-sm)' }}>🇮🇳</span>
-              <span className="cert-badge-label">DPDP Act</span>
             </div>
           </div>
         </div>

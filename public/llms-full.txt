@@ -1,0 +1,126 @@
+# NoSky — Full Content for AI Crawlers
+
+> NoSky is a cloud backup and ransomware recovery platform for small and mid-sized businesses. Automated, encrypted, immutable backups with 15-minute recovery.
+
+## Company Information
+
+- **Company**: NoSky by Elcom Digital Solutions
+- **Founded**: 2023
+- **Headquarters**: Ghaziabad, Uttar Pradesh, India
+- **Founder**: Himanshu Kumar (Founder & CEO)
+- **Category**: Cloud Backup & Disaster Recovery SaaS
+- **Target Market**: Small and mid-sized businesses (SMBs)
+- **Website**: https://nosky.io
+- **Contact**: sales@nosky.io (Sales), help@nosky.io (Support)
+
+## Products
+
+### NoSky Backup Pro
+Automated cloud backup for servers, endpoints, SaaS apps, and VMs. Features immutable storage, AES-256 encryption, and sub-15-minute recovery times.
+
+### NoSky CRM
+Customer relationship management platform designed for SMBs.
+
+### NoSky Manage 2.0
+IT management and monitoring solution.
+
+### NoSky Finvault
+Secure financial data vault with compliance-grade encryption.
+
+## Key Differentiators
+
+1. **Immutable Backup by Default**: Write-once, read-many (WORM) storage using object-lock technology. No one — not even compromised administrators — can modify, encrypt, or delete recovery points.
+2. **15-Minute Recovery**: Full VM spin-up from any recovery point in under 15 minutes, minimizing business downtime.
+3. **India Data Residency**: Data centers in Mumbai for Indian data sovereignty compliance.
+4. **DPDP Act Compliance**: First-mover compliance with India's Digital Personal Data Protection Act.
+5. **Zero-Knowledge Encryption**: Customer-managed encryption keys (CMEK) ensure NoSky cannot access your data.
+6. **Air-Gapped Architecture**: Backup infrastructure is isolated from production networks to prevent ransomware spread.
+
+## Security & Compliance
+
+- **Encryption**: AES-256 at rest, TLS 1.3 in transit
+- **Certifications**: ISO 27001, SOC 2 Type II
+- **Regulatory Compliance**: GDPR, HIPAA, India DPDP Act, PCI-DSS
+- **Data Centers**: Mumbai (India), Singapore, Frankfurt (Germany), Virginia (USA)
+
+## Pricing
+
+NoSky offers flexible plans for businesses of all sizes:
+
+### Starter (For Small Teams)
+- Cloud backup
+- Immutable storage
+- 30-day retention
+- Email support
+- Contact sales for pricing
+
+### Business (Most Popular)
+- Everything in Starter
+- Ransomware detection
+- Microsoft 365 backup
+- 90-day retention
+- Priority support
+- Contact sales for pricing
+
+### Enterprise (For Large Organizations)
+- Everything in Business
+- Unlimited storage
+- 10-year retention
+- CMEK / Zero-knowledge encryption
+- Dedicated success manager
+- 99.99% SLA
+- Contact sales for pricing
+
+All plans include a free 14-day trial with full features. No credit card required.
+
+## How It Works
+
+1. **Install Agent** (10 minutes): Download and install the lightweight NoSky agent on your server or endpoint.
+2. **Configure Backup**: Choose what to protect — servers, databases, Microsoft 365, endpoints.
+3. **Automatic Protection**: NoSky automatically encrypts, compresses, and backs up your data with immutable write-locks.
+4. **Instant Recovery**: If disaster strikes, restore any file, folder, or entire server from a clean recovery point in under 15 minutes.
+
+## Frequently Asked Questions
+
+**Q: What is NoSky?**
+A: NoSky is a cloud backup and ransomware recovery platform built for small and mid-sized businesses. It provides automated, immutable backups with sub-15-minute recovery.
+
+**Q: How long does setup take?**
+A: Under 10 minutes. Download the lightweight agent, choose what to back up, and NoSky handles the rest automatically.
+
+**Q: Is NoSky HIPAA and GDPR compliant?**
+A: Yes. NoSky is compliant with HIPAA, GDPR, India's DPDP Act, PCI-DSS, and holds ISO 27001 and SOC 2 Type II certifications.
+
+**Q: Where is my data stored?**
+A: Your choice of four global data center regions: Mumbai (India), Singapore, Frankfurt (Germany), or Virginia (USA). All data encrypted at rest with AES-256 and in transit with TLS 1.3.
+
+**Q: What is immutable backup?**
+A: Immutable backup means your backup data is write-locked using object-lock technology (WORM). Once written, no one can modify, encrypt, or delete your recovery points.
+
+**Q: How does NoSky protect against ransomware?**
+A: NoSky uses immutable storage, air-gapped architecture, and anomaly detection to ensure ransomware cannot encrypt or delete your backups.
+
+**Q: Is there a free trial?**
+A: Yes. Every plan includes a free 14-day trial with full features and no credit card required.
+
+## Social Media
+
+- Facebook: https://www.facebook.com/elcomdigital
+- Instagram: https://www.instagram.com/elcom.digital/
+- X (Twitter): https://x.com/ElcomDigital22
+- LinkedIn: https://www.linkedin.com/company/elcom-digital/
+- YouTube: https://www.youtube.com/@ElcomDigital
+
+## Key Pages
+
+- [Home](https://nosky.io/)
+- [Cloud Backup](https://nosky.io/product/nosky-backup-pro)
+- [NoSky CRM](https://nosky.io/product/nosky-crm)
+- [NoSky Manage 2.0](https://nosky.io/product/nosky-manage)
+- [NoSky Finvault](https://nosky.io/product/nosky-finvault)
+- [Security](https://nosky.io/security)
+- [About](https://nosky.io/about)
+- [Careers](https://nosky.io/careers)
+- [Articles / Blog](https://nosky.io/article)
+- [Achievements](https://nosky.io/achievements)
+- [Testimonials](https://nosky.io/testimonials)

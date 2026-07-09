@@ -1,8 +1,22 @@
 import './globals.css';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import GlobalAurora from '@/components/ui/GlobalAurora';
 import FloatingConnect from '@/components/ui/FloatingConnect';
+
+// Self-hosted Google Fonts via next/font — no render-blocking CSS import
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata = {
   title: {
@@ -131,13 +145,9 @@ const softwareSchema = {
   },
 };
 
-import { verifyAuth } from '@/lib/auth';
-
-export default async function RootLayout({ children }) {
-  const isAuthenticated = await verifyAuth();
-
+export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         <script
           type="application/ld+json"
@@ -154,7 +164,7 @@ export default async function RootLayout({ children }) {
       </head>
       <body>
         <GlobalAurora />
-        <Header isAuthenticated={isAuthenticated} />
+        <Header />
         <main>{children}</main>
         <Footer />
         <FloatingConnect />

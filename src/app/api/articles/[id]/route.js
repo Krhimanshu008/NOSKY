@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { verifyAuth } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
+import cache from '@/lib/cache';
 
 export async function PUT(request, { params }) {
   try {
@@ -28,6 +30,16 @@ export async function PUT(request, { params }) {
     const article = await db.get('SELECT * FROM Article WHERE id = ?', [id]);
     if (article) article.published = Boolean(article.published);
 
+    // Invalidate caches and trigger ISR revalidation
+    cache.invalidatePrefix('articles:');
+    cache.invalidatePrefix('achievements:');
+    revalidatePath('/article');
+    revalidatePath('/achievements');
+    if (article) {
+      revalidatePath(`/article/${article.slug}`);
+      revalidatePath(`/achievement/${article.slug}`);
+    }
+
     return NextResponse.json(article);
   } catch (error) {
     console.error('Error updating article:', error);
@@ -45,7 +57,20 @@ export async function DELETE(request, { params }) {
     const { id } = await params;
     const db = await getDb();
     
+    // Get slug before deleting for cache invalidation
+    const article = await db.get('SELECT slug FROM Article WHERE id = ?', [id]);
+    
     await db.run('DELETE FROM Article WHERE id = ?', [id]);
+
+    // Invalidate all content caches
+    cache.invalidatePrefix('articles:');
+    cache.invalidatePrefix('achievements:');
+    revalidatePath('/article');
+    revalidatePath('/achievements');
+    if (article) {
+      revalidatePath(`/article/${article.slug}`);
+      revalidatePath(`/achievement/${article.slug}`);
+    }
 
     return NextResponse.json({ success: true, message: 'Article deleted' });
   } catch (error) {

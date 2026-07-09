@@ -1,18 +1,31 @@
 import Link from 'next/link';
 import { getDb } from '@/lib/db';
 import { format } from 'date-fns';
+import cache, { CACHE_TTL, CACHE_KEYS } from '@/lib/cache';
+import FadeImage from '@/components/ui/FadeImage';
 
-export const dynamic = 'force-dynamic';
+// ISR: rebuild this page at most every 60 seconds
+export const revalidate = 60;
 
 export const metadata = {
   title: 'Articles & Blog | NoSky Cloud Backup',
   description: 'Read the latest insights on cloud backup, ransomware protection, and data security from the NoSky team.',
 };
 
-export default async function ArticlesPage() {
+async function getArticles() {
+  const cacheKey = CACHE_KEYS.articlesList();
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   const db = await getDb();
-  
   const articles = await db.all("SELECT * FROM Article WHERE published = 1 AND category = 'article' ORDER BY createdAt DESC");
+
+  cache.set(cacheKey, articles, CACHE_TTL.ARTICLES_LIST);
+  return articles;
+}
+
+export default async function ArticlesPage() {
+  const articles = await getArticles();
 
   return (
     <div className="container" style={{ padding: 'var(--space-12) 0', minHeight: '80vh' }}>
@@ -31,7 +44,16 @@ export default async function ArticlesPage() {
             <Link key={article.id} href={`/article/${article.slug}`} style={{ textDecoration: 'none' }}>
               <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 {article.coverImage && (
-                  <div style={{ height: '200px', background: `url(${article.coverImage}) center/cover no-repeat`, margin: 'calc(var(--space-6) * -1) calc(var(--space-6) * -1) var(--space-4)', borderTopLeftRadius: 'var(--radius-lg)', borderTopRightRadius: 'var(--radius-lg)' }} />
+                  <div style={{ height: '200px', position: 'relative', margin: 'calc(var(--space-6) * -1) calc(var(--space-6) * -1) var(--space-4)', borderTopLeftRadius: 'var(--radius-lg)', borderTopRightRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                    <FadeImage
+                      src={article.coverImage}
+                      alt={article.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      style={{ objectFit: 'cover' }}
+                      loading="lazy"
+                    />
+                  </div>
                 )}
                 <h3 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-2)' }}>{article.title}</h3>
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)', flex: 1, marginBottom: 'var(--space-4)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>

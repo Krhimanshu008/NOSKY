@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getDb, generateId } from '@/lib/db';
 import { verifyAuth } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
+import cache from '@/lib/cache';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -60,6 +62,16 @@ export async function POST(request) {
 
     const article = await db.get('SELECT * FROM Article WHERE id = ?', [id]);
     if (article) article.published = Boolean(article.published);
+
+    // Invalidate caches and trigger ISR revalidation
+    cache.invalidatePrefix('articles:');
+    cache.invalidatePrefix('achievements:');
+    revalidatePath('/article');
+    revalidatePath('/achievements');
+    if (article) {
+      revalidatePath(`/article/${article.slug}`);
+      revalidatePath(`/achievement/${article.slug}`);
+    }
 
     return NextResponse.json(article, { status: 201 });
   } catch (error) {

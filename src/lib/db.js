@@ -3,19 +3,31 @@ import { open } from 'sqlite';
 import path from 'path';
 import crypto from 'crypto';
 
+/**
+ * Get the database connection. Schema initialization only runs once
+ * per process lifetime via the _dbInitialized flag.
+ */
 export async function getDb() {
-  // Return the existing promise if it's already initializing/initialized
+  // Fast path: return existing connection if already initialized
+  if (globalThis._dbPromise && globalThis._dbInitialized) {
+    return globalThis._dbPromise;
+  }
+
+  // Return in-progress initialization if it's already started
   if (globalThis._dbPromise) {
     return globalThis._dbPromise;
   }
   
-  // Cache the initialization promise globally to survive hot-reloads
-  // and prevent concurrent requests from trying to create multiple connections
+  // First call: open connection + run schema setup once
   globalThis._dbPromise = (async () => {
     const db = await open({
       filename: path.join(process.cwd(), 'dev.db'),
       driver: sqlite3.Database
     });
+
+    // Enable WAL mode for better concurrent read performance
+    await db.exec('PRAGMA journal_mode=WAL');
+    await db.exec('PRAGMA cache_size=2000');
 
     await db.exec(`
     CREATE TABLE IF NOT EXISTS Article (
@@ -42,6 +54,7 @@ export async function getDb() {
       // Ignore if column already exists (sqlite throws error if column exists)
     }
 
+    globalThis._dbInitialized = true;
     return db;
   })();
 

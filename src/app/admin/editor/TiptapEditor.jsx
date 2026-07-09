@@ -127,7 +127,7 @@ export default function TiptapEditor({ initialMarkdown, onChange }) {
           border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
         }
         .tiptap-content-wrapper .ProseMirror img {
-          max-width: 100px;
+          width: 200px;
           height: auto;
           display: inline-block;
           vertical-align: middle;

@@ -323,7 +323,34 @@ export default function ArticleEditor({ params }) {
             </div>
             
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} data-color-mode="dark">
-              <label style={{ display: 'block', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: '600' }}>Content (Markdown) *</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+                <label style={{ fontSize: 'var(--text-sm)', fontWeight: '600', margin: 0 }}>Content (Markdown) *</label>
+                {formData.content && formData.content.trim().length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsContentAIOpen(true);
+                      setContentAIPrompt('Refine the current content to be more professional and well-structured, fixing any grammar issues.');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 'var(--radius-full)',
+                      padding: '4px 12px',
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    ✨ Refine Content
+                  </button>
+                )}
+              </div>
               {isFetching ? (
                 <div style={{ padding: '2rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text-muted)' }}>Loading content...</div>
               ) : (
@@ -354,7 +381,7 @@ export default function ArticleEditor({ params }) {
               </label>
               
               {formData.coverImage ? (
-                <div style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-sm)', background: `url(${formData.coverImage}) center/cover no-repeat`, border: '1px solid var(--color-border)' }} />
+                <div style={{ width: '200px', height: '200px', borderRadius: 'var(--radius-sm)', background: `url(${formData.coverImage}) center/cover no-repeat`, border: '1px solid var(--color-border)' }} />
               ) : (
                 <div>
                   <input type="file" accept="image/*" onChange={handleCoverUpload} style={{ ...inputStyle, padding: 'var(--space-2)', fontSize: '12px' }} disabled={isUploadingImage} />

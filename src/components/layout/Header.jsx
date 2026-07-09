@@ -1,12 +1,33 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function Header({ isAuthenticated }) {
+export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Check auth state client-side (lightweight, doesn't block SSR/ISR)
+  useEffect(() => {
+    fetch('/api/auth/check')
+      .then(res => res.json())
+      .then(data => setIsAuthenticated(data.authenticated))
+      .catch(() => setIsAuthenticated(false));
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -74,11 +95,16 @@ export default function Header({ isAuthenticated }) {
           <Link href="/security" className="nav-link">Security</Link>
         </nav>
 
-        <div className="header-actions">
+        <div className="header-actions" style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
           {isAuthenticated ? (
-            <Link href="/admin/dashboard" className="header-signin">Dashboard</Link>
+            <>
+              <Link href="/admin/dashboard" className="nav-link" style={{ fontSize: '13px' }}>Dashboard</Link>
+              <button onClick={handleLogout} className="header-signin" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-danger)' }}>Logout</button>
+            </>
           ) : (
-            <Link href="/admin" className="header-signin">Sign in</Link>
+            pathname !== '/admin' && (
+              <Link href="/admin" className="header-signin">Sign in</Link>
+            )
           )}
         </div>
 

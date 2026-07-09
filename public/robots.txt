@@ -19,5 +19,14 @@ Allow: /
 
 User-agent: Bytespider
 Allow: /
+Crawl-delay: 1
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Block admin routes from crawlers
+User-agent: *
+Disallow: /admin
+Disallow: /api
 
 Sitemap: https://nosky.io/sitemap.xml
