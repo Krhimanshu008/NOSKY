@@ -8,6 +8,7 @@ import HomeClient from './HomeClient';
 import RansomwareReality from '@/components/ui/RansomwareReality';
 import { getDb } from '@/lib/db';
 import InsightsCarousel from '@/components/ui/InsightsCarousel';
+import DelayedPrefetch from '@/components/ui/DelayedPrefetch';
 
 export const metadata = {
   title: 'NoSky — Cloud Backup & Ransomware Recovery for Small Businesses',
@@ -63,8 +64,16 @@ export default async function Home() {
   // Fetch latest 5 achievements
   const latestAchievements = await collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray();
 
+  const prefetchRoutes = [
+    '/achievements',
+    '/article',
+    ...latestArticles.map(a => `/article/${a.slug}`),
+    ...latestAchievements.map(a => `/achievement/${a.slug}`)
+  ];
+
   return (
     <>
+      <DelayedPrefetch routes={prefetchRoutes} delay={5000} />
       {/* BLOCK 1 — Hero */}
       <section className="hero" id="hero">
         <div className="container">
