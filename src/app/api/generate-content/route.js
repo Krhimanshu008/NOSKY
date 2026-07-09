@@ -51,7 +51,7 @@ export async function POST(request) {
     },
     "content": {
       "type": "string",
-      "description": "The full article content formatted in Markdown."
+      "description": "The full article content formatted in Markdown. Do NOT include the title as a heading inside this content body."
     }
   },
   "required": ["title", "slug", "content"]

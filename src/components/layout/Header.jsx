@@ -50,6 +50,15 @@ export default function Header() {
     { label: 'Nosky Finvault', href: '/product/nosky-finvault', logo: '/logos/finvault-white.png' },
   ];
 
+  // Hide the global public Header on admin routes and reading pages
+  if (
+    pathname?.startsWith('/admin') ||
+    (pathname?.startsWith('/article/') && pathname !== '/article') ||
+    (pathname?.startsWith('/achievement/') && pathname !== '/achievements')
+  ) {
+    return null;
+  }
+
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`} id="site-header">
       <div className="header-inner">

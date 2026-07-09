@@ -4,20 +4,41 @@ import { useState, useEffect, useRef } from 'react';
 
 export default function HomeClient() {
   const [backupCount, setBackupCount] = useState(0);
-  const [currentAction, setCurrentAction] = useState('Encrypting...');
-  const [progress, setProgress] = useState(0);
   const [networkSpeed, setNetworkSpeed] = useState({ up: 450, down: 12 });
+  const [totalStorageGB, setTotalStorageGB] = useState(45200);
   
   // Track active backup with target and current size
   // Unified state for backups to prevent StrictMode side-effect duplication
   const [backupState, setBackupState] = useState({
     active: { name: 'file-share', current: 4.2, target: 7.5 },
     completed: [
+      { name: 'archive-vol-1', size: '12.8 GB', status: '✓' },
+      { name: 'redis-memory-dump', size: '4.1 GB', status: '✓' },
       { name: 'production-db', size: '2.4 GB', status: '✓' },
       { name: 'mail-server', size: '890 MB', status: '✓' },
+    ],
+    logs: [
+      { id: 1, time: '10:42:01', type: '[SYSTEM]', color: 'var(--color-success)', message: 'production-db object-lock applied (7 days)', highlight: true },
+      { id: 2, time: '10:41:15', type: '[AUTH]', color: 'var(--color-blue)', message: 'Access key rotated (user: admin@nosky)', highlight: false },
+      { id: 3, time: '10:35:12', type: '[BACKUP]', color: 'var(--color-success)', message: 'file-share incremental backup completed (45MB)', highlight: true },
+      { id: 4, time: '10:15:00', type: '[SYSTEM]', color: 'var(--color-blue)', message: 'Integrity check passed for 14 workloads', highlight: false },
+      { id: 5, time: '09:55:22', type: '[ALERT]', color: 'var(--color-accent)', message: '⚠ Unusual read volume detected on mail-server (Investigating)', highlight: true, bg: 'rgba(245, 166, 35, 0.05)' },
+      { id: 6, time: '09:56:05', type: '[SYSTEM]', color: 'var(--color-success)', message: 'Threat neutralized. No ransomware signatures found.', highlight: false }
     ]
   });
   
+  // Derived state for synchronized animation
+  const percentage = Math.min(100, (backupState.active.current / backupState.active.target) * 100);
+  const progress = percentage;
+  let currentAction = 'Encrypting...';
+  if (percentage >= 100) currentAction = 'Complete ✓';
+  else if (percentage > 95) currentAction = 'Verifying integrity...';
+  else if (percentage > 40) currentAction = `Backing up... (${backupState.active.current.toFixed(1)} GB / ${backupState.active.target.toFixed(1)} GB)`;
+  else if (percentage > 20) currentAction = 'Write-locking...';
+  
+  const totalStorageTB = (totalStorageGB / 1000).toFixed(4);
+  const percentageStorage = Math.min(100, (totalStorageGB / 100000) * 100);
+
   const backupListRef = useRef(null);
   
   // Auto-scroll backup list to bottom when new items are added
@@ -34,6 +55,8 @@ export default function HomeClient() {
   const [isRotatingKey, setIsRotatingKey] = useState(false);
   const [keySuccess, setKeySuccess] = useState(false);
   const [masterKey, setMasterKey] = useState('nsk_live_8f7d6a5c4b3a2e1d0f9g8h7j6k5l4m3n2p1q');
+
+
 
   const handleRotateKey = () => {
     setIsRotatingKey(true);
@@ -60,22 +83,16 @@ export default function HomeClient() {
   useEffect(() => {
     const actions = ['Encrypting...', 'Backing up...', 'Verifying integrity...', 'Write-locking...', 'Complete ✓'];
     let actionIndex = 0;
-
-    const actionInterval = setInterval(() => {
-      actionIndex = (actionIndex + 1) % actions.length;
-      setCurrentAction(actions[actionIndex]);
-    }, 2000);
-
+    let taskIndex = 0;
+    
+    const taskNames = [
+      'archive-vol-3', 'media-assets', 'db-replica-2', 'user-uploads-04', 'analytics-dump',
+      'cdn-cache-nodes', 'auth-server-logs', 'crm-database-prod', 'payment-gateway-tx', 'k8s-cluster-state',
+      'legacy-storage-vm', 'syslog-archives', 'elasticsearch-index', 'redis-memory-dump', 'docker-registry-vol'
+    ];
     const countInterval = setInterval(() => {
       setBackupCount(prev => prev + Math.floor(Math.random() * 3) + 1);
     }, 3000);
-
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) return 0;
-        return prev + Math.random() * 15 + 5;
-      });
-    }, 1500);
 
     const networkInterval = setInterval(() => {
       const newUp = Math.floor(Math.random() * 150) + 350;
@@ -85,29 +102,45 @@ export default function HomeClient() {
       });
       
       setBackupState(prev => {
-        // networkSpeed is MB/s. Interval is 1.2s. Total MB transferred = newUp * 1.2
+        // networkSpeed is MB/s. Interval is 0.5s. Total MB transferred = newUp * 0.5
         // Convert to GB: MB / 1024
-        const increment = (newUp * 1.2) / 1024;
+        const increment = (newUp * 0.5) / 1024;
+        setTotalStorageGB(prev => prev + increment);
         const newCurrent = prev.active.current + increment;
         
-        // Rollover logic if it hits target
-        if (newCurrent >= prev.active.target) {
-          const names = ['archive-vol-3', 'media-assets', 'db-replica-2', 'user-uploads-04', 'analytics-dump'];
-          const randomName = names[Math.floor(Math.random() * names.length)];
-          const newTarget = Math.random() * (10 - 5) + 5; // 5-10 GB target
+        // Rollover logic: we let the current value overshoot the target by 0.6 to create a ~1.5s "Complete ✓" pause
+        if (newCurrent >= prev.active.target + 0.6) {
+          const nextName = taskNames[taskIndex];
+          taskIndex = (taskIndex + 1) % taskNames.length;
+          
+          const newTarget = Math.random() * (45 - 5) + 5; // 5-45 GB target
           const newStart = Math.random() * (2 - 0.5) + 0.5; // Starts from 0.5-2 GB
           
           const newlyCompleted = { name: prev.active.name, size: `${prev.active.target.toFixed(1)} GB`, status: '✓' };
           const nextCompleted = [...prev.completed, newlyCompleted];
           
-          // Keep up to 10 completed items for scrolling
-          if (nextCompleted.length > 10) {
+          // Keep up to 20 completed items for scrolling
+          if (nextCompleted.length > 20) {
             nextCompleted.shift();
           }
           
+          const now = new Date();
+          const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+          
+          const newLog = {
+            id: Date.now(),
+            time: timeString,
+            type: '[BACKUP]',
+            color: 'var(--color-success)',
+            message: `${prev.active.name} fully encrypted and synced (${prev.active.target.toFixed(1)} GB)`,
+            highlight: true
+          };
+          const nextLogs = [newLog, ...prev.logs].slice(0, 50);
+          
           return {
-            active: { name: randomName, current: newStart, target: newTarget },
-            completed: nextCompleted
+            active: { name: nextName, current: newStart, target: newTarget },
+            completed: nextCompleted,
+            logs: nextLogs
           };
         }
         
@@ -116,12 +149,10 @@ export default function HomeClient() {
           active: { ...prev.active, current: newCurrent }
         };
       });
-    }, 1200);
+    }, 500);
 
     return () => {
-      clearInterval(actionInterval);
       clearInterval(countInterval);
-      clearInterval(progressInterval);
       clearInterval(networkInterval);
     };
   }, []);
@@ -204,10 +235,10 @@ export default function HomeClient() {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 <span>Encrypted Storage Used</span>
-                <span>45.2 TB / 100 TB</span>
+                <span>{totalStorageTB} TB / 100 TB</span>
               </div>
               <div style={{ height: 4, background: 'var(--color-bg-tertiary)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: '45.2%', background: 'var(--color-blue)', borderRadius: 2 }} />
+                <div style={{ height: '100%', width: `${percentageStorage}%`, background: 'var(--color-blue)', borderRadius: 2 }} />
               </div>
             </div>
 
@@ -250,17 +281,10 @@ export default function HomeClient() {
               </div>
             </div>
 
-            {/* 3. Security & Encryption Status */}
-            <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-2) var(--space-3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <span style={{ fontSize: '12px' }}>🛡️</span>
-                <span style={{ fontSize: '10px', color: 'var(--color-success)', fontWeight: 600 }}>AES-256-GCM Active</span>
-              </div>
-              <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>Next Key Rotation: <span style={{ color: 'var(--color-text-primary)' }}>14m 22s</span></div>
-            </div>
+
 
             {/* Backup entries */}
-            <div ref={backupListRef} className="hide-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', maxHeight: '100px', overflowY: 'auto', paddingRight: '4px', scrollBehavior: 'smooth' }}>
+            <div ref={backupListRef} className="hide-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '168px', overflowY: 'auto', paddingRight: '4px', scrollBehavior: 'smooth' }}>
               {[
                 ...backupState.completed,
                 { name: backupState.active.name, size: `${backupState.active.current.toFixed(1)} GB`, status: 'sync' },
@@ -270,7 +294,7 @@ export default function HomeClient() {
                   gridTemplateColumns: '1fr 1fr 1fr', 
                   alignItems: 'center', 
                   fontSize: '11px', 
-                  padding: 'var(--space-2) 0', 
+                  padding: '6px 0', 
                   borderBottom: i < backupState.completed.length ? '1px solid rgba(148,163,184,0.06)' : 'none' 
                 }}>
                   <span style={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '10px' }}>{item.name}</span>
@@ -305,8 +329,13 @@ export default function HomeClient() {
             {/* 4. Recent Activity Log */}
             <div style={{ background: '#040508', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-2)', fontFamily: 'var(--font-mono)', fontSize: '9px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
               <div style={{ color: 'var(--color-text-muted)', marginBottom: 2 }}>Recent Activity</div>
-              <div style={{ color: 'var(--color-text-secondary)' }}><span style={{ color: 'var(--color-text-muted)' }}>[10:42:01]</span> <span style={{ color: 'var(--color-success)' }}>✓</span> production-db locked and encrypted</div>
-              <div style={{ color: 'var(--color-text-secondary)' }}><span style={{ color: 'var(--color-text-muted)' }}>[10:41:15]</span> <span style={{ color: 'var(--color-blue)' }}>ℹ</span> Access key rotated successfully</div>
+              {backupState.logs.slice(0, 2).map((log, i) => (
+                <div key={log.id} style={{ color: 'var(--color-text-secondary)', display: 'flex', gap: '4px' }}>
+                  <span style={{ color: 'var(--color-text-muted)', minWidth: '45px' }}>[{log.time}]</span>
+                  <span style={{ color: log.color, minWidth: '10px' }}>{log.type === '[BACKUP]' ? '✓' : log.type === '[ALERT]' ? '⚠' : 'ℹ'}</span>
+                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{log.message}</span>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -327,43 +356,15 @@ export default function HomeClient() {
               </div>
             </div>
 
-            <div style={{ background: '#040508', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-3)', fontFamily: 'var(--font-mono)', fontSize: '10px', display: 'flex', flexDirection: 'column', flex: 1, overflowY: 'auto' }}>
+            <div className="hide-scrollbar" style={{ background: '#040508', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: 'var(--space-3)', fontFamily: 'var(--font-mono)', fontSize: '10px', display: 'flex', flexDirection: 'column', height: '370px', overflowY: 'auto' }}>
               
-              <div style={{ display: 'flex', padding: '8px', borderBottom: '1px solid rgba(148,163,184,0.1)', background: 'rgba(16, 185, 129, 0.05)' }}>
-                <span style={{ width: '60px', color: 'var(--color-text-muted)' }}>10:42:01</span>
-                <span style={{ width: '60px', color: 'var(--color-success)', fontWeight: 600 }}>[SYSTEM]</span>
-                <span style={{ flex: 1, color: 'var(--color-text-primary)' }}>production-db object-lock applied (7 days)</span>
-              </div>
-              
-              <div style={{ display: 'flex', padding: '8px', borderBottom: '1px solid rgba(148,163,184,0.1)' }}>
-                <span style={{ width: '60px', color: 'var(--color-text-muted)' }}>10:41:15</span>
-                <span style={{ width: '60px', color: 'var(--color-blue)', fontWeight: 600 }}>[AUTH]</span>
-                <span style={{ flex: 1, color: 'var(--color-text-secondary)' }}>Access key rotated (user: admin@nosky)</span>
-              </div>
-              
-              <div style={{ display: 'flex', padding: '8px', borderBottom: '1px solid rgba(148,163,184,0.1)', background: 'rgba(16, 185, 129, 0.05)' }}>
-                <span style={{ width: '60px', color: 'var(--color-text-muted)' }}>10:35:12</span>
-                <span style={{ width: '60px', color: 'var(--color-success)', fontWeight: 600 }}>[BACKUP]</span>
-                <span style={{ flex: 1, color: 'var(--color-text-primary)' }}>file-share incremental backup completed (45MB)</span>
-              </div>
-              
-              <div style={{ display: 'flex', padding: '8px', borderBottom: '1px solid rgba(148,163,184,0.1)' }}>
-                <span style={{ width: '60px', color: 'var(--color-text-muted)' }}>10:15:00</span>
-                <span style={{ width: '60px', color: 'var(--color-blue)', fontWeight: 600 }}>[SYSTEM]</span>
-                <span style={{ flex: 1, color: 'var(--color-text-secondary)' }}>Integrity check passed for 14 workloads</span>
-              </div>
-              
-              <div style={{ display: 'flex', padding: '8px', borderBottom: '1px solid rgba(148,163,184,0.1)', background: 'rgba(245, 166, 35, 0.05)' }}>
-                <span style={{ width: '60px', color: 'var(--color-text-muted)' }}>09:55:22</span>
-                <span style={{ width: '60px', color: 'var(--color-accent)', fontWeight: 600 }}>[ALERT]</span>
-                <span style={{ flex: 1, color: 'var(--color-text-primary)' }}>⚠ Unusual read volume detected on mail-server (Investigating)</span>
-              </div>
-              
-              <div style={{ display: 'flex', padding: '8px' }}>
-                <span style={{ width: '60px', color: 'var(--color-text-muted)' }}>09:56:05</span>
-                <span style={{ width: '60px', color: 'var(--color-success)', fontWeight: 600 }}>[SYSTEM]</span>
-                <span style={{ flex: 1, color: 'var(--color-text-secondary)' }}>Threat neutralized. No ransomware signatures found.</span>
-              </div>
+              {backupState.logs.map((log) => (
+                <div key={log.id} style={{ display: 'flex', padding: '8px', borderBottom: '1px solid rgba(148,163,184,0.1)', background: log.bg || (log.highlight ? 'rgba(16, 185, 129, 0.05)' : 'transparent') }}>
+                  <span style={{ width: '60px', color: 'var(--color-text-muted)' }}>{log.time}</span>
+                  <span style={{ width: '60px', color: log.color, fontWeight: 600 }}>{log.type}</span>
+                  <span style={{ flex: 1, color: log.highlight ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}>{log.message}</span>
+                </div>
+              ))}
 
             </div>
             <button style={{ background: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', padding: '8px', borderRadius: 'var(--radius-sm)', fontSize: '11px', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>
@@ -397,7 +398,7 @@ export default function HomeClient() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Active Master Key</div>
                 <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 600, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                  Enterprise Grade
+                  Military Grade
                 </div>
               </div>
               

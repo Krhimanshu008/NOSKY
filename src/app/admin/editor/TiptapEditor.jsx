@@ -6,10 +6,11 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import { Markdown } from 'tiptap-markdown';
 import TiptapToolbar from './TiptapToolbar';
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle, useRef } from 'react';
 
-export default function TiptapEditor({ initialMarkdown, onChange }) {
+const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChange, isGenerating, generationType }, ref) {
   const [isUploading, setIsUploading] = useState(false);
+  const isTypingRef = useRef(false);
 
   const editor = useEditor({
     extensions: [
@@ -32,6 +33,38 @@ export default function TiptapEditor({ initialMarkdown, onChange }) {
       }
     }
   });
+
+  useImperativeHandle(ref, () => ({
+    simulateTyping: async (fullMarkdown) => {
+      if (!editor) return;
+      isTypingRef.current = true;
+      editor.commands.setContent('');
+      
+      const chunkSize = 4;
+      let current = '';
+      const el = document.querySelector('.tiptap-content-wrapper');
+      
+      for (let i = 0; i < fullMarkdown.length; i += chunkSize) {
+        if (!isTypingRef.current) break; // aborted
+        current += fullMarkdown.substring(i, i + chunkSize);
+        editor.commands.setContent(current, false); // false = don't emit update event
+        
+        if (el) el.scrollTop = el.scrollHeight;
+        await new Promise(r => setTimeout(r, 15));
+      }
+      
+      isTypingRef.current = false;
+      editor.commands.setContent(fullMarkdown);
+      onChange(fullMarkdown);
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+  }));
+
+  const handleEditorClick = () => {
+    if (isTypingRef.current) {
+      isTypingRef.current = false;
+    }
+  };
 
   // Handle async image upload
   const handleImageUpload = async (file) => {
@@ -57,13 +90,16 @@ export default function TiptapEditor({ initialMarkdown, onChange }) {
   }
 
   return (
-    <div style={{ 
+    <div className={isGenerating ? 'ai-thinking-border' : ''} style={{ 
+      flex: 1,
+      position: 'relative', /* needed for the pulse to layer correctly sometimes */
       border: '1px solid var(--color-border)', 
       borderRadius: 'var(--radius-sm)', 
       overflow: 'hidden',
       background: 'var(--color-bg-primary)',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      transition: 'border-color 0.3s, box-shadow 0.3s'
     }}>
       <TiptapToolbar editor={editor} onImageUpload={handleImageUpload} />
       
@@ -73,11 +109,72 @@ export default function TiptapEditor({ initialMarkdown, onChange }) {
         </div>
       )}
       
-      <div className="tiptap-content-wrapper" style={{ flex: 1, overflowY: 'auto', background: 'var(--color-bg-primary)' }}>
-        <EditorContent editor={editor} />
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        {isGenerating && generationType === 'generate' && (
+          <div className="generate-overlay">
+            <div className="ai-spinner"></div>
+            <div className="ai-text">✨ AI is generating...</div>
+          </div>
+        )}
+        
+        <div className={`tiptap-content-wrapper ${isGenerating && generationType === 'refine' ? 'refine-shimmer' : ''}`} onClick={handleEditorClick} style={{ flex: 1, overflowY: 'auto', background: 'var(--color-bg-primary)' }}>
+          <EditorContent editor={editor} />
+        </div>
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
+        @keyframes shimmerPulse {
+          0% { opacity: 0.7; }
+          50% { opacity: 0.2; filter: blur(1px); }
+          100% { opacity: 0.7; }
+        }
+        .refine-shimmer {
+          animation: shimmerPulse 2s ease-in-out infinite;
+          pointer-events: none;
+        }
+
+        @keyframes borderPulse {
+          0% { box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); }
+          50% { box-shadow: 0 0 15px 2px rgba(59, 130, 246, 0.4); border-color: rgba(59, 130, 246, 0.7); }
+          100% { box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); }
+        }
+        .ai-thinking-border {
+          animation: borderPulse 2.5s infinite;
+        }
+
+        .generate-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          z-index: 20;
+        }
+        .ai-spinner {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: conic-gradient(from 0deg, transparent 0%, transparent 40%, #8b5cf6 60%, #3b82f6 100%);
+          animation: spin 1s linear infinite;
+          mask: radial-gradient(transparent 55%, black 56%);
+          -webkit-mask: radial-gradient(transparent 55%, black 56%);
+          margin-bottom: 16px;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .ai-text {
+          font-weight: 600;
+          background: linear-gradient(to right, #a78bfa, #60a5fa);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          letter-spacing: 0.05em;
+        }
         .tiptap-content-wrapper .ProseMirror {
           min-height: 600px;
           padding: 1.5rem;
@@ -149,4 +246,6 @@ export default function TiptapEditor({ initialMarkdown, onChange }) {
       `}} />
     </div>
   );
-}
+});
+
+export default TiptapEditor;

@@ -24,12 +24,30 @@ export default function FAQ({ items, sectionTitle, sectionSub }) {
   };
 
   return (
-    <section className="section" id="faq">
+    <section className="section" id="faq" style={{
+      position: 'relative',
+      overflow: 'hidden',
+      background: 'linear-gradient(180deg, #0a0d14 0%, #050608 100%)',
+      borderTop: '1px solid rgba(255,255,255,0.03)'
+    }}>
+      {/* Ambient Glow */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        height: '600px',
+        background: 'radial-gradient(ellipse at top, rgba(245, 166, 35, 0.05) 0%, transparent 60%)',
+        pointerEvents: 'none',
+        zIndex: 0
+      }} />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {sectionTitle && (
           <div className="section-header">
             <span className="badge badge-accent">FAQ</span>

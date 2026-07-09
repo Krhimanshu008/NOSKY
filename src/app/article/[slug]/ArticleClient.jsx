@@ -6,12 +6,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion } from 'framer-motion';
 import BackButton from '@/components/ui/BackButton';
+import Image from 'next/image';
 
 export default function ArticleClient({ article }) {
   const [isMobile, setIsMobile] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isTransitioning = useRef(false);
-  const downScrollCount = useRef(0);
   const contentRef = useRef(null);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function ArticleClient({ article }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Prevent body scroll on desktop article page (content scrolls in its own panel)
+  // Prevent body scroll on desktop to maintain "app-like" 100vh bounds
   useEffect(() => {
     if (!isMobile) {
       document.body.style.overflow = 'hidden';
@@ -29,12 +29,14 @@ export default function ArticleClient({ article }) {
     return () => { document.body.style.overflow = ''; };
   }, [isMobile]);
 
+  // Optimized wheel listener for silky smooth transitions
   useEffect(() => {
     if (isMobile) return;
 
     let lastWheelTime = 0;
-    let atTopWhenSequenceStarted = false;
+    let accumulatedDownScroll = 0;
     let accumulatedUpScroll = 0;
+    let atTopWhenSequenceStarted = false;
 
     const handleWheel = (e) => {
       if (isTransitioning.current) return;
@@ -43,23 +45,25 @@ export default function ArticleClient({ article }) {
       const timeGap = now - lastWheelTime;
       lastWheelTime = now;
 
-      // A gap of > 150ms means the user paused, so this is a new scroll gesture
+      // Reset accumulators if there's a pause in scrolling (e.g. > 150ms)
       if (timeGap > 150) {
         const panel = contentRef.current;
         atTopWhenSequenceStarted = panel && panel.scrollTop <= 5;
+        accumulatedDownScroll = 0;
         accumulatedUpScroll = 0;
-        downScrollCount.current = 0;
       }
 
       if (!isScrolled) {
         if (e.deltaY > 0) {
-          // Scrolling down in hero → enter split
-          downScrollCount.current++;
-          if (downScrollCount.current >= 3) {
+          accumulatedDownScroll += e.deltaY;
+          // Instantly trigger once we accumulate 100px of scroll intention
+          if (accumulatedDownScroll > 100) {
             isTransitioning.current = true;
             setIsScrolled(true);
-            setTimeout(() => { isTransitioning.current = false; }, 500);
+            setTimeout(() => { isTransitioning.current = false; }, 600);
           }
+        } else {
+          accumulatedDownScroll = 0;
         }
       }
 
@@ -67,24 +71,18 @@ export default function ArticleClient({ article }) {
         const panel = contentRef.current;
         const isAtTop = panel && panel.scrollTop <= 5;
 
-        // ONLY allow reverse if this specific scroll gesture STARTED at the top.
-        // If they scrolled from the bottom and hit the top, we ignore the momentum
-        // because atTopWhenSequenceStarted will be false.
+        // Only allow reverse transition if the scroll sequence started at the very top of the article
         if (e.deltaY < 0 && isAtTop && atTopWhenSequenceStarted) {
-
-          // Accumulate the upward scroll distance
           accumulatedUpScroll += Math.abs(e.deltaY);
-
-          // Require a deliberate upward scroll (equivalent to 250px) to reverse
-          if (accumulatedUpScroll > 250) {
+          
+          if (accumulatedUpScroll > 100) {
             accumulatedUpScroll = 0;
             isTransitioning.current = true;
             setIsScrolled(false);
             if (panel) panel.scrollTop = 0;
-            setTimeout(() => { isTransitioning.current = false; }, 500);
+            setTimeout(() => { isTransitioning.current = false; }, 600);
           }
         } else if (e.deltaY > 0) {
-          // Scrolling down resets the accumulator
           accumulatedUpScroll = 0;
         }
       }
@@ -94,18 +92,17 @@ export default function ArticleClient({ article }) {
     return () => window.removeEventListener('wheel', handleWheel);
   }, [isScrolled, isMobile]);
 
-  // Mobile layout (unchanged)
   if (isMobile) {
     return (
       <article className="container" style={{ paddingTop: '120px', paddingBottom: 'var(--space-16)', maxWidth: '800px', minHeight: '80vh' }}>
         {article.coverImage && (
           <div style={{ marginBottom: 'var(--space-10)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
-            <img src={article.coverImage} alt={article.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <Image src={article.coverImage} alt={article.title} width={800} height={450} priority style={{ width: '100%', height: 'auto', display: 'block' }} />
           </div>
         )}
 
         <div style={{ marginBottom: 'var(--space-12)' }}>
-          <BackButton label="← Back" />
+          <BackButton href="/article" fallback="/" label="← All Articles" />
           <h1 style={{ fontSize: 'var(--text-4xl)', lineHeight: 1.15, marginBottom: 'var(--space-6)', fontWeight: '800', letterSpacing: '-0.02em', background: 'linear-gradient(to right, #fff, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             {article.title}
           </h1>
@@ -126,13 +123,52 @@ export default function ArticleClient({ article }) {
             {article.content}
           </ReactMarkdown>
         </div>
+
+        <style dangerouslySetInnerHTML={{
+            __html: `
+            .prose { color: var(--color-text-secondary); font-size: 1.15rem; line-height: 1.8; font-weight: 400; }
+            .prose p { margin-bottom: 1.75em; }
+            .prose h2, .prose h3 { color: var(--color-text-primary); font-weight: 700; margin-top: 2.2em; margin-bottom: 1em; line-height: 1.3; }
+            .prose h2 { font-size: 1.875rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.3em; }
+            .prose h3 { font-size: 1.5rem; }
+            .prose ul, .prose ol { margin-bottom: 1.5em; padding-left: 1.5em; }
+            .prose li { margin-bottom: 0.5em; }
+            .prose blockquote { border-left: 4px solid var(--color-primary); padding-left: 1em; font-style: italic; color: var(--color-text-primary); background: rgba(255,255,255,0.03); padding: 1.5em; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+            .prose a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
+            .prose a:hover { color: var(--color-accent); }
+            .prose strong { color: var(--color-text-primary); font-weight: 600; }
+            .prose img { max-width: 100%; min-width: 280px; height: auto; display: block; margin: 2rem auto; border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+          `}} />
       </article>
     );
   }
 
-  // ─── Desktop: Two fixed panels with crossfade ───
+  // ─── Desktop: Fixed 100vh Layout with Optimized Wheel Toggle ───
   return (
     <article style={{ minHeight: '100vh' }}>
+      
+      {/* Permanent Global Back Button */}
+      <div style={{ position: 'fixed', top: '50px', left: '4%', zIndex: 100 }}>
+        <BackButton 
+          href="/article" 
+          fallback="/" 
+          label="←" 
+          style={{ 
+            color: 'var(--color-text-primary)', 
+            background: 'rgba(255,255,255,0.05)', 
+            padding: '10px', 
+            fontSize: '1.25rem',
+            borderRadius: '50%', 
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            width: '44px',
+            height: '44px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }} 
+        />
+      </div>
 
       {/* ━━━ HERO VIEW (full-width centered image with headline overlay) ━━━ */}
       <div style={{
@@ -141,7 +177,7 @@ export default function ArticleClient({ article }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: '80px',
+        paddingTop: '30px',
         opacity: isScrolled ? 0 : 1,
         transition: 'opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
         pointerEvents: isScrolled ? 'none' : 'auto',
@@ -151,7 +187,7 @@ export default function ArticleClient({ article }) {
           position: 'relative',
           width: '92%',
           maxWidth: '1100px',
-          maxHeight: 'calc(100vh - 120px)',
+          maxHeight: 'calc(100vh - 80px)',
           borderRadius: 'var(--radius-xl)',
           overflow: 'hidden',
           boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
@@ -166,11 +202,11 @@ export default function ArticleClient({ article }) {
                 layoutId="article-cover-image" 
                 src={article.coverImage} 
                 alt={article.title} 
-                style={{ width: '100%', maxHeight: 'calc(100vh - 120px)', objectFit: 'contain', display: 'block' }} 
+                style={{ width: '100%', maxHeight: 'calc(100vh - 80px)', objectFit: 'contain', display: 'block' }} 
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               />
             ) : (
-              <div style={{ width: '100%', height: 'calc(100vh - 120px)' }} />
+              <div style={{ width: '100%', height: 'calc(100vh - 80px)' }} />
             )
           )}
 
@@ -218,7 +254,7 @@ export default function ArticleClient({ article }) {
       {/* ━━━ SPLIT VIEW (image left, scrollable content right) ━━━ */}
       <div style={{
         position: 'fixed',
-        top: '80px',
+        top: '60px',
         left: 0, right: 0, bottom: 0,
         display: 'flex',
         gap: '32px',
@@ -230,18 +266,9 @@ export default function ArticleClient({ article }) {
         maxWidth: '1300px',
         margin: '0 auto',
       }}>
-        {/* Image — fixed on left side, does not scroll */}
-        <div style={{
-          width: '38%',
-          flexShrink: 0,
-          alignSelf: 'flex-start',
-          paddingTop: '8px',
-        }}>
-          <div style={{
-            borderRadius: 'var(--radius-xl)',
-            overflow: 'hidden',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-          }}>
+        {/* Left Column (Fixed Image) */}
+        <div style={{ width: '38%', flexShrink: 0, alignSelf: 'flex-start', paddingTop: '8px' }}>
+          <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
             {article.coverImage && (
               isScrolled ? (
                 <motion.img 
@@ -258,110 +285,68 @@ export default function ArticleClient({ article }) {
           </div>
         </div>
 
-        {/* Content — scrolls independently in its own panel */}
+        {/* Right Column (Scrollable Content in its own panel) */}
         <div
           ref={contentRef}
           className="article-content-panel"
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            paddingRight: '12px',
-            paddingBottom: '40px',
-          }}
+          style={{ flex: 1, overflowY: 'auto', paddingRight: '12px', paddingBottom: '40px' }}
         >
-          {/* Custom scrollbar */}
+          {/* Custom scrollbar for the internal panel */}
           <style dangerouslySetInnerHTML={{
             __html: `
-            .article-content-panel::-webkit-scrollbar {
-              width: 6px;
-            }
-            .article-content-panel::-webkit-scrollbar-track {
-              background: transparent;
-            }
-            .article-content-panel::-webkit-scrollbar-thumb {
-              background: rgba(255,255,255,0.15);
-              border-radius: 3px;
-            }
-            .article-content-panel::-webkit-scrollbar-thumb:hover {
-              background: rgba(255,255,255,0.25);
-            }
+            .article-content-panel::-webkit-scrollbar { width: 6px; }
+            .article-content-panel::-webkit-scrollbar-track { background: transparent; }
+            .article-content-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+            .article-content-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+            
             .prose {
               color: var(--color-text-secondary);
-              font-size: 1.15rem;
+              font-size: 1.25rem;
               line-height: 1.8;
               font-weight: 400;
-              text-align: justify;
             }
-            .prose p {
-              margin-bottom: 1.75em;
-            }
+            .prose p { margin-bottom: 1.75em; }
             .prose h2, .prose h3 {
               color: var(--color-text-primary);
               font-weight: 700;
               margin-top: 2.2em;
               margin-bottom: 1em;
               line-height: 1.3;
-              text-align: left;
             }
-            .prose h2 {
-              font-size: 1.875rem;
-              border-bottom: 1px solid var(--color-border);
-              padding-bottom: 0.3em;
-            }
-            .prose h3 {
-              font-size: 1.5rem;
-            }
-            .prose ul, .prose ol {
-              margin-bottom: 1.5em;
-              padding-left: 1.5em;
-              text-align: left;
-            }
-            .prose li {
-              margin-bottom: 0.5em;
-            }
+            .prose h2 { font-size: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.3em; }
+            .prose h3 { font-size: 1.5rem; }
+            .prose ul, .prose ol { margin-bottom: 1.5em; padding-left: 1.5em; }
+            .prose li { margin-bottom: 0.5em; }
             .prose blockquote {
               border-left: 4px solid var(--color-primary);
               padding-left: 1em;
-              margin-left: 0;
               font-style: italic;
               color: var(--color-text-primary);
               background: rgba(255,255,255,0.03);
               padding: 1.5em;
               border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-              text-align: left;
             }
-            .prose a {
-              color: var(--color-primary);
-              text-decoration: underline;
-              text-underline-offset: 2px;
-            }
-            .prose a:hover {
-              color: var(--color-accent);
-            }
-            .prose strong {
-              color: var(--color-text-primary);
-              font-weight: 600;
-            }
+            .prose a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
+            .prose a:hover { color: var(--color-accent); }
+            .prose strong { color: var(--color-text-primary); font-weight: 600; }
             .prose img {
-              max-width: 100px;
+              max-width: 100%;
+              min-width: 300px;
               height: auto;
-              display: inline-block;
-              vertical-align: middle;
-              margin: 0 0.5rem;
-              border-radius: var(--radius-sm);
-              box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+              display: block;
+              margin: 3rem auto;
+              border-radius: var(--radius-lg);
+              box-shadow: 0 12px 36px rgba(0,0,0,0.5);
             }
           `}} />
 
-          {/* Heading */}
           <div style={{ marginBottom: 'var(--space-8)' }}>
             {isScrolled ? (
               <>
-                <BackButton label="← Back" />
                 <motion.h1 
                   layoutId="article-title" 
                   transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} 
-                  style={{ fontSize: '2.25rem', lineHeight: 1.2, marginBottom: 'var(--space-4)', fontWeight: '800', letterSpacing: '-0.02em', color: 'var(--color-text-primary)' }}
+                  style={{ fontSize: '2.5rem', lineHeight: 1.2, marginBottom: 'var(--space-4)', fontWeight: '800', letterSpacing: '-0.02em', color: 'var(--color-text-primary)' }}
                 >
                   {article.title}
                 </motion.h1>
@@ -369,7 +354,7 @@ export default function ArticleClient({ article }) {
                 <motion.div 
                   layoutId="article-meta" 
                   transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} 
-                  style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', color: 'var(--color-text-muted)', fontSize: '1rem', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                 >
                   <span>{format(new Date(article.createdAt), 'MMMM d, yyyy')}</span>
                   {(article.cityLocation || article.geoRegion) && (
@@ -387,7 +372,6 @@ export default function ArticleClient({ article }) {
             )}
           </div>
 
-          {/* Article body */}
           <motion.div 
             className="prose"
             initial={false}
@@ -400,7 +384,6 @@ export default function ArticleClient({ article }) {
           </motion.div>
         </div>
       </div>
-
     </article>
   );
 }

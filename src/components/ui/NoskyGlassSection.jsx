@@ -7,8 +7,12 @@ export default function NoskyGlassSection() {
   return (
     <section className="section platform-section" id="features" style={{ 
       position: 'relative', 
-      paddingTop: 'var(--space-24)', 
-      paddingBottom: 'var(--space-24)',
+      paddingTop: 'var(--space-12)', 
+      paddingBottom: 'var(--space-12)',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
       background: 'linear-gradient(180deg, #0a0d18 0%, #06070d 100%)',
       overflow: 'hidden'
     }}>
@@ -36,7 +40,7 @@ export default function NoskyGlassSection() {
       }} />
 
       <div className="container platform-section-inner" style={{ position: 'relative', zIndex: 1 }}>
-        <div className="pill-wrap">
+        <div className="pill-wrap" style={{ marginBottom: 'var(--space-6)' }}>
           <span className="pill">
             <span className="pill-dot"></span>
             PLATFORM

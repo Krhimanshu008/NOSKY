@@ -22,7 +22,9 @@ export default function ArticleEditor({ params }) {
   const [isContentAIOpen, setIsContentAIOpen] = useState(false);
   const [contentAIPrompt, setContentAIPrompt] = useState('');
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+  const [generationType, setGenerationType] = useState('generate');
   const [editorKey, setEditorKey] = useState(0);
+  const editorRef = useRef(null);
   
   const [gallery, setGallery] = useState([]);
   
@@ -41,19 +43,6 @@ export default function ArticleEditor({ params }) {
 
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    async function init() {
-      const p = await params;
-      if (p?.id) {
-        setIsEditing(true);
-        setIsFetching(true);
-        await fetchArticle(p.id);
-        setIsFetching(false);
-      }
-    }
-    init();
-  }, [params]);
-
   const fetchArticle = async (id) => {
     try {
       const res = await fetch('/api/articles?all=true');
@@ -66,6 +55,19 @@ export default function ArticleEditor({ params }) {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    async function init() {
+      const p = await params;
+      if (p?.id) {
+        setIsEditing(true);
+        setIsFetching(true);
+        await fetchArticle(p.id);
+        setIsFetching(false);
+      }
+    }
+    init();
+  }, [params]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -187,8 +189,12 @@ export default function ArticleEditor({ params }) {
     }
   };
 
-  const handleContentAIGenerate = async () => {
-    if (!contentAIPrompt && !formData.content && !formData.title) {
+  const handleContentAIGenerate = async (overridePrompt) => {
+    const finalPrompt = typeof overridePrompt === 'string' ? overridePrompt : contentAIPrompt;
+    const type = typeof overridePrompt === 'string' ? 'refine' : 'generate';
+    setGenerationType(type);
+    
+    if (!finalPrompt && !formData.content && !formData.title) {
       alert('Please enter a prompt or have some existing content/title to refine.');
       return;
     }
@@ -199,7 +205,7 @@ export default function ArticleEditor({ params }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          prompt: contentAIPrompt,
+          prompt: finalPrompt,
           existingTitle: formData.title,
           existingContent: formData.content 
         })
@@ -210,12 +216,19 @@ export default function ArticleEditor({ params }) {
         setFormData(prev => ({
           ...prev,
           title: data.title || prev.title,
-          slug: data.slug || prev.slug,
-          content: data.content || prev.content
+          slug: data.slug || prev.slug
         }));
-        setEditorKey(prev => prev + 1); // Force remount TiptapEditor to show new content
         setIsContentAIOpen(false);
         setContentAIPrompt('');
+        
+        if (data.content) {
+          if (editorRef.current) {
+            editorRef.current.simulateTyping(data.content);
+          } else {
+            setFormData(prev => ({ ...prev, content: data.content }));
+            setEditorKey(prev => prev + 1);
+          }
+        }
       } else {
         alert(data.error || 'Failed to generate content');
       }
@@ -328,10 +341,9 @@ export default function ArticleEditor({ params }) {
                 {formData.content && formData.content.trim().length > 0 && (
                   <button
                     type="button"
+                    disabled={isGeneratingContent}
                     onClick={() => {
-                      setIsContentAIOpen(true);
-                      setContentAIPrompt('Refine the current content to be more professional and well-structured, fixing any grammar issues.');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      handleContentAIGenerate('Refine the current content to be more professional and well-structured, fixing any grammar issues. DO NOT add a title heading to the content.');
                     }}
                     style={{
                       background: 'linear-gradient(135deg, #10b981, #059669)',
@@ -341,13 +353,14 @@ export default function ArticleEditor({ params }) {
                       padding: '4px 12px',
                       fontSize: 'var(--text-xs)',
                       fontWeight: 'bold',
-                      cursor: 'pointer',
+                      cursor: isGeneratingContent ? 'wait' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '4px',
+                      opacity: isGeneratingContent ? 0.7 : 1
                     }}
                   >
-                    ✨ Refine Content
+                    {isGeneratingContent ? '✨ Refining...' : '✨ Refine Content'}
                   </button>
                 )}
               </div>
@@ -355,6 +368,9 @@ export default function ArticleEditor({ params }) {
                 <div style={{ padding: '2rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text-muted)' }}>Loading content...</div>
               ) : (
                 <TiptapEditor
+                  ref={editorRef}
+                  isGenerating={isGeneratingContent}
+                  generationType={generationType}
                   key={editorKey}
                   initialMarkdown={formData.content}
                   onChange={(val) => setFormData(prev => ({ ...prev, content: val || '' }))}

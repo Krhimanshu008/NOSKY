@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import FadeImage from '@/components/ui/FadeImage';
@@ -16,11 +16,7 @@ export default function AdminDashboard() {
   
   const router = useRouter();
 
-  useEffect(() => {
-    fetchArticles();
-  }, []);
-
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     try {
       const res = await fetch('/api/articles?all=true');
       if (res.status === 401) {
@@ -34,7 +30,11 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this post?')) return;
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* STATS ROW */}
-        <div className="grid-4" style={{ gap: 'var(--space-4)' }}>
+        <div className="grid grid-4" style={{ gap: 'var(--space-4)' }}>
           <div className="admin-glass-panel">
             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 'var(--space-2)' }}>Total Posts</div>
             <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.total}</div>
@@ -356,7 +356,7 @@ export default function AdminDashboard() {
             </table>
           </div>
         ) : (
-          <div className="grid-3" style={{ gap: 'var(--space-6)' }}>
+          <div className="grid grid-3" style={{ gap: 'var(--space-6)' }}>
             {filteredArticles.map(article => {
               const cat = article.category?.toLowerCase() || 'article';
               return (

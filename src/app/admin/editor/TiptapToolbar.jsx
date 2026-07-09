@@ -5,6 +5,29 @@ import {
   List, ListOrdered, Quote, Link as LinkIcon, Image as ImageIcon 
 } from 'lucide-react';
 
+const ToolbarButton = ({ onClick, isActive, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    style={{
+      background: isActive ? 'var(--color-bg-secondary)' : 'transparent',
+      color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+      border: 'none',
+      borderRadius: 'var(--radius-sm)',
+      padding: '6px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'all 0.2s'
+    }}
+    onMouseOver={(e) => { if (!isActive) e.currentTarget.style.background = 'var(--color-bg-secondary)'; }}
+    onMouseOut={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+  >
+    {children}
+  </button>
+);
+
 export default function TiptapToolbar({ editor, onImageUpload }) {
   if (!editor) return null;
 
@@ -32,29 +55,6 @@ export default function TiptapToolbar({ editor, onImageUpload }) {
     }
     e.target.value = '';
   };
-
-  const ToolbarButton = ({ onClick, isActive, children }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        background: isActive ? 'var(--color-bg-secondary)' : 'transparent',
-        color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-        border: 'none',
-        borderRadius: 'var(--radius-sm)',
-        padding: '6px',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'all 0.2s'
-      }}
-      onMouseOver={(e) => { if (!isActive) e.currentTarget.style.background = 'var(--color-bg-secondary)'; }}
-      onMouseOut={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
-    >
-      {children}
-    </button>
-  );
 
   return (
     <div style={{ 
