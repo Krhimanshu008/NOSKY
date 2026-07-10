@@ -40,6 +40,9 @@ export default function ArticleClient({ article }) {
 
     const handleWheel = (e) => {
       if (isTransitioning.current) return;
+      
+      // Ignore wheel events that happen inside the left scrollable panel
+      if (e.target.closest && e.target.closest('.left-panel-scroll')) return;
 
       const now = Date.now();
       const timeGap = now - lastWheelTime;
@@ -101,8 +104,21 @@ export default function ArticleClient({ article }) {
           </div>
         )}
 
+        {article.aiSummary && (
+          <div style={{ marginBottom: 'var(--space-10)', padding: 'var(--space-6)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ fontSize: '1.2rem', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)', fontWeight: '600', margin: 0 }}>
+              ✨ Key Takeaways
+            </h3>
+            <div className="prose" style={{ fontSize: '1.05rem', lineHeight: '1.6' }}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {article.aiSummary}
+              </ReactMarkdown>
+            </div>
+          </div>
+        )}
+
         <div style={{ marginBottom: 'var(--space-12)' }}>
-          <BackButton href="/article" fallback="/" label="← All Articles" />
+          <BackButton fallback="/article" label="All Articles" />
           <h1 style={{ fontSize: 'var(--text-4xl)', lineHeight: 1.15, marginBottom: 'var(--space-6)', fontWeight: '800', letterSpacing: '-0.02em', background: 'linear-gradient(to right, #fff, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             {article.title}
           </h1>
@@ -131,8 +147,10 @@ export default function ArticleClient({ article }) {
             .prose h2, .prose h3 { color: var(--color-text-primary); font-weight: 700; margin-top: 2.2em; margin-bottom: 1em; line-height: 1.3; }
             .prose h2 { font-size: 1.875rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.3em; }
             .prose h3 { font-size: 1.5rem; }
-            .prose ul, .prose ol { margin-bottom: 1.5em; padding-left: 1.5em; }
-            .prose li { margin-bottom: 0.5em; }
+            .prose ul { margin-bottom: 1.5em; padding-left: 1.5em; list-style-type: disc; color: var(--color-text-primary); }
+            .prose ol { margin-bottom: 1.5em; padding-left: 1.5em; list-style-type: decimal; color: var(--color-text-primary); }
+            .prose li { margin-bottom: 0.5em; display: list-item; }
+            .prose li::marker { color: var(--color-primary); }
             .prose blockquote { border-left: 4px solid var(--color-primary); padding-left: 1em; font-style: italic; color: var(--color-text-primary); background: rgba(255,255,255,0.03); padding: 1.5em; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
             .prose a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
             .prose a:hover { color: var(--color-accent); }
@@ -150,19 +168,19 @@ export default function ArticleClient({ article }) {
       {/* Permanent Global Back Button */}
       <div style={{ position: 'fixed', top: '50px', left: '4%', zIndex: 100 }}>
         <BackButton 
-          href="/article" 
-          fallback="/" 
-          label="←" 
+          fallback="/article" 
+          label="" 
           style={{ 
             color: 'var(--color-text-primary)', 
-            background: 'rgba(255,255,255,0.05)', 
+            background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 40%, rgba(0,0,0,0.6) 100%)', 
             padding: '10px', 
             fontSize: '1.25rem',
             borderRadius: '50%', 
             backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            width: '44px',
-            height: '44px',
+            border: '1px solid rgba(255,255,255,0.15)',
+            boxShadow: 'inset -3px -3px 8px rgba(0,0,0,0.8), inset 2px 2px 8px rgba(255,255,255,0.25), 0 10px 24px rgba(0,0,0,0.5)',
+            width: '48px',
+            height: '48px',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'
@@ -267,7 +285,18 @@ export default function ArticleClient({ article }) {
         margin: '0 auto',
       }}>
         {/* Left Column (Fixed Image) */}
-        <div style={{ width: '38%', flexShrink: 0, alignSelf: 'flex-start', paddingTop: '8px' }}>
+        <div 
+          className="left-panel-scroll"
+          style={{ 
+            width: '38%', 
+            flexShrink: 0, 
+            alignSelf: 'stretch', 
+            paddingTop: '8px',
+            overflowY: 'auto',
+            paddingBottom: '40px',
+            maxHeight: '100%'
+          }}
+        >
           <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
             {article.coverImage && (
               isScrolled ? (
@@ -283,6 +312,24 @@ export default function ArticleClient({ article }) {
               )
             )}
           </div>
+          
+          {article.aiSummary && isScrolled && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              style={{ marginTop: 'var(--space-8)', padding: 'var(--space-6)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', backdropFilter: 'blur(10px)' }}
+            >
+              <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)', fontWeight: '600', margin: 0, borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '16px' }}>
+                ✨ Key Takeaways
+              </h3>
+              <div className="prose" style={{ fontSize: '1rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.85)', paddingTop: '12px' }}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {article.aiSummary}
+                </ReactMarkdown>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* Right Column (Scrollable Content in its own panel) */}
@@ -294,6 +341,9 @@ export default function ArticleClient({ article }) {
           {/* Custom scrollbar for the internal panel */}
           <style dangerouslySetInnerHTML={{
             __html: `
+            .left-panel-scroll::-webkit-scrollbar { display: none; }
+            .left-panel-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
             .article-content-panel::-webkit-scrollbar { width: 6px; }
             .article-content-panel::-webkit-scrollbar-track { background: transparent; }
             .article-content-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
@@ -315,8 +365,10 @@ export default function ArticleClient({ article }) {
             }
             .prose h2 { font-size: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.3em; }
             .prose h3 { font-size: 1.5rem; }
-            .prose ul, .prose ol { margin-bottom: 1.5em; padding-left: 1.5em; }
-            .prose li { margin-bottom: 0.5em; }
+            .prose ul { margin-bottom: 1.5em; padding-left: 1.5em; list-style-type: disc; color: var(--color-text-primary); }
+            .prose ol { margin-bottom: 1.5em; padding-left: 1.5em; list-style-type: decimal; color: var(--color-text-primary); }
+            .prose li { margin-bottom: 0.5em; display: list-item; }
+            .prose li::marker { color: var(--color-primary); }
             .prose blockquote {
               border-left: 4px solid var(--color-primary);
               padding-left: 1em;

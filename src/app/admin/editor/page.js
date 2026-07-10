@@ -38,7 +38,8 @@ export default function ArticleEditor({ params }) {
     geoRegion: '',
     cityLocation: '',
     published: false,
-    category: 'article'
+    category: 'article',
+    aiSummary: ''
   });
 
   const fileInputRef = useRef(null);
@@ -240,6 +241,38 @@ export default function ArticleEditor({ params }) {
     }
   };
 
+  const handleGenerateSummary = async () => {
+    if (!formData.content) {
+      alert('Please enter some content first so the AI has context to generate a summary.');
+      return;
+    }
+    
+    setIsGeneratingContent(true);
+    try {
+      const res = await fetch('/api/generate-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: 'Summarize the following content into 3-5 concise bullet points. Provide ONLY the bullet points formatted as markdown list, no introductory text.',
+          existingTitle: formData.title,
+          existingContent: formData.content
+        })
+      });
+      
+      const data = await res.json();
+      if (res.ok && data.content) {
+        setFormData(prev => ({ ...prev, aiSummary: data.content }));
+      } else {
+        alert(data.error || 'Failed to generate summary');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error generating summary');
+    } finally {
+      setIsGeneratingContent(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -334,6 +367,40 @@ export default function ArticleEditor({ params }) {
               <label style={{ display: 'block', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: '600' }}>Slug</label>
               <input type="text" name="slug" value={formData.slug} onChange={handleChange} style={inputStyle} placeholder="auto-generated-if-empty" />
             </div>
+
+            <div style={{ padding: 'var(--space-4)', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontSize: 'var(--text-sm)', fontWeight: '600', margin: 0 }}>AI Summary (Bullet Points)</label>
+                <button
+                  type="button"
+                  onClick={handleGenerateSummary}
+                  disabled={isGeneratingContent}
+                  style={{
+                    background: 'linear-gradient(135deg, #a5b4fc, #c4b5fd)',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '4px 12px',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 'bold',
+                    cursor: isGeneratingContent ? 'wait' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    opacity: isGeneratingContent ? 0.7 : 1
+                  }}
+                >
+                  {isGeneratingContent ? '✨ Generating...' : '✨ Generate AI Summary'}
+                </button>
+              </div>
+              <textarea
+                name="aiSummary"
+                value={formData.aiSummary}
+                onChange={handleChange}
+                placeholder="Bullet points summarizing the article..."
+                style={{ ...inputStyle, resize: 'vertical', minHeight: '120px', fontFamily: 'monospace', fontSize: 'var(--text-sm)' }}
+              />
+            </div>
             
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} data-color-mode="dark">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
@@ -397,7 +464,9 @@ export default function ArticleEditor({ params }) {
               </label>
               
               {formData.coverImage ? (
-                <div style={{ width: '200px', height: '200px', borderRadius: 'var(--radius-sm)', background: `url(${formData.coverImage}) center/cover no-repeat`, border: '1px solid var(--color-border)' }} />
+                <div style={{ width: '100%', maxWidth: '300px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-secondary)', overflow: 'hidden' }}>
+                  <img src={formData.coverImage} alt="Cover" style={{ width: '100%', height: 'auto', maxHeight: '200px', objectFit: 'contain', display: 'block' }} />
+                </div>
               ) : (
                 <div>
                   <input type="file" accept="image/*" onChange={handleCoverUpload} style={{ ...inputStyle, padding: 'var(--space-2)', fontSize: '12px' }} disabled={isUploadingImage} />
@@ -409,24 +478,38 @@ export default function ArticleEditor({ params }) {
             <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-4)' }}>
               <label style={{ display: 'block', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Gallery</label>
               
+              <style>{`
+                .gallery-item-container .gallery-remove-btn { opacity: 0; transition: opacity 0.2s ease; pointer-events: none; }
+                .gallery-item-container:hover .gallery-remove-btn { opacity: 1; pointer-events: auto; }
+              `}</style>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: 'var(--space-3)' }}>
                 {gallery.map((url, i) => (
-                  <img 
-                    key={i} 
-                    src={url}
-                    alt="Gallery item"
-                    draggable="true"
-                    title="Drag into editor or click to copy markdown" 
-                    onClick={() => { navigator.clipboard.writeText(`![Image](${url})`); alert('Copied markdown! Paste it in the editor where you want.'); }} 
-                    style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', cursor: 'grab', transition: 'transform 0.1s' }} 
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'} 
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'} 
-                    onDragStart={(e) => {
-                      // Set data so Tiptap recognizes it as an image drop or markdown text
-                      e.dataTransfer.setData('text/plain', `![Image](${url})`);
-                      e.dataTransfer.setData('text/uri-list', url);
-                    }}
-                  />
+                  <div key={i} className="gallery-item-container" style={{ position: 'relative', width: '50px', height: '50px' }}>
+                    <img 
+                      src={url}
+                      alt="Gallery item"
+                      draggable="true"
+                      title="Drag into editor or click to copy markdown" 
+                      onClick={() => { navigator.clipboard.writeText(`![Image](${url})`); alert('Copied markdown! Paste it in the editor where you want.'); }} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', cursor: 'grab', transition: 'transform 0.1s' }} 
+                      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'} 
+                      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'} 
+                      onDragStart={(e) => {
+                        // Set data so Tiptap recognizes it as an image drop or markdown text
+                        e.dataTransfer.setData('text/plain', `![Image](${url})`);
+                        e.dataTransfer.setData('text/uri-list', url);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="gallery-remove-btn"
+                      onClick={() => setGallery(prev => prev.filter((_, idx) => idx !== i))}
+                      style={{ position: 'absolute', top: '-6px', right: '-6px', width: '18px', height: '18px', borderRadius: '50%', background: '#ef4444', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', cursor: 'pointer', zIndex: 10, padding: 0, lineHeight: 1, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
+                      title="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
                 ))}
               </div>
 

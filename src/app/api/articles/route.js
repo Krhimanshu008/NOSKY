@@ -62,6 +62,7 @@ export async function POST(request) {
       cityLocation: body.cityLocation || '',
       published: body.published ? 1 : 0,
       category: body.category || 'article',
+      aiSummary: body.aiSummary || '',
       createdAt: new Date(),
       updatedAt: new Date()
     };

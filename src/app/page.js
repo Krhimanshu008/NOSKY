@@ -10,6 +10,8 @@ import { getDb } from '@/lib/db';
 import InsightsCarousel from '@/components/ui/InsightsCarousel';
 import DelayedPrefetch from '@/components/ui/DelayedPrefetch';
 
+export const revalidate = 60;
+
 export const metadata = {
   title: 'NoSky',
   description: 'NoSky protects SMB data with automated cloud backup, immutable storage, and 15-minute ransomware recovery. Start a free 14-day trial. No credit card required.',

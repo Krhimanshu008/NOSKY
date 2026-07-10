@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import ArticleClient from './ArticleClient';
 import cache, { CACHE_TTL, CACHE_KEYS } from '@/lib/cache';
+import { verifyAuth } from '@/lib/auth';
 
 // ISR: rebuild individual achievements every 5 minutes
 export const revalidate = 300;
@@ -56,8 +57,15 @@ export default async function AchievementSinglePage({ params }) {
   const { slug } = await params;
   const article = await getAchievementBySlug(slug);
 
-  if (!article || !article.published) {
+  if (!article) {
     notFound();
+  }
+
+  if (!article.published) {
+    const isAdmin = await verifyAuth();
+    if (!isAdmin) {
+      notFound();
+    }
   }
 
   const jsonLd = {

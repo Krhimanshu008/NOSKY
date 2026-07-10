@@ -27,6 +27,7 @@ export async function PUT(request, { params }) {
         cityLocation: body.cityLocation,
         published: body.published ? 1 : 0,
         category: body.category || 'article',
+        aiSummary: body.aiSummary || '',
         updatedAt: new Date()
       }
     });

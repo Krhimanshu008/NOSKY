@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from './GlassCard';
+import Image from 'next/image';
 
 export default function InsightsCarousel({ items = [], type = 'article' }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -79,29 +80,38 @@ export default function InsightsCarousel({ items = [], type = 'article' }) {
 
   return (
     <GlassCard style={{ position: 'relative', overflow: 'hidden', height: '100%', minHeight: '380px', display: 'flex', flexDirection: 'column', padding: 0 }}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentItem.id}
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          style={{ position: 'absolute', inset: 0, zIndex: 0 }}
-        >
-          {currentItem.coverImage ? (
-            <div style={{
-              position: 'absolute', inset: 0,
-              backgroundImage: `url(${currentItem.coverImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }} />
-          ) : (
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.02)' }} />
-          )}
-          {/* Heavy gradient overlay for readability */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,13,24,1) 0%, rgba(10,13,24,0.85) 40%, rgba(10,13,24,0.3) 100%)' }} />
-        </motion.div>
-      </AnimatePresence>
+      {/* Render all background images to ensure smooth transitions and preloading */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+        {items.map((item, idx) => (
+          <motion.div
+            key={item.id}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ 
+              opacity: currentIndex === idx ? 1 : 0,
+              scale: currentIndex === idx ? 1 : 1.05,
+              zIndex: currentIndex === idx ? 1 : 0
+            }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+          >
+            {item.coverImage ? (
+              <div style={{ position: 'absolute', inset: 0 }}>
+                <Image 
+                  src={item.coverImage}
+                  alt={item.title}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  priority={idx === 0}
+                />
+              </div>
+            ) : (
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.02)' }} />
+            )}
+            {/* Heavy gradient overlay for readability */}
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,13,24,1) 0%, rgba(10,13,24,0.85) 40%, rgba(10,13,24,0.3) 100%)' }} />
+          </motion.div>
+        ))}
+      </div>
 
       <div style={{ position: 'relative', zIndex: 1, padding: 'var(--space-8)', display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'auto' }}>
