@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import FadeImage from '@/components/ui/FadeImage';
+import { Loader2 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [articles, setArticles] = useState([]);
@@ -113,7 +114,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)', background: '#05070a' }}>
-        <div style={{ animation: 'spin 1s linear infinite', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#fff', width: '24px', height: '24px' }} />
+        <Loader2 className="animate-spin" size={32} />
       </div>
     );
   }

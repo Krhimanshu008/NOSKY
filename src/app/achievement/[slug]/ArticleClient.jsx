@@ -106,10 +106,10 @@ export default function ArticleClient({ article }) {
 
         {article.aiSummary && (
           <div style={{ marginBottom: 'var(--space-10)', padding: 'var(--space-6)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)', fontWeight: '600', margin: 0 }}>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)', fontWeight: '600', margin: 0, borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '16px' }}>
               ✨ Key Takeaways
             </h3>
-            <div className="prose" style={{ fontSize: '1.05rem', lineHeight: '1.6' }}>
+            <div className="prose" style={{ fontSize: '1.05rem', lineHeight: '1.6', paddingTop: '12px' }}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {article.aiSummary}
               </ReactMarkdown>

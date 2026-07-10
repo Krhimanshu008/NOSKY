@@ -19,17 +19,8 @@ export async function generateStaticParams() {
 }
 
 async function getAchievementBySlug(slug) {
-  const cacheKey = CACHE_KEYS.achievementBySlug(slug);
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
-
   const collection = await getDb();
-  const article = await collection.findOne({ slug }, { projection: { _id: 0 } });
-
-  if (article) {
-    cache.set(cacheKey, article, CACHE_TTL.ACHIEVEMENT_DETAIL);
-  }
-  return article;
+  return await collection.findOne({ slug }, { projection: { _id: 0 } });
 }
 
 export async function generateMetadata({ params }) {
