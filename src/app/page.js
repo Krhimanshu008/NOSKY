@@ -97,7 +97,7 @@ export default async function Home() {
                   Book a Demo
                 </Link>
               </div>
-              <div className="hero-trust">
+              <div className="hero-trust" style={{ position: 'relative', zIndex: 1 }}>
                 <span className="pill">
                   <span className="pill-dot"></span> No credit card
                 </span>
@@ -110,7 +110,7 @@ export default async function Home() {
               </div>
               
               {/* Integrated Trust Bar at bottom of Hero Content */}
-              <div style={{ textAlign: 'left', marginTop: 'var(--space-10)' }}>
+              <div style={{ textAlign: 'left', marginTop: 'var(--space-10)', position: 'relative', zIndex: 9999 }}>
                 <p style={{ 
                   fontSize: '11px', 
                   color: 'var(--color-text-muted)', 
@@ -121,30 +121,130 @@ export default async function Home() {
                 }}>
                   Trusted by 500+ businesses across India, MENA, and Southeast Asia
                 </p>
-                <div className="trust-bar" style={{ justifyContent: 'flex-start', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
-                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🛡️</span>
-                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>AES-256-GCM</span>
+                <style>{`
+                  .compliance-badge {
+                    position: relative;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    overflow: visible !important;
+                    z-index: 10;
+                  }
+                  .compliance-badge:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(245, 166, 35, 0.15);
+                    border-color: rgba(245, 166, 35, 0.3);
+                    z-index: 9999;
+                  }
+                  .compliance-badge:hover .badge-svg {
+                    transform: scale(1.1) rotate(5deg);
+                    stroke: var(--color-accent);
+                  }
+                  .badge-svg {
+                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                  }
+                  .compliance-tooltip {
+                    position: absolute;
+                    bottom: 100%;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(-10px);
+                    width: 280px;
+                    background: #000000 !important;
+                    border: 1px solid rgba(255, 255, 255, 0.25);
+                    padding: 12px 14px;
+                    border-radius: 8px;
+                    font-size: 11.5px;
+                    color: rgba(255,255,255,0.9);
+                    line-height: 1.5;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.3s ease;
+                    z-index: 999999 !important;
+                    pointer-events: none;
+                    box-shadow: 0 10px 40px rgba(0,0,0,1) !important;
+                    text-align: left;
+                    font-weight: 500;
+                    text-transform: none;
+                    letter-spacing: normal;
+                  }
+                  .compliance-badge:hover .compliance-tooltip {
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    transform: translateX(-50%) translateY(-16px);
+                  }
+                  .compliance-tooltip::after {
+                    content: '';
+                    position: absolute;
+                    top: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    border-width: 6px 6px 0 6px;
+                    border-style: solid;
+                    border-color: #000000 transparent transparent transparent !important;
+                  }
+                  .compliance-tooltip strong {
+                    color: #fff;
+                    display: block;
+                    margin-bottom: 4px;
+                    font-size: 12px;
+                  }
+                `}</style>
+                
+                <div className="trust-bar" style={{ justifyContent: 'flex-start', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div style={{ 
+                    fontSize: '10px', 
+                    color: 'var(--color-accent)', 
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    marginRight: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-accent)', display: 'inline-block', boxShadow: '0 0 8px var(--color-accent)' }}></span>
+                    Compliance Ready
                   </div>
-                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
-                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🔒</span>
-                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>ISO 27001</span>
+                  
+                  <div className="compliance-badge cert-badge glass" style={{ flexDirection: 'row', padding: '6px 12px', borderRadius: 'var(--radius-sm)' }}>
+                    <svg className="badge-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                      <rect x="9" y="9" width="6" height="8" rx="1"></rect>
+                      <path d="M9 9v-2a3 3 0 0 1 6 0v2"></path>
+                    </svg>
+                    <span className="cert-badge-label" style={{ fontSize: '11px', fontWeight: 600 }}>GDPR</span>
+                    <div className="compliance-tooltip">
+                      <strong>GDPR</strong>
+                      Privacy-first architecture with encryption, access controls, audit trails, and data lifecycle management designed to support GDPR requirements.
+                    </div>
                   </div>
-                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
-                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🛡️</span>
-                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>SOC 2</span>
+                  
+                  <div className="compliance-badge cert-badge glass" style={{ flexDirection: 'row', padding: '6px 12px', borderRadius: 'var(--radius-sm)' }}>
+                    <svg className="badge-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <path d="M12 8v8"></path>
+                      <path d="M8 12h8"></path>
+                    </svg>
+                    <span className="cert-badge-label" style={{ fontSize: '11px', fontWeight: 600 }}>HIPAA</span>
+                    <div className="compliance-tooltip">
+                      <strong>HIPAA</strong>
+                      Secure backup infrastructure protecting sensitive healthcare data through encryption, role-based access, integrity verification, and comprehensive audit logging.
+                    </div>
                   </div>
-                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
-                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🇪🇺</span>
-                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>GDPR</span>
-                  </div>
-                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
-                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🏥</span>
-                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>HIPAA</span>
-                  </div>
-                  <div className="cert-badge glass" style={{ flexDirection: 'row', padding: '6px 10px', borderRadius: 'var(--radius-sm)' }}>
-                    <span className="cert-badge-icon" style={{ width: 16, height: 16, fontSize: '12px' }}>🇮🇳</span>
-                    <span className="cert-badge-label" style={{ fontSize: '11px' }}>DPDP Act</span>
+                  
+                  <div className="compliance-badge cert-badge glass" style={{ flexDirection: 'row', padding: '6px 12px', borderRadius: 'var(--radius-sm)' }}>
+                    <svg className="badge-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                      <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                      <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                    </svg>
+                    <span className="cert-badge-label" style={{ fontSize: '11px', fontWeight: 600 }}>DPDP Act</span>
+                    <div className="compliance-tooltip">
+                      <strong>🇮🇳 DPDP Act</strong>
+                      Designed to help organizations safeguard digital personal data with secure storage, controlled access, consent-aware processing, and data retention controls aligned with India's DPDP Act.
+                    </div>
                   </div>
                 </div>
               </div>
@@ -203,7 +303,7 @@ export default async function Home() {
                   
                   {/* Pills for certifications */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-                    {['AES-256', 'ISO 27001', 'SOC 2 Type II', 'GDPR', 'HIPAA', 'DPDP Act'].map(cert => (
+                    {['AES-256', 'ISO 27001', 'SOC 2 Type II'].map(cert => (
                       <span key={cert} style={{
                         padding: '6px 14px',
                         borderRadius: '999px',
