@@ -1046,6 +1046,10 @@ tbody tr:hover {
   box-shadow: var(--shadow-md);
 }
 
+.header.nav-hidden {
+  transform: translateY(-100%);
+}
+
 .header-inner {
   max-width: var(--max-width-wide);
   margin: 0 auto;
@@ -1838,4 +1842,517 @@ tbody tr:hover {
 
 .admin-table tr:last-child td {
   border-bottom: none;
+}
+
+/* ============================================
+   Product Pages — Nosky Backup Pro & Hub
+   ============================================ */
+
+/* --- Product Hero --- */
+.product-hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: calc(var(--nav-height) + var(--space-16)) var(--space-6) var(--space-24);
+  position: relative;
+  overflow: hidden;
+}
+
+.product-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245, 166, 35, 0.12) 0%, transparent 65%),
+              radial-gradient(ellipse 60% 40% at 50% 100%, rgba(59, 130, 246, 0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.product-hero-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.product-hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  line-height: 1.12;
+  margin-bottom: var(--space-6);
+}
+
+.product-hero .hero-sub {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  max-width: 620px;
+  margin: 0 auto var(--space-10);
+  line-height: var(--leading-relaxed);
+}
+
+.product-hero-ctas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+
+.product-trust-line {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* --- Product Badge Pill --- */
+.product-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: rgba(245, 166, 35, 0.08);
+  border: 1px solid rgba(245, 166, 35, 0.2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+  margin-bottom: var(--space-8);
+}
+
+.product-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse 2s infinite;
+}
+
+/* --- Security Grid --- */
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+.security-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.security-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gradient-accent);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.security-card:hover {
+  border-color: var(--glass-border-strong);
+  transform: translateY(-4px);
+  box-shadow: var(--glass-shadow);
+}
+
+.security-card:hover::before {
+  opacity: 1;
+}
+
+.security-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: var(--space-5);
+  transition: all var(--transition-base);
+}
+
+.security-card:hover .security-card-icon {
+  background: var(--color-accent);
+}
+
+.security-card h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+
+.security-card p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.compliance-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.compliance-tag {
+  padding: 2px var(--space-2);
+  background: var(--color-success-light);
+  color: var(--color-success);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* --- Platform Banner --- */
+.platform-banner {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-12) var(--space-8);
+  text-align: center;
+}
+
+.platform-banner h2 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-10);
+}
+
+.platform-badges-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.platform-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  transition: all var(--transition-base);
+}
+
+.platform-badge:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.platform-badge svg {
+  flex-shrink: 0;
+}
+
+/* --- Features Grid --- */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+.feature-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  transition: all var(--transition-base);
+}
+
+.feature-card:hover {
+  border-color: var(--glass-border-strong);
+  background: var(--glass-bg-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.feature-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  transition: all var(--transition-base);
+}
+
+.feature-card:hover .feature-card-icon {
+  background: var(--color-accent);
+}
+
+.feature-card-body h4 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  color: var(--color-text-primary);
+}
+
+.feature-card-body p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+/* --- AWS Banner --- */
+.aws-banner {
+  background: linear-gradient(135deg, rgba(245, 166, 35, 0.06) 0%, rgba(59, 130, 246, 0.06) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-12) var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.aws-banner-logo {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.aws-logo-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 153, 0, 0.1);
+  border: 1px solid rgba(255, 153, 0, 0.3);
+  border-radius: var(--radius-lg);
+  font-size: 2rem;
+}
+
+.aws-powered-text {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.aws-banner-content h3 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-4);
+}
+
+.aws-banner-content p {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  max-width: 700px;
+}
+
+.aws-tagline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+/* --- Products Hub --- */
+.products-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-8);
+}
+
+.product-hub-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-hub-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gradient-accent);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.product-hub-card:hover {
+  border-color: var(--glass-border-strong);
+  transform: translateY(-6px);
+  box-shadow: var(--glass-shadow);
+  color: inherit;
+}
+
+.product-hub-card:hover::before {
+  opacity: 1;
+}
+
+.product-hub-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.product-hub-logo {
+  width: 64px;
+  height: 64px;
+  background: var(--color-accent-light);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: var(--space-3);
+}
+
+.product-hub-name {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.product-hub-tagline {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.product-hub-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.product-hub-feature {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.product-hub-feature-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.product-hub-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-accent);
+  transition: gap var(--transition-fast);
+  margin-top: auto;
+}
+
+.product-hub-card:hover .product-hub-cta {
+  gap: var(--space-3);
+}
+
+/* --- Suite Banner --- */
+.suite-banner {
+  background: linear-gradient(135deg, rgba(245, 166, 35, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-xl);
+  padding: var(--space-16) var(--space-12);
+  text-align: center;
+}
+
+.suite-banner h2 {
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-4);
+}
+
+.suite-banner p {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  max-width: 640px;
+  margin: 0 auto var(--space-8);
+}
+
+/* --- Responsive Product Pages --- */
+@media (max-width: 1024px) {
+  .security-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .aws-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-8);
+  }
+}
+
+@media (max-width: 768px) {
+  .product-hero {
+    padding: calc(var(--nav-height) + var(--space-10)) var(--space-4) var(--space-16);
+  }
+
+  .product-hero h1 {
+    font-size: 2rem;
+  }
+
+  .security-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .products-hub-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .platform-badges-row {
+    gap: var(--space-3);
+  }
+
+  .suite-banner {
+    padding: var(--space-10) var(--space-6);
+  }
+
+  .aws-banner {
+    padding: var(--space-8) var(--space-6);
+  }
 }

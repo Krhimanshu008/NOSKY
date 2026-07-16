@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  allowedDevOrigins: ['192.168.68.129', '192.168.1.15', '192.168.1.13'],
+  allowedDevOrigins: ['192.168.68.129', '192.168.1.15', '192.168.1.13', '192.168.1.11'],
 
   // Enable compression (gzip/brotli) for all responses
   compress: true,

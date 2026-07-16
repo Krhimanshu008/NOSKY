@@ -7,6 +7,7 @@ import Image from 'next/image';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
@@ -30,10 +31,30 @@ export default function Header() {
   };
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const diff = currentY - lastScrollY;
+
+      // Update scrolled (background + border)
+      setScrolled(currentY > 20);
+
+      // Hide on scroll-down (past 80px), reveal on scroll-up
+      if (!mobileOpen) {
+        if (diff > 6 && currentY > 80) {
+          setNavHidden(true);
+        } else if (diff < -4) {
+          setNavHidden(false);
+        }
+      }
+
+      lastScrollY = currentY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [mobileOpen]);
 
   useEffect(() => {
     if (mobileOpen) {
@@ -60,7 +81,7 @@ export default function Header() {
   }
 
   return (
-    <header className={`header ${scrolled ? 'scrolled' : ''}`} id="site-header">
+    <header className={`header ${scrolled ? 'scrolled' : ''} ${navHidden ? 'nav-hidden' : ''}`} id="site-header">
       <div className="header-inner">
         <Link href="/" className="header-logo" aria-label="NoSky Home">
           <Image src="/noskywhite.webp" alt="NoSky" width={160} height={44} style={{ objectFit: 'contain' }} priority />
