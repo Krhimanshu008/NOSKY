@@ -3,24 +3,21 @@ import crypto from 'crypto';
 
 /**
  * Get the database connection. Connection only runs once
- * per process lifetime via the _dbClientPromise flag.
+ * per process lifetime via the _mongoClientPromise flag.
  */
-export async function getDb() {
+export async function getDatabase() {
   if (!process.env.MONGODB_URI) {
     throw new Error('Please add your Mongo URI to .env');
   }
 
   const uri = process.env.MONGODB_URI;
 
-  if (globalThis._dbPromise && globalThis._dbInitialized) {
-    return globalThis._dbPromise;
+  if (globalThis._mongoClientPromise) {
+    const client = await globalThis._mongoClientPromise;
+    return client.db("nosky");
   }
 
-  if (globalThis._dbPromise) {
-    return globalThis._dbPromise;
-  }
-
-  globalThis._dbPromise = (async () => {
+  globalThis._mongoClientPromise = (async () => {
     const client = new MongoClient(uri, {
       serverApi: {
         version: ServerApiVersion.v1,
@@ -30,21 +27,18 @@ export async function getDb() {
     });
     
     await client.connect();
-    
-    // We return a small wrapper that mimics the sqlite async methods slightly
-    // but mostly we will refactor callers to use standard MongoDB syntax.
-    // For now, we return the 'articles' collection directly.
-    const db = client.db("nosky");
-    const collection = db.collection("articles");
-    
-    globalThis._dbInitialized = true;
-    return collection;
+    return client;
   })();
 
-  return globalThis._dbPromise;
+  const client = await globalThis._mongoClientPromise;
+  return client.db("nosky");
+}
+
+export async function getDb() {
+  const db = await getDatabase();
+  return db.collection("articles");
 }
 
 export function generateId() {
   return crypto.randomBytes(16).toString('hex');
 }
-

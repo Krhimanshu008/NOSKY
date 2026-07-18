@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import GlobalAurora from '@/components/ui/GlobalAurora';
 import FloatingConnect from '@/components/ui/FloatingConnect';
+import AnalyticsTracker from '@/components/analytics/AnalyticsTracker';
 
 // Self-hosted Google Fonts via next/font — no render-blocking CSS import
 const inter = Inter({
@@ -160,6 +161,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
+        <AnalyticsTracker />
         <GlobalAurora />
         <Header />
         <main>{children}</main>
