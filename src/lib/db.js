@@ -6,11 +6,11 @@ import crypto from 'crypto';
  * per process lifetime via the _mongoClientPromise flag.
  */
 export async function getDatabase() {
-  if (!process.env.MONGODB_URI) {
+  const uri = process.env.TEST_MONGODB_URI || process.env.MONGODB_URI;
+
+  if (!uri) {
     throw new Error('Please add your Mongo URI to .env');
   }
-
-  const uri = process.env.MONGODB_URI;
 
   if (globalThis._mongoClientPromise) {
     const client = await globalThis._mongoClientPromise;
@@ -37,6 +37,11 @@ export async function getDatabase() {
 export async function getDb() {
   const db = await getDatabase();
   return db.collection("articles");
+}
+
+export async function getUsersCollection() {
+  const db = await getDatabase();
+  return db.collection("users");
 }
 
 export function generateId() {

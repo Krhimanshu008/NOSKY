@@ -11,7 +11,7 @@ export default function BackButton({ label = 'Back', href, fallback = '/', style
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
   }, []);
 
   const canGoBack = mounted && (

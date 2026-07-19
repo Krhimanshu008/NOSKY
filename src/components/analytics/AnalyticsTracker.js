@@ -9,7 +9,7 @@ function AnalyticsTrackerInner() {
   const [visitorId, setVisitorId] = useState(null);
   
   // Refs for tracking active session state
-  const sessionStartTime = useRef(Date.now());
+  const sessionStartTime = useRef(null);
   const maxScroll = useRef(0);
 
   // Initialize or retrieve visitorId on mount
@@ -19,7 +19,7 @@ function AnalyticsTrackerInner() {
       storedId = 'v_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       localStorage.setItem('nosky_visitor_id', storedId);
     }
-    setVisitorId(storedId);
+    setTimeout(() => setVisitorId(storedId), 0);
   }, []);
 
   // Track page view, UTMs, and reset retention/scroll state
@@ -128,6 +128,7 @@ function AnalyticsTrackerInner() {
 
     // 3. Retention Time Tracking (beforeunload)
     const handleBeforeUnload = () => {
+      if (!sessionStartTime.current) return;
       const durationSeconds = Math.round((Date.now() - sessionStartTime.current) / 1000);
       
       const payload = JSON.stringify({

@@ -51,8 +51,10 @@ export default function UnifiedMapViewer({ selectedCountry, onCountrySelect }) {
     fetch('/api/analytics/globe')
       .then(res => res.json())
       .then(data => {
-        setVisitors(data);
-        setLoading(false);
+        setTimeout(() => {
+          setVisitors(data);
+          setLoading(false);
+        }, 0);
       });
   }, []);
 
@@ -62,14 +64,16 @@ export default function UnifiedMapViewer({ selectedCountry, onCountrySelect }) {
       // Find the first visitor from this country to use as a proxy for coordinates
       const countryVisitor = visitors.find(v => v.country === selectedCountry);
       if (countryVisitor) {
-        setViewState(prev => ({
-          ...prev,
-          longitude: countryVisitor.longitude,
-          latitude: countryVisitor.latitude,
-          zoom: 4,
-          pitch: 45,
-          transitionDuration: 2000 // Smooth 2s fly-to animation
-        }));
+        setTimeout(() => {
+          setViewState(prev => ({
+            ...prev,
+            longitude: countryVisitor.longitude,
+            latitude: countryVisitor.latitude,
+            zoom: 4,
+            pitch: 45,
+            transitionDuration: 2000 // Smooth 2s fly-to animation
+          }));
+        }, 0);
       }
     }
   }, [selectedCountry, visitors]);
