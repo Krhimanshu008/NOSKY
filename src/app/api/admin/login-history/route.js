@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getAdminLoginHistoryCollection } from '../../../../analytics/models/analyticsDb';
+import { verifyAuth } from '@/lib/auth';
 
 export async function GET(request) {
   try {
+    const isAuthenticated = await verifyAuth();
+    if (!isAuthenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const adminHistoryCollection = await getAdminLoginHistoryCollection();
     
     const logs = await adminHistoryCollection

@@ -2,16 +2,31 @@ import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { getAdminLoginHistoryCollection, getAnalyticsVisitorsCollection } from '../../../../analytics/models/analyticsDb';
+import { getUsersCollection } from '../../../../lib/db';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request) {
   try {
     const { username, password, visitorId } = await request.json();
 
-    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+    const usersCollection = await getUsersCollection();
+    let user = await usersCollection.findOne({ username });
+
+    // Auto-seed admin user if the database is empty and credentials match ENV
+    if (!user) {
+      const userCount = await usersCollection.countDocuments();
+      if (userCount === 0 && username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+        const passwordHash = await bcrypt.hash(password, 10);
+        await usersCollection.insertOne({ username, passwordHash, role: 'admin', createdAt: new Date() });
+        user = await usersCollection.findOne({ username });
+      }
+    }
+
+    if (user && await bcrypt.compare(password, user.passwordHash)) {
       // Create JWT token
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       
-      const token = await new SignJWT({ username, role: 'admin' })
+      const token = await new SignJWT({ username: user.username, role: user.role })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime('24h')

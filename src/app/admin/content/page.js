@@ -34,7 +34,7 @@ export default function ContentDashboard() {
   }, [router]);
 
   useEffect(() => {
-    fetchArticles();
+    setTimeout(() => fetchArticles(), 0);
   }, [fetchArticles]);
 
   const handleDelete = async (id) => {
