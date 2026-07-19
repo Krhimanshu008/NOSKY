@@ -51,4 +51,34 @@ describe('verifyAuth', () => {
     const result = await verifyAuth();
     expect(result).toBe(true);
   });
+
+  it('returns false if cookies() throws an error', async () => {
+    vi.mocked(cookies).mockRejectedValue(new Error('Dynamic server usage: cookies'));
+
+    const result = await verifyAuth();
+    expect(result).toBe(false);
+  });
+
+  it('returns false if the cookie exists but has no value', async () => {
+    vi.mocked(cookies).mockResolvedValue({
+      get: vi.fn().mockReturnValue({ value: undefined })
+    });
+
+    const result = await verifyAuth();
+    expect(result).toBe(false);
+  });
+
+  it('handles missing JWT_SECRET safely by returning false', async () => {
+    delete process.env.JWT_SECRET;
+    vi.mocked(cookies).mockResolvedValue({
+      get: vi.fn().mockReturnValue({ value: 'valid-token' })
+    });
+
+    // Without a JWT_SECRET, TextEncoder().encode(undefined) creates an empty Uint8Array
+    // jwtVerify should reject with an empty secret, causing verifyAuth to return false
+    vi.mocked(jose.jwtVerify).mockRejectedValue(new Error('Invalid secret'));
+
+    const result = await verifyAuth();
+    expect(result).toBe(false);
+  });
 });
