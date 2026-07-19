@@ -107,12 +107,24 @@ export async function getVisitorJourney(visitorId) {
   };
 }
 
-export async function getEngagementStats() {
+export async function getEngagementStats(period = 30, customStartDate = null, customEndDate = null) {
   const eventsCollection = await getAnalyticsEventsCollection();
+
+  const matchFilter = { isBot: false };
+  if (period === 'custom' && customStartDate && customEndDate) {
+    matchFilter.timestamp = { 
+      $gte: new Date(customStartDate),
+      $lte: new Date(customEndDate)
+    };
+  } else if (period !== 'all') {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(period, 10));
+    matchFilter.timestamp = { $gte: cutoffDate };
+  }
 
   // 1. Average Retention Time (time_on_page)
   const retentionPipeline = [
-    { $match: { eventType: 'time_on_page', isBot: false } },
+    { $match: { ...matchFilter, eventType: 'time_on_page' } },
     { $group: { _id: null, avgTime: { $avg: "$metadata.durationSeconds" } } }
   ];
   const retentionResult = await eventsCollection.aggregate(retentionPipeline).toArray();
@@ -121,8 +133,8 @@ export async function getEngagementStats() {
   // 2. Event Log (recent clicks, downloads, etc)
   const recentEvents = await eventsCollection
     .find({ 
-      eventType: { $in: ['click', 'email_click', 'tel_click', 'pdf_download', 'outbound_link'] },
-      isBot: false 
+      ...matchFilter,
+      eventType: { $in: ['click', 'email_click', 'tel_click', 'pdf_download', 'outbound_link'] }
     })
     .sort({ timestamp: -1 })
     .limit(10)
@@ -130,15 +142,42 @@ export async function getEngagementStats() {
 
   // 3. Scroll Depth Drop-off (average max depth across all page views)
   const scrollPipeline = [
-    { $match: { eventType: 'scroll_depth', isBot: false } },
+    { $match: { ...matchFilter, eventType: 'scroll_depth' } },
     { $group: { _id: "$metadata.depth", count: { $sum: 1 } } },
     { $sort: { _id: 1 } }
   ];
   const scrollMilestones = await eventsCollection.aggregate(scrollPipeline).toArray();
 
+  // 4. CTA Performance (Most clicked elements)
+  const ctaPipeline = [
+    { $match: { ...matchFilter, eventType: 'click', "metadata.text": { $exists: true, $ne: "" } } },
+    { $group: { _id: { text: "$metadata.text", path: "$path" }, count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+    { $limit: 10 },
+    { $project: { _id: 0, text: "$_id.text", path: "$_id.path", count: 1 } }
+  ];
+  const ctaPerformance = await eventsCollection.aggregate(ctaPipeline).toArray();
+
+  // 5. Retention by Page
+  const pageRetentionPipeline = [
+    { $match: { ...matchFilter, eventType: 'time_on_page' } },
+    { $group: { _id: "$path", avgTime: { $avg: "$metadata.durationSeconds" }, views: { $sum: 1 } } },
+    { $sort: { avgTime: -1 } },
+    { $limit: 10 }
+  ];
+  const retentionByPage = await eventsCollection.aggregate(pageRetentionPipeline).toArray();
+
+  // 6. Conversions
+  const totalClicks = await eventsCollection.countDocuments({ ...matchFilter, eventType: 'click' });
+  const totalDownloads = await eventsCollection.countDocuments({ ...matchFilter, eventType: 'pdf_download' });
+
   return {
     avgRetentionSeconds,
     recentEvents,
-    scrollMilestones
+    scrollMilestones,
+    ctaPerformance,
+    retentionByPage,
+    totalClicks,
+    totalDownloads
   };
 }

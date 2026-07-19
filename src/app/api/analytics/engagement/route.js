@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getEngagementStats } from '../../../../analytics/services/reportService';
 
-export async function GET() {
+export async function GET(request) {
   try {
-    const data = await getEngagementStats();
+    const { searchParams } = new URL(request.url);
+    const period = searchParams.get('period') || 30; // default to 30 days
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const data = await getEngagementStats(period, startDate, endDate);
     return NextResponse.json(data);
   } catch (error) {
     console.error('Failed to get engagement stats:', error);

@@ -7,17 +7,24 @@ import { Loader2, Users, Activity, Target, ArrowRight } from 'lucide-react';
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [visitors, setVisitors] = useState([]);
+  const [loginHistory, setLoginHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, visitorsRes] = await Promise.all([
+        const [statsRes, visitorsRes, historyRes] = await Promise.all([
           fetch('/api/analytics/dashboard'),
-          fetch('/api/analytics/visitors')
+          fetch('/api/analytics/visitors'),
+          fetch('/api/admin/login-history')
         ]);
         const statsData = await statsRes.json();
         const visitorsData = await visitorsRes.json();
+        
+        if (historyRes.ok) {
+          const historyData = await historyRes.json();
+          setLoginHistory(historyData.logs || []);
+        }
         
         setStats(statsData);
         // Sort and get top 5 hot leads
@@ -186,6 +193,36 @@ export default function AdminDashboard() {
                   </tr>
                 )) : (
                   <tr><td colSpan="2" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', padding: '2rem' }}>No reading data recorded yet</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* RECENT ADMIN LOGINS */}
+        <div className="admin-glass-panel" style={{ padding: 0, marginTop: 'var(--space-6)' }}>
+          <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+            <h3 style={{ margin: 0, fontWeight: 600 }}>Recent Admin Logins</h3>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="admin-table">
+              <thead><tr><th>Time</th><th>IP Address</th><th>User Agent</th><th>Status</th></tr></thead>
+              <tbody>
+                {loginHistory.length > 0 ? loginHistory.slice(0, 10).map((log, idx) => (
+                  <tr key={idx}>
+                    <td style={{ color: 'var(--color-text-muted)' }}>{new Date(log.timestamp).toLocaleString()}</td>
+                    <td style={{ fontFamily: 'monospace' }}>{log.ip}</td>
+                    <td style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={log.userAgent}>{log.userAgent}</td>
+                    <td>
+                      {log.success ? (
+                        <span style={{ padding: '2px 6px', background: 'rgba(52, 199, 89, 0.2)', color: '#34c759', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>Success</span>
+                      ) : (
+                        <span style={{ padding: '2px 6px', background: 'rgba(255, 59, 48, 0.2)', color: '#ff3b30', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>Failed</span>
+                      )}
+                    </td>
+                  </tr>
+                )) : (
+                  <tr><td colSpan="4" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', padding: '2rem' }}>No admin logins recorded yet</td></tr>
                 )}
               </tbody>
             </table>

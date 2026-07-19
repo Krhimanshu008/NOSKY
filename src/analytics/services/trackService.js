@@ -6,6 +6,12 @@ export async function trackEvent(visitorData, eventData) {
     const eventsCollection = await getAnalyticsEventsCollection();
     const visitorsCollection = await getAnalyticsVisitorsCollection();
 
+    // Check if this visitor is an admin device
+    const existingVisitor = await visitorsCollection.findOne({ visitorId: visitorData.visitorId });
+    if (existingVisitor?.isAdminDevice) {
+      return { success: true, bypassed: true };
+    }
+
     const timestamp = new Date();
     const botStatus = isBot(visitorData.userAgent);
 
@@ -50,6 +56,8 @@ export async function trackEvent(visitorData, eventData) {
           ip: visitorData.ip,
           country: visitorData.country,
           city: visitorData.city,
+          latitude: visitorData.latitude,
+          longitude: visitorData.longitude,
           userAgent: visitorData.userAgent,
           isBot: botStatus,
           ...(Object.keys(utms).length > 0 ? { latestAttribution: utms } : {}) // Update latest attribution if new UTMs exist

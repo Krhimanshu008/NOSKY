@@ -9,6 +9,7 @@ import RansomwareReality from '@/components/ui/RansomwareReality';
 import { getDb } from '@/lib/db';
 import InsightsCarousel from '@/components/ui/InsightsCarousel';
 import DelayedPrefetch from '@/components/ui/DelayedPrefetch';
+import BackupAdvisorInline from '@/components/ui/BackupAdvisorInline';
 
 export const revalidate = 60;
 
@@ -255,6 +256,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* BLOCK — Intelligent Backup Advisor CTA */}
+      <BackupAdvisorInline />
 
       {/* BLOCK 9 — Military-Grade Encryption */}
       <section className="section" id="security-strip" style={{ position: 'relative', overflow: 'hidden', paddingBottom: 'var(--space-4)' }}>

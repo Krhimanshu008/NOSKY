@@ -2356,3 +2356,12 @@ tbody tr:hover {
     padding: var(--space-8) var(--space-6);
   }
 }
+
+/* Hide scrollbars for specific containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

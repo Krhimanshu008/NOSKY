@@ -16,10 +16,11 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
+      const visitorId = localStorage.getItem('nosky_visitor_id');
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password, visitorId })
       });
 
       if (res.ok) {

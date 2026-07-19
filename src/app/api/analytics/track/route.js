@@ -15,6 +15,8 @@ export async function POST(req) {
       ip: geo.ip,
       country: geo.country,
       city: geo.city,
+      latitude: geo.latitude,
+      longitude: geo.longitude,
       userAgent: req.headers.get('user-agent') || 'Unknown',
     };
 

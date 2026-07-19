@@ -1,0 +1,522 @@
+'use client';
+import React, { useState, useMemo } from 'react';
+import GlassCard from './GlassCard';
+import {
+  hC, IC, UV, GV, _V, Rb, lq, JV
+} from './advisorData';
+
+export default function BackupAdvisorInline() {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [mode, setMode] = useState('selection');
+  const [step, setStep] = useState(1);
+  const [aiText, setAiText] = useState('');
+  
+  // Guided state
+  const [industry, setIndustry] = useState(null);
+  const [softwareIds, setSoftwareIds] = useState([]);
+  const [customSoftware, setCustomSoftware] = useState([]);
+  const [dataLocations, setDataLocations] = useState([]);
+  const [teamSize, setTeamSize] = useState(null);
+  const [criticality, setCriticality] = useState(null);
+
+  // Search state for step 2
+  const [searchTerm, setSearchTerm] = useState('');
+  const [customInput, setCustomInput] = useState('');
+
+  const handleStartWizard = () => {
+    setMode('guided');
+    setStep(1);
+  };
+  const handleStartAi = () => setMode('ai');
+
+  const handleSelectIndustry = (id) => {
+    setIndustry(id);
+    setStep(2);
+  };
+
+  const toggleSoftware = (id) => {
+    setSoftwareIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const addCustomSoftware = () => {
+    if (customInput.trim() && !customSoftware.includes(customInput.trim())) {
+      setCustomSoftware(prev => [...prev, customInput.trim()]);
+      setCustomInput('');
+    }
+  };
+
+  const toggleLocation = (loc) => {
+    setDataLocations(prev => 
+      prev.includes(loc) ? prev.filter(x => x !== loc) : [...prev, loc]
+    );
+  };
+
+  const startAnalysis = (fromAi = false) => {
+    setMode('analyzing');
+    if (fromAi) {
+      // Simulate AI extraction using JV
+      const parsed = JV(aiText);
+      setIndustry(parsed.industry);
+      setSoftwareIds(parsed.softwareIds);
+      setCustomSoftware(parsed.customSoftware);
+      setTeamSize(parsed.teamSize);
+      setCriticality(parsed.criticality);
+      setDataLocations(parsed.dataLocations || ['Local computers']);
+    }
+    setTimeout(() => {
+      setMode('result');
+    }, 2500);
+  };
+
+  const closeExpanded = () => {
+    setIsExpanded(false);
+    setTimeout(() => {
+      setMode('selection');
+      setStep(1);
+      setIndustry(null);
+      setSoftwareIds([]);
+      setCustomSoftware([]);
+      setDataLocations([]);
+      setTeamSize(null);
+      setCriticality(null);
+      setAiText('');
+    }, 300);
+  };
+
+  // RENDERERS
+  const renderSelection = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)', width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+      <h3 style={{ textAlign: 'center', fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+        Answer 5 quick questions or describe your business, and get a tailored backup plan in under a minute. Zero data loss, zero drama.
+      </h3>
+      
+      <div className="grid grid-2" style={{ gap: 'var(--space-6)' }}>
+        <div style={{ background: 'var(--color-bg-tertiary)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(245, 166, 35, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            </div>
+            <span style={{ fontSize: '12px', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '12px' }}>5 steps</span>
+          </div>
+          <h4 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>Guided Advisor</h4>
+          <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)', flexGrow: 1 }}>
+            Pick your industry, software and data — we map it to a precise plan.
+          </p>
+          <button onClick={handleStartWizard} className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>Start the wizard →</button>
+        </div>
+
+        <div style={{ background: 'var(--color-bg-tertiary)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(245, 166, 35, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+            </div>
+            <span style={{ fontSize: '12px', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '12px' }}>AI</span>
+          </div>
+          <h4 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>Describe your business</h4>
+          <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)', flexGrow: 1 }}>
+            Tell us in plain English what you do. Our AI drafts your strategy.
+          </p>
+          <button onClick={handleStartAi} className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>Describe it →</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderProgress = () => (
+    <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto var(--space-8) auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '8px', textTransform: 'uppercase' }}>
+        <span>Step {step} of 5</span>
+        <span style={{ color: 'var(--color-accent)' }}>{step * 20}%</span>
+      </div>
+      <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+        <div style={{ width: `${step * 20}%`, height: '100%', background: 'var(--color-accent)', transition: 'width 0.3s' }} />
+      </div>
+    </div>
+  );
+
+  const renderStep1 = () => (
+    <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+      <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: '4px' }}>What do you do?</h3>
+      <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>Pick the industry that best matches your business.</p>
+      
+      <div className="grid grid-3" style={{ gap: '16px' }}>
+        {IC.map(ind => (
+          <button key={ind.id} onClick={() => handleSelectIndustry(ind.id)} style={{
+            background: industry === ind.id ? 'rgba(245, 166, 35, 0.1)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${industry === ind.id ? 'var(--color-accent)' : 'rgba(255,255,255,0.05)'}`,
+            borderRadius: 'var(--radius-md)',
+            padding: '16px',
+            textAlign: 'left',
+            color: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            transition: 'all 0.2s',
+            cursor: 'pointer'
+          }}>
+            <span style={{ fontSize: '14px', fontWeight: 600 }}>{ind.label}</span>
+          </button>
+        ))}
+      </div>
+      <div style={{ marginTop: 'var(--space-8)', display: 'flex', justifyContent: 'space-between' }}>
+        <button onClick={() => setMode('selection')} className="btn btn-ghost">← Back</button>
+        <button onClick={() => industry && setStep(2)} className="btn btn-primary" disabled={!industry}>Next →</button>
+      </div>
+    </div>
+  );
+
+  const renderStep2 = () => {
+    const selectedInd = IC.find(i => i.id === industry);
+    const topCategories = selectedInd ? selectedInd.categories : [];
+    
+    // Group all software by category
+    const grouped = {};
+    hC.forEach(sw => {
+      if (searchTerm && !sw.name.toLowerCase().includes(searchTerm.toLowerCase())) return;
+      if (!grouped[sw.category]) grouped[sw.category] = [];
+      grouped[sw.category].push(sw);
+    });
+
+    return (
+      <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: '4px' }}>Select your software</h3>
+        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>Search or tap the tools you use. Add anything we're missing.</p>
+        
+        <input 
+          type="text" 
+          placeholder="Search software (e.g. Tally, Premiere, SQL Server)..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          style={{ width: '100%', padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-md)', color: 'white', marginBottom: '16px' }}
+        />
+
+        <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--space-6)' }}>
+          <input 
+            type="text" 
+            placeholder="+ Add other software"
+            value={customInput}
+            onChange={e => setCustomInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addCustomSoftware()}
+            style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: 'var(--radius-md)', color: 'white' }}
+          />
+          <button onClick={addCustomSoftware} className="btn btn-secondary">Add</button>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '12px', display: 'flex', flexDirection: 'column', gap: '24px', maxHeight: '400px' }}>
+          {customSoftware.length > 0 && (
+            <div>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', marginBottom: '12px' }}>CUSTOM ADDED</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {customSoftware.map(cs => (
+                  <button key={cs} onClick={() => setCustomSoftware(prev => prev.filter(x => x !== cs))} style={{
+                    padding: '8px 16px', background: 'rgba(245, 166, 35, 0.1)', border: '1px solid var(--color-accent)', borderRadius: '24px', color: 'white', fontSize: '13px', cursor: 'pointer'
+                  }}>
+                    {cs} ✕
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {Object.entries(Rb).map(([catKey, catName]) => {
+            const list = grouped[catKey];
+            if (!list || list.length === 0) return null;
+            const isTop = topCategories.includes(catKey);
+            
+            // If searching, show all matching categories, otherwise prioritize top ones or if user selected one
+            if (!searchTerm && !isTop && !list.some(sw => softwareIds.includes(sw.id))) return null;
+
+            return (
+              <div key={catKey}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {catName} 
+                  {isTop && <span style={{ background: 'rgba(245, 166, 35, 0.2)', color: 'var(--color-accent)', padding: '2px 6px', borderRadius: '4px', fontSize: '10px' }}>for you</span>}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {list.map(sw => {
+                    const isSelected = softwareIds.includes(sw.id);
+                    return (
+                      <button key={sw.id} onClick={() => toggleSoftware(sw.id)} style={{
+                        padding: '8px 16px', 
+                        background: isSelected ? 'rgba(245, 166, 35, 0.1)' : 'rgba(255,255,255,0.03)', 
+                        border: `1px solid ${isSelected ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)'}`, 
+                        borderRadius: '24px', color: 'white', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s'
+                      }}>
+                        {sw.name} {isSelected && '✕'}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        <div style={{ marginTop: 'var(--space-6)', display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <button onClick={() => setStep(1)} className="btn btn-ghost">← Back</button>
+          <button onClick={() => setStep(3)} className="btn btn-primary" disabled={softwareIds.length === 0 && customSoftware.length === 0}>Next →</button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderStep3 = () => (
+    <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+      <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: '4px' }}>Where does your data live?</h3>
+      <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>Select all that apply.</p>
+      
+      <div className="grid grid-2" style={{ gap: '16px' }}>
+        {UV.map(loc => (
+          <label key={loc} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px',
+            background: dataLocations.includes(loc) ? 'rgba(245, 166, 35, 0.1)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${dataLocations.includes(loc) ? 'var(--color-accent)' : 'rgba(255,255,255,0.05)'}`,
+            borderRadius: 'var(--radius-md)', cursor: 'pointer'
+          }}>
+            <span style={{ fontSize: '15px' }}>{loc}</span>
+            <input type="checkbox" checked={dataLocations.includes(loc)} onChange={() => toggleLocation(loc)} style={{ width: '18px', height: '18px', accentColor: 'var(--color-accent)' }} />
+          </label>
+        ))}
+      </div>
+      <div style={{ marginTop: 'var(--space-8)', display: 'flex', justifyContent: 'space-between' }}>
+        <button onClick={() => setStep(2)} className="btn btn-ghost">← Back</button>
+        <button onClick={() => dataLocations.length > 0 && setStep(4)} className="btn btn-primary" disabled={dataLocations.length === 0}>Next →</button>
+      </div>
+    </div>
+  );
+
+  const renderStep4 = () => (
+    <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+      <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: '4px' }}>How large is your team?</h3>
+      <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>This helps us estimate device coverage and data growth.</p>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {GV.map(ts => (
+          <button key={ts.id} onClick={() => { setTeamSize(ts.id); setStep(5); }} style={{
+            padding: '20px', textAlign: 'left', fontSize: '16px', fontWeight: 600,
+            background: teamSize === ts.id ? 'rgba(245, 166, 35, 0.1)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${teamSize === ts.id ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)'}`,
+            borderRadius: 'var(--radius-md)', color: 'white', cursor: 'pointer', transition: 'all 0.2s'
+          }}>
+            {ts.label} {ts.label === '100+' ? 'people' : 'people'}
+          </button>
+        ))}
+      </div>
+      <div style={{ marginTop: 'var(--space-8)', display: 'flex', justifyContent: 'flex-start' }}>
+        <button onClick={() => setStep(3)} className="btn btn-ghost">← Back</button>
+      </div>
+    </div>
+  );
+
+  const renderStep5 = () => (
+    <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+      <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: '4px' }}>What happens if you lose this data?</h3>
+      <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>This determines your recovery time objective (RTO).</p>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {_V.map(crit => (
+          <button key={crit.id} onClick={() => { setCriticality(crit.id); }} style={{
+            display: 'flex', flexDirection: 'column', gap: '4px', padding: '20px', textAlign: 'left',
+            background: criticality === crit.id ? 'rgba(245, 166, 35, 0.1)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${criticality === crit.id ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)'}`,
+            borderRadius: 'var(--radius-md)', color: 'white', cursor: 'pointer', transition: 'all 0.2s'
+          }}>
+            <span style={{ fontSize: '16px', fontWeight: 700 }}>{crit.label}</span>
+            <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{crit.desc}</span>
+          </button>
+        ))}
+      </div>
+      <div style={{ marginTop: 'var(--space-8)', display: 'flex', justifyContent: 'space-between' }}>
+        <button onClick={() => setStep(4)} className="btn btn-ghost">← Back</button>
+        <button onClick={() => criticality && startAnalysis()} className="btn btn-primary" disabled={!criticality}>Analyze & Generate Plan →</button>
+      </div>
+    </div>
+  );
+
+  const renderAi = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '600px', margin: '0 auto', gap: 'var(--space-6)' }}>
+      <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, textAlign: 'center' }}>Describe your business</h3>
+      <p style={{ color: 'var(--color-text-secondary)', textAlign: 'center' }}>Mention your industry, team size, tools you use, and data volume if you know it.</p>
+      
+      <textarea 
+        value={aiText}
+        onChange={(e) => setAiText(e.target.value)}
+        placeholder="e.g., We are a medical clinic with 30 staff. We run specialized local servers for patient records and use Microsoft 365. Around 2TB of data."
+        style={{ width: '100%', height: '200px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 'var(--radius-md)', padding: '20px', color: 'white', fontSize: '16px', resize: 'none', fontFamily: 'inherit' }}
+      />
+      
+      <div style={{ display: 'flex', width: '100%', gap: '12px', marginTop: 'var(--space-4)' }}>
+        <button onClick={() => setMode('selection')} className="btn btn-secondary" style={{ flex: 1, padding: '14px' }}>Cancel</button>
+        <button onClick={() => startAnalysis(true)} className="btn btn-primary" style={{ flex: 2, padding: '14px' }} disabled={aiText.trim().length < 10}>Analyze & Generate Plan →</button>
+      </div>
+    </div>
+  );
+
+  const renderAnalyzing = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '400px', gap: 'var(--space-6)' }}>
+      <div style={{ width: '48px', height: '48px', border: '3px solid rgba(245, 166, 35, 0.2)', borderTopColor: 'var(--color-accent)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+      <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>Engineering your backup strategy...</h3>
+      <p style={{ color: 'var(--color-text-secondary)' }}>Mapping your exact requirements to our infrastructure.</p>
+    </div>
+  );
+
+  const renderResult = () => {
+    // Generate actual results using the imported lq algorithm
+    const payload = {
+      industry,
+      softwareIds,
+      customSoftware,
+      dataLocations,
+      teamSize: teamSize || '1-5',
+      criticality: criticality || 'few-days'
+    };
+    
+    const res = lq(payload);
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '1000px', margin: '0 auto', gap: 'var(--space-8)' }}>
+        <div style={{ textAlign: 'center' }}>
+          <span style={{ background: 'var(--color-success-light)', color: 'var(--color-success)', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Analysis Complete</span>
+          <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, marginTop: 'var(--space-4)' }}>Your Tailored Backup Strategy</h2>
+        </div>
+        
+        <div className="grid grid-2" style={{ gap: 'var(--space-6)', width: '100%' }}>
+          {/* Main Plan Card */}
+          <div style={{ background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-accent)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'var(--color-accent)' }} />
+            <h4 style={{ color: 'var(--color-text-secondary)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Recommended Plan</h4>
+            <div style={{ fontSize: '36px', fontWeight: 800, color: 'white', marginBottom: '8px' }}>{res.plan.tier} Tier</div>
+            <div style={{ fontSize: '16px', color: 'var(--color-text-secondary)', marginBottom: '24px' }}>
+              Base capacity: <strong>{res.plan.minStorageGB >= 1000 ? (res.plan.minStorageGB/1000).toFixed(1) + ' TB' : res.plan.minStorageGB + ' GB'}</strong>
+            </div>
+
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '32px' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <span style={{ color: 'var(--color-success)', marginTop: '2px' }}>✓</span> 
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '15px' }}>{res.plan.backupInterval} Incremental</div>
+                  <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{res.plan.backupType}</div>
+                </div>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <span style={{ color: 'var(--color-success)', marginTop: '2px' }}>✓</span> 
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '15px' }}>{res.plan.retentionDays} Days Retention</div>
+                  <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{res.plan.versioningDays} days of active versioning</div>
+                </div>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <span style={{ color: 'var(--color-success)', marginTop: '2px' }}>✓</span> 
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '15px' }}>Ransomware Protection</div>
+                  <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{res.plan.immutableStorage ? "Immutable WORM storage enabled" : "Standard protection"}</div>
+                </div>
+              </li>
+              {res.plan.extras.map((ex, i) => (
+                <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  <span style={{ color: 'var(--color-accent)', marginTop: '2px' }}>✦</span> 
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '15px' }}>{ex.label}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{ex.value}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <button className="btn btn-primary" style={{ width: '100%', padding: '14px', fontSize: '16px' }}>Start Free 14-Day Trial</button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+            
+            {/* Reasoning Box */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Why this strategy?
+              </h4>
+              <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.5, listStyle: 'disc', paddingLeft: '20px' }}>
+                {res.reasoning.map((r, i) => <li key={i}>{r}</li>)}
+              </ul>
+            </div>
+
+            {/* DR Scores */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Disaster Resilience Scores</h4>
+              <div className="grid grid-2" style={{ gap: '16px' }}>
+                {Object.entries(res.drScores).map(([k, score]) => (
+                  <div key={k} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', textTransform: 'capitalize' }}>
+                      {k.replace(/([A-Z])/g, ' $1').trim()}
+                    </div>
+                    <div style={{ display: 'flex', gap: '2px' }}>
+                      {[1,2,3,4,5].map(star => (
+                        <div key={star} style={{ width: '20px', height: '6px', borderRadius: '3px', background: star <= score ? 'var(--color-success)' : 'rgba(255,255,255,0.1)' }} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <button onClick={closeExpanded} className="btn btn-secondary" style={{ marginTop: 'auto', alignSelf: 'flex-start' }}>← Restart Advisor</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <section className="section" id="backup-advisor" style={{ position: 'relative', overflow: 'hidden', paddingTop: 'var(--space-12)', paddingBottom: 'var(--space-12)', background: 'linear-gradient(180deg, #05070a 0%, #0a0e16 50%, #05070a 100%)', minHeight: '600px', display: 'flex', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'radial-gradient(rgba(245, 166, 35, 0.04) 1px, transparent 1px)', backgroundSize: '32px 32px', zIndex: 0, pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '900px', height: '500px', background: 'radial-gradient(ellipse at center, rgba(245, 166, 35, 0.06) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+
+      <div className="container" style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+        <GlassCard interactive={false} style={{ padding: isExpanded ? 'var(--space-8)' : 'var(--space-10)', display: 'flex', flexDirection: 'column', alignItems: 'center', border: '1px solid rgba(245, 166, 35, 0.12)', minHeight: isExpanded ? '550px' : 'auto', transition: 'min-height 0.3s ease' }}>
+          {!isExpanded ? (
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span className="badge badge-accent" style={{ fontSize: '11px', letterSpacing: '0.08em', marginBottom: 'var(--space-6)' }}>Free Tool · No Signup</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(245, 166, 35, 0.15), rgba(245, 166, 35, 0.05))', border: '1px solid rgba(245, 166, 35, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 30px rgba(245, 166, 35, 0.15)' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+              </div>
+              <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 800, lineHeight: 1.2, maxWidth: '600px', background: 'linear-gradient(to right, #fff, #f5a623)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 'var(--space-6)' }}>Get Your Personalized Backup Strategy</h2>
+              <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-secondary)', maxWidth: '520px', lineHeight: 'var(--leading-relaxed)', marginBottom: 'var(--space-6)' }}>
+                Tell us the software you use — we'll engineer a complete backup plan with storage estimates, recovery targets, and encryption recommendations. <strong style={{ color: 'var(--color-text-primary)' }}>Takes under 60 seconds.</strong>
+              </p>
+              <button onClick={() => setIsExpanded(true)} className="btn btn-primary btn-lg" style={{ padding: '16px 36px', fontSize: '1rem', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 0 40px rgba(245, 166, 35, 0.2)', cursor: 'pointer' }}>
+                Launch Backup Advisor
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ paddingBottom: 'var(--space-4)', display: 'flex', justifyContent: 'flex-end' }}>
+                <button onClick={closeExpanded} className="btn btn-ghost btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  Close Advisor
+                </button>
+              </div>
+              
+              {mode === 'guided' && renderProgress()}
+
+              <div style={{ flexGrow: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+                {mode === 'selection' && renderSelection()}
+                {mode === 'guided' && step === 1 && renderStep1()}
+                {mode === 'guided' && step === 2 && renderStep2()}
+                {mode === 'guided' && step === 3 && renderStep3()}
+                {mode === 'guided' && step === 4 && renderStep4()}
+                {mode === 'guided' && step === 5 && renderStep5()}
+                {mode === 'ai' && renderAi()}
+                {mode === 'analyzing' && renderAnalyzing()}
+                {mode === 'result' && renderResult()}
+              </div>
+            </div>
+          )}
+        </GlassCard>
+      </div>
+    </section>
+  );
+}

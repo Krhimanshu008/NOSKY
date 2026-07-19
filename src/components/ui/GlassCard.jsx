@@ -2,8 +2,9 @@
 
 import React from 'react';
 
-export default function GlassCard({ children, className = '', isHero = false, ...props }) {
+export default function GlassCard({ children, className = '', isHero = false, interactive = true, ...props }) {
   const handleCardMouseMove = (e) => {
+    if (!interactive) return;
     const el = e.currentTarget;
     const rect = el.getBoundingClientRect();
     const maxTilt = isHero ? 4 : 8;
@@ -26,6 +27,7 @@ export default function GlassCard({ children, className = '', isHero = false, ..
   };
 
   const handleCardMouseLeave = (e) => {
+    if (!interactive) return;
     const el = e.currentTarget;
     el.style.transform = '';
   };
@@ -37,7 +39,7 @@ export default function GlassCard({ children, className = '', isHero = false, ..
       onMouseLeave={handleCardMouseLeave}
       {...props}
     >
-      <div className="card-shine"></div>
+      {interactive && <div className="card-shine"></div>}
       {children}
     </div>
   );
