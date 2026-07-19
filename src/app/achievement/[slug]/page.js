@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import ArticleClient from './ArticleClient';
 import { verifyAuth } from '@/lib/auth';
+import { sanitizeJsonLd } from '@/lib/sanitize';
 
 // ISR: rebuild individual achievements every 5 minutes
 export const revalidate = 300;
@@ -75,7 +76,7 @@ export default async function AchievementSinglePage({ params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(jsonLd) }}
       />
       <ArticleClient article={article} />
     </>
