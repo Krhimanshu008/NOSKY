@@ -41,12 +41,11 @@ const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChang
       editor.commands.setContent('');
       
       const chunkSize = 4;
-      let current = '';
       const el = document.querySelector('.tiptap-content-wrapper');
       
       for (let i = 0; i < fullMarkdown.length; i += chunkSize) {
         if (!isTypingRef.current) break; // aborted
-        current += fullMarkdown.substring(i, i + chunkSize);
+        const current = fullMarkdown.substring(0, i + chunkSize);
         editor.commands.setContent(current, false); // false = don't emit update event
         
         if (el) el.scrollTop = el.scrollHeight;
