@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BackupPipeline from '@/components/BackupPipeline';
 import { 
   ShieldCheck, Server, Cloud, HardDrive, Lock, FileText, Share2, 
   RefreshCcw, AlertTriangle, Zap, Activity, Clock, FileWarning, HelpCircle, 
@@ -143,17 +144,8 @@ export default function NoskyBackupProPage() {
             <p>Engineered for reliability. Understand exactly how your data is processed.</p>
           </div>
 
-          <div style={{ marginTop: 'var(--space-12)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)' }}>
-            {pipelineSteps.map((step, idx) => (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div className="badge" style={{ padding: 'var(--space-3) var(--space-8)', fontSize: 'var(--text-sm)', background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border-accent)', minWidth: '250px', justifyContent: 'center' }}>
-                  {step}
-                </div>
-                {idx < pipelineSteps.length - 1 && (
-                  <ArrowDown className="text-accent" style={{ margin: 'var(--space-2) 0' }} size={20} />
-                )}
-              </div>
-            ))}
+          <div style={{ marginTop: 'var(--space-12)' }}>
+            <BackupPipeline />
           </div>
         </div>
       </section>

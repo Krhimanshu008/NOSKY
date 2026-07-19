@@ -3,7 +3,12 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Loader2, Activity, Users, FileText, MousePointer, Clock, MapPin, Monitor, ChevronDown, ChevronRight, Eye, ArrowDownToLine, MoveDown, Globe2, Maximize } from 'lucide-react';
-import UnifiedMapViewer from '../../../components/analytics/UnifiedMapViewer';
+import dynamic from 'next/dynamic';
+
+const UnifiedMapViewer = dynamic(() => import('../../../components/analytics/UnifiedMapViewer'), { 
+  ssr: false,
+  loading: () => <div style={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}><Loader2 className="animate-spin" size={32} /></div>
+});
 
 export default function AnalyticsDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -388,7 +393,7 @@ function JourneysTab() {
                                   {event.eventType === 'page_view' && `Viewed page`}
                                   {event.eventType === 'time_on_page' && `Spent ${event.metadata.durationSeconds}s on page`}
                                   {event.eventType === 'scroll_depth' && `Scrolled to ${event.metadata.depth}%`}
-                                  {event.eventType === 'click' && <span>Clicked <strong>"{event.metadata.text}"</strong></span>}
+                                  {event.eventType === 'click' && <span>Clicked <strong>&quot;{event.metadata.text}&quot;</strong></span>}
                                   {event.eventType === 'outbound_link' && `Left site to ${event.metadata.href}`}
                                   {event.eventType === 'pdf_download' && `Downloaded PDF`}
                                 </div>
@@ -427,6 +432,7 @@ function EngagementTab() {
     // Only fetch custom if dates are provided
     if (period === 'custom' && (!startDate || !endDate)) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     let url = `/api/analytics/engagement?period=${period}`;
     if (period === 'custom') {
@@ -507,7 +513,7 @@ function EngagementTab() {
             <tbody>
               {stats.ctaPerformance?.map((cta, i) => (
                 <tr key={i}>
-                  <td style={{ fontWeight: 600, color: 'var(--color-accent)' }}>"{cta.text}"</td>
+                  <td style={{ fontWeight: 600, color: 'var(--color-accent)' }}>&quot;{cta.text}&quot;</td>
                   <td style={{ fontSize: '0.875rem' }}>{cta.path === '/' ? 'Home Page' : cta.path}</td>
                   <td style={{ fontWeight: 600 }}>{cta.count}</td>
                 </tr>
