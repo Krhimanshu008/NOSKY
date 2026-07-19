@@ -97,7 +97,7 @@ function AnalyticsTrackerInner() {
           metadata: eventMeta
         }),
         keepalive: true // Ensure it fires even during navigation
-      }).catch(() => {});
+      }).catch((err) => console.error('Analytics tracking failed', err));
     };
 
     // 2. Scroll Analytics
@@ -121,7 +121,7 @@ function AnalyticsTrackerInner() {
               metadata: { depth: milestone }
             }),
             keepalive: true
-          }).catch(() => {});
+          }).catch((err) => console.error('Analytics tracking failed', err));
         }
       });
     };
