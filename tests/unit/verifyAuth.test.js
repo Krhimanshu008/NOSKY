@@ -30,6 +30,26 @@ describe('verifyAuth', () => {
     expect(result).toBe(false);
   });
 
+  it('returns false if cookies() throws an error', async () => {
+    vi.mocked(cookies).mockRejectedValue(new Error('Cookies error'));
+
+    const result = await verifyAuth();
+    expect(result).toBe(false);
+  });
+
+  it('returns false if jwtVerify throws an ExpiredToken error', async () => {
+    vi.mocked(cookies).mockResolvedValue({
+      get: vi.fn().mockReturnValue({ value: 'expired-token' })
+    });
+
+    const expiredError = new Error('JWT expired');
+    expiredError.code = 'ERR_JWT_EXPIRED';
+    vi.mocked(jose.jwtVerify).mockRejectedValue(expiredError);
+
+    const result = await verifyAuth();
+    expect(result).toBe(false);
+  });
+
   it('returns false if jwtVerify throws an error', async () => {
     vi.mocked(cookies).mockResolvedValue({
       get: vi.fn().mockReturnValue({ value: 'invalid-token' })
