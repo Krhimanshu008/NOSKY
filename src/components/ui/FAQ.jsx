@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { sanitizeJsonLd } from '@/lib/sanitize';
 
 export default function FAQ({ items, sectionTitle, sectionSub }) {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -45,7 +46,7 @@ export default function FAQ({ items, sectionTitle, sectionSub }) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(faqSchema) }}
       />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {sectionTitle && (

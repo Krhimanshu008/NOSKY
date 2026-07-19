@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import ArticleClient from './ArticleClient';
 import cache, { CACHE_TTL, CACHE_KEYS } from '@/lib/cache';
 import { verifyAuth } from '@/lib/auth';
+import { sanitizeJsonLd } from '@/lib/sanitize';
 
 // ISR: rebuild individual articles every 5 minutes
 export const revalidate = 300;
@@ -76,7 +77,7 @@ export default async function ArticleSinglePage({ params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(jsonLd) }}
       />
       <ArticleClient article={article} />
     </>
