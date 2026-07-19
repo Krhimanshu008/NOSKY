@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import ArticleClient from './ArticleClient';
@@ -18,10 +19,10 @@ export async function generateStaticParams() {
   }
 }
 
-async function getArticleBySlug(slug) {
+const getArticleBySlug = cache(async (slug) => {
   const collection = await getDb();
   return await collection.findOne({ slug }, { projection: { _id: 0 } });
-}
+});
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
