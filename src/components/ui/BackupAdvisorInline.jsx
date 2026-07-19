@@ -274,7 +274,7 @@ export default function BackupAdvisorInline() {
           <button onClick={addCustomSoftware} className="btn btn-secondary">Add</button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '12px', display: 'flex', flexDirection: 'column', gap: '24px', maxHeight: '400px' }}>
+        <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', paddingRight: '12px', display: 'flex', flexDirection: 'column', gap: '24px', maxHeight: '400px' }}>
           {customSoftware.length > 0 && (
             <div>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', marginBottom: '12px' }}>CUSTOM ADDED</div>
