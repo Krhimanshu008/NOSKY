@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-
 export default function GlassCard({ children, className = '', isHero = false, interactive = true, ...props }) {
   const handleCardMouseMove = (e) => {
     if (!interactive) return;
