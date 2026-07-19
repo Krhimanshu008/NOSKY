@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import ArticleClient from './ArticleClient';
-import cache, { CACHE_TTL, CACHE_KEYS } from '@/lib/cache';
 import { verifyAuth } from '@/lib/auth';
 
 // ISR: rebuild individual articles every 5 minutes
