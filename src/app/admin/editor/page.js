@@ -5,6 +5,25 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 
+const processFile = async (file) => {
+  if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+    try {
+      const heic2any = (await import('heic2any')).default;
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.8
+      });
+      const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      return new File([blob], file.name.replace(/\.heic$|\.heif$/i, '.jpg'), { type: 'image/jpeg' });
+    } catch (e) {
+      console.error('HEIC conversion error', e);
+      return file;
+    }
+  }
+  return file;
+};
+
 const TiptapEditor = dynamic(
   () => import('./TiptapEditor'),
   { ssr: false }
@@ -79,8 +98,10 @@ export default function ArticleEditor({ params }) {
   };
 
   const handleCoverUpload = async (e) => {
-    const file = e.target.files?.[0];
+    let file = e.target.files?.[0];
     if (!file) return;
+
+    file = await processFile(file);
 
     setIsUploadingImage(true);
     try {
@@ -119,7 +140,8 @@ export default function ArticleEditor({ params }) {
 
     setIsUploadingImage(true);
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
+      const uploadPromises = Array.from(files).map(async (rawFile) => {
+        const file = await processFile(rawFile);
         const body = new FormData();
         body.append('file', file);
         

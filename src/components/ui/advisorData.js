@@ -1668,146 +1668,237 @@ export function cq(n) {
   return IC.find((o) => o.id === n)?.label ?? "General Business";
 }
 export function lq(n) {
-  const o = KV(n),
-    c = n.customSoftware.length,
-    s = o.reduce((Me, Lo) => Me + Lo.monthlyGrowthGB, 0) + c * 2,
-    h = WV[n.teamSize],
-    u = n.dataLocations,
-    f =
-      u.includes("Virtual machines") ||
-      u.includes("On-prem server") ||
-      u.includes("NAS") ||
-      u.includes("Hybrid")
-        ? 1.3
-        : 1,
-    m = Math.max(1, Math.round(s * h * f)),
-    M = m * 3 + 12 * m,
-    g = $V(M),
-    b = XV(g);
-  let L = o.length
-    ? Math.min(
-        ...o
-          .filter((Me) => !Me.specialNeeds?.includes("realtime-repo"))
-          .map((Me) => Me.backupIntervalMin)
-          .concat(o.length ? [] : [1440]),
-      )
-    : 1440;
-  (Number.isFinite(L) ||
-    (L = o.length ? Math.min(...o.map((Me) => Me.backupIntervalMin)) : 1440),
-    (n.criticality === "business-stops" || n.criticality === "legal") &&
-      (L = Math.min(L, 30)),
-    n.criticality === "recreate" && (L = Math.max(L, 60)));
-  const A = ["legal", "healthcare", "government"].includes(n.industry),
-    C = n.criticality === "legal",
-    I = A || C,
-    R =
-      ["media", "photography"].includes(n.industry) ||
-      o.some((Me) => ["video", "audio", "media-3d"].includes(Me.category));
-  let B = 90,
-    F = 30;
-  I ? ((B = 2555), (F = 365)) : R ? ((B = 180), (F = 180)) : (F = 90);
-  const D = o.some((Me) => Me.priority === "critical"),
-    G = C1(o, "db-aware-backup"),
-    N = C1(o, "vm-snapshot") || u.includes("Virtual machines"),
-    Q = C1(o, "realtime-repo"),
-    le = C1(o, "large-media") || C1(o, "ssd-cache"),
-    me = C1(o, "fast-restore"),
-    de = C1(o, "immutable") || C1(o, "compliance-archive"),
-    ae = o.filter((Me) => Me.compressibility === "low").length,
-    te = o.filter((Me) => Me.compressibility === "high").length;
-  let ie;
-  ae > te && ae > 0 ? (ie = "Low") : te > ae ? (ie = "High") : (ie = "Medium");
-  const $ = o.some((Me) => Me.dedupBenefit === "very-high"),
-    fe = o.some((Me) => Me.dedupBenefit === "high");
-  let ne;
-  $ ? (ne = "Very High") : fe ? (ne = "High") : (ne = "Medium");
-  let ce = "Incremental Forever";
-  le
-    ? (ce = "Incremental Forever (SSD-cached)")
-    : G && (ce = "Incremental + DB-aware Snapshots");
-  let T;
-  n.teamSize === "100+" || I || g > 5e3
-    ? (T = "Enterprise")
-    : g <= 250 && n.teamSize === "1-5" && !D
-      ? (T = "Starter")
-      : (T = "Business");
-  let Z;
-  D && (n.criticality === "business-stops" || n.criticality === "legal")
-    ? (Z = "High")
-    : o.length > 0 &&
-        o.every((Me) => Me.priority === "medium") &&
-        n.criticality === "recreate"
-      ? (Z = "Low")
-      : (Z = "Medium");
-  const W = T !== "Starter" || I || D,
-    z = !0;
-  let V = "Weekly";
-  I
-    ? (V = "Monthly (air-gapped)")
-    : R || g >= 5e3
-      ? (V = "Monthly")
-      : T === "Starter" && (V = "Optional");
-  const se = u.length === 1 && u[0] === "External HDD",
-    ue =
-      u.length > 0 &&
-      u.every((Me) => Me === "Local computers" || Me === "External HDD"),
-    pe = {
-      ransomware: z ? 5 : 3,
-      hardwareFailure: 5,
-      accidentalDelete: 5,
-      powerFailure: 5,
-      fire: W && V.startsWith("Monthly") ? 5 : 4,
-      flood: W && V.startsWith("Monthly") ? 5 : 4,
+  const industries = Array.isArray(n.industry) ? n.industry : (n.industry ? [n.industry] : ['other']);
+  const o = KV(n);
+  const c = n.customSoftware.length;
+
+  const segmentsMap = {};
+  o.forEach(sw => {
+    if (!segmentsMap[sw.category]) {
+      segmentsMap[sw.category] = {
+        name: Rb[sw.category] || sw.category,
+        category: sw.category,
+        software: [],
+        monthlyGrowthGB: 0,
+        intervalMin: 1440,
+        needsCompliance: false,
+        priority: 'low'
+      };
+    }
+    const seg = segmentsMap[sw.category];
+    seg.software.push(sw);
+    seg.monthlyGrowthGB += sw.monthlyGrowthGB;
+    seg.intervalMin = Math.min(seg.intervalMin, sw.backupIntervalMin);
+    if (sw.specialNeeds?.includes("compliance-archive")) seg.needsCompliance = true;
+    if (sw.priority === 'critical') seg.priority = 'critical';
+    else if (sw.priority === 'medium' && seg.priority !== 'critical') seg.priority = 'medium';
+  });
+
+  if (c > 0) {
+    segmentsMap['custom'] = {
+      name: "Custom Software",
+      category: "custom",
+      software: n.customSoftware.map(name => ({name})),
+      monthlyGrowthGB: c * 2,
+      intervalMin: 1440,
+      needsCompliance: false,
+      priority: 'medium'
     };
-  se
-    ? ((pe.fire = 2), (pe.flood = 2), (pe.hardwareFailure = 3))
-    : ue && ((pe.fire = 3), (pe.flood = 3));
+  }
+
+  const segments = Object.values(segmentsMap);
+
+  const teamSizeStr = n.teamSize || "1-5";
+  const teamBase = WV[teamSizeStr] || 1.5;
+  const u = n.dataLocations || [];
+  const f = (u.includes("Virtual machines") || u.includes("On-prem server") || u.includes("NAS") || u.includes("Hybrid")) ? 1.3 : 1;
+
+  let totalMonthlyGrowth = 0;
+  let overallInterval = 1440;
+  let hasCritical = false;
+  let complianceNeeded = ["legal", "healthcare", "government"].some(ind => industries.includes(ind));
+
+  const perSegmentLines = [];
+
+  segments.forEach(seg => {
+    let usageShare = 0.4;
+    if (['office', 'email', 'finance', 'pos-retail'].includes(seg.category)) {
+      usageShare = 1.0;
+    } else {
+      const relatedIndustries = o.find(sw => sw.category === seg.category)?.industries || [];
+      if (relatedIndustries.some(ind => industries.includes(ind))) {
+        usageShare = 0.7;
+      }
+    }
+    
+    const effectiveMultiplier = Math.max(0.5, teamBase * usageShare); 
+    const segGrowth = seg.monthlyGrowthGB * effectiveMultiplier * f;
+    totalMonthlyGrowth += segGrowth;
+    overallInterval = Math.min(overallInterval, seg.intervalMin);
+    if (seg.priority === 'critical') hasCritical = true;
+    if (seg.needsCompliance) complianceNeeded = true;
+    
+    perSegmentLines.push({
+      name: seg.name,
+      monthlyGrowthGB: segGrowth,
+      intervalMin: seg.intervalMin,
+      share: usageShare
+    });
+  });
+
+  const m = Math.max(1, Math.round(totalMonthlyGrowth));
+  
+  let baseDataGB = m * 3;
+  let baseDataSource = 'estimated-from-software';
+  if (n.userBaseSizeGB) {
+    baseDataGB = n.userBaseSizeGB;
+    baseDataSource = 'user-stated';
+  }
+
+  const M = baseDataGB + 12 * m;
+  const safetyBuffer = (complianceNeeded || n.userRetention === "7 years (compliance)" || n.userRetention === "Forever") ? 1.5 : 1.25;
+  const rawTotalGB = M * safetyBuffer;
+  const g = $V(rawTotalGB);
+  const b = XV(g);
+
+  if (n.criticality === "business-stops" || n.criticality === "legal") {
+    overallInterval = Math.min(overallInterval, 30);
+  } else if (n.criticality === "recreate") {
+    overallInterval = Math.max(overallInterval, 60);
+  }
+
+  let B = 90, F = 30;
+  const isMedia = industries.includes("media") || industries.includes("photography") || segments.some(seg => ["video", "audio", "media-3d"].includes(seg.category));
+  
+  if (complianceNeeded || n.criticality === "legal" || n.userRetention === "7 years (compliance)" || n.userRetention === "Forever") {
+    B = 2555; F = 365;
+  } else if (n.userRetention === "1 year") {
+    B = 365; F = 90;
+  } else if (isMedia) {
+    B = 180; F = 180;
+  } else {
+    F = 90;
+  }
+
+  const dbAware = C1(o, "db-aware-backup");
+  const vmSnap = C1(o, "vm-snapshot") || u.includes("Virtual machines");
+  const realtime = C1(o, "realtime-repo");
+  const ssd = C1(o, "large-media") || C1(o, "ssd-cache");
+  const fastRestore = C1(o, "fast-restore");
+  const immutable = C1(o, "immutable") || complianceNeeded || B >= 365;
+  const de = immutable;
+  
+  const ae = o.filter((Me) => Me.compressibility === "low").length;
+  const te = o.filter((Me) => Me.compressibility === "high").length;
+  let ie = "Medium";
+  if (ae > te && ae > 0) ie = "Low";
+  else if (te > ae) ie = "High";
+
+  const dedupVeryHigh = o.some((Me) => Me.dedupBenefit === "very-high");
+  const dedupHigh = o.some((Me) => Me.dedupBenefit === "high");
+  const ne = dedupVeryHigh ? "Very High" : dedupHigh ? "High" : "Medium";
+
+  let ce = "Incremental Forever";
+  if (ssd) ce = "Incremental Forever (SSD-cached)";
+  else if (dbAware) ce = "Incremental + DB-aware Snapshots";
+
+  let T = "Business";
+  if (n.teamSize === "100+" || complianceNeeded || g > 5000) T = "Enterprise";
+  else if (g <= 250 && n.teamSize === "1-5" && !hasCritical) T = "Starter";
+
+  let Z = "Medium";
+  if (hasCritical && (n.criticality === "business-stops" || n.criticality === "legal")) Z = "High";
+  else if (o.length > 0 && !hasCritical && n.criticality === "recreate") Z = "Low";
+
+  const W = T !== "Starter" || complianceNeeded || hasCritical;
+  const z = immutable;
+  
+  let V = "Weekly";
+  if (complianceNeeded) V = "Monthly (air-gapped)";
+  else if (isMedia || g >= 5000) V = "Monthly";
+  else if (T === "Starter") V = "Optional";
+
+  const pe = {
+    ransomware: z ? 5 : 3,
+    hardwareFailure: 5,
+    accidentalDelete: 5,
+    powerFailure: 5,
+    fire: W && V.startsWith("Monthly") ? 5 : 4,
+    flood: W && V.startsWith("Monthly") ? 5 : 4,
+  };
+  if (u.length === 1 && u[0] === "External HDD") {
+    pe.fire = 2; pe.flood = 2; pe.hardwareFailure = 3;
+  } else if (u.every(x => x === "Local computers" || x === "External HDD")) {
+    pe.fire = 3; pe.flood = 3;
+  }
+
   const ye = [];
-  (G &&
-    ye.push({
-      label: "Database Backup",
-      value: "Every 15 Minutes (app-consistent)",
-    }),
-    N && ye.push({ label: "VM Snapshot", value: "Daily" }),
-    Q && ye.push({ label: "Repository Sync", value: "Real-time" }),
-    le
-      ? ye.push({ label: "SSD Cache", value: "Recommended + Fast Restore" })
-      : me && ye.push({ label: "Fast Restore", value: "Enabled" }),
-    de && ye.push({ label: "Compliance Archive", value: "WORM / Immutable" }));
+  if (dbAware) ye.push({ label: "Database Backup", value: "Every 15 Minutes (app-consistent)" });
+  if (vmSnap) ye.push({ label: "VM Snapshot", value: "Daily" });
+  if (realtime) ye.push({ label: "Repository Sync", value: "Real-time" });
+  if (ssd) ye.push({ label: "SSD Cache", value: "Recommended + Fast Restore" });
+  else if (fastRestore) ye.push({ label: "Fast Restore", value: "Enabled" });
+  if (de || z) ye.push({ label: "Compliance Archive", value: "WORM / Immutable" });
+
+  segments.forEach(seg => {
+    if (seg.intervalMin < overallInterval || (seg.intervalMin === 15 && overallInterval > 15)) {
+       ye.push({ label: `${seg.name} Backup`, value: `Every ${seg.intervalMin} min` });
+    }
+  });
+
   const xe = [];
-  xe.push(cq(n.industry));
-  for (const Me of o.slice(0, 6)) xe.push(Me.name);
-  for (const Me of n.customSoftware.slice(0, 3)) xe.push(Me);
+  industries.forEach(ind => xe.push(cq(ind)));
+  o.slice(0, 6).forEach(Me => xe.push(Me.name));
+  n.customSoftware.slice(0, 3).forEach(Me => xe.push(Me));
+
   const ge = QV({
-      swList: o,
-      monthlyGrowthGB: m,
-      intervalMin: L,
-      compression: ie,
-      dedup: ne,
-      isMedia: R,
-      hasDb: G,
-      hasVm: N,
-      hasGit: Q,
-      needsCompliance: I,
-      recommendedStorageGB: g,
-    }),
-    Ce = ZV[n.criticality];
+    swList: o,
+    monthlyGrowthGB: m,
+    intervalMin: overallInterval,
+    compression: ie,
+    dedup: ne,
+    isMedia: isMedia,
+    hasDb: dbAware,
+    hasVm: vmSnap,
+    hasGit: realtime,
+    needsCompliance: complianceNeeded,
+    recommendedStorageGB: g,
+  });
+
+  let businessType = "General Business";
+  if (industries.length > 0 && industries[0] !== 'other') {
+    businessType = industries.map(ind => cq(ind)).join(" & ") + " Business";
+  } else if (segments.length > 0) {
+    businessType = segments[0].name + " Workload";
+  }
+
+  const storageBreakdown = {
+    baseDataGB,
+    baseDataSource,
+    perSoftware: perSegmentLines,
+    teamMultiplier: teamBase,
+    locationFactor: f,
+    monthlyGrowthGB: m,
+    projectionMonths: 12,
+    projectedGB: M,
+    safetyBuffer,
+    rawTotalGB,
+    roundedTo: g
+  };
+
   return {
     profile: {
-      businessType:
-        n.industry === "other"
-          ? "General Business"
-          : `${cq(n.industry)} Business`,
+      businessType,
       detectedFrom: xe,
       riskLevel: Z,
       monthlyGrowthGB: m,
-      criticalityStars: Ce,
+      criticalityStars: ZV[n.criticality] || 3,
     },
     plan: {
       tier: T,
       minStorageGB: b,
       recommendedStorageGB: g,
-      backupInterval: Jj(L),
+      backupInterval: Jj(overallInterval),
       backupType: ce,
       retentionDays: B,
       versioningDays: F,
@@ -1820,6 +1911,8 @@ export function lq(n) {
       immutableStorage: z,
       extras: ye,
     },
+    storageBreakdown,
+    segments: perSegmentLines,
     drScores: pe,
     reasoning: ge,
     source: "guided",

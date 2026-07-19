@@ -8,14 +8,16 @@ const ALLOWED_MIME_TYPES = [
   'image/jpeg',
   'image/png',
   'image/gif',
-  'image/webp'
+  'image/webp',
+  'image/avif'
 ];
 
 const EXTENSION_MAP = {
   'image/jpeg': '.jpg',
   'image/png': '.png',
   'image/gif': '.gif',
-  'image/webp': '.webp'
+  'image/webp': '.webp',
+  'image/avif': '.avif'
 };
 
 export async function POST(request) {

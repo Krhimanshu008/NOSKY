@@ -8,6 +8,25 @@ import { Markdown } from 'tiptap-markdown';
 import TiptapToolbar from './TiptapToolbar';
 import { useState, forwardRef, useImperativeHandle, useRef } from 'react';
 
+const processFile = async (file) => {
+  if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+    try {
+      const heic2any = (await import('heic2any')).default;
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.8
+      });
+      const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      return new File([blob], file.name.replace(/\.heic$|\.heif$/i, '.jpg'), { type: 'image/jpeg' });
+    } catch (e) {
+      console.error('HEIC conversion error', e);
+      return file;
+    }
+  }
+  return file;
+};
+
 const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChange, isGenerating, generationType }, ref) {
   const [isUploading, setIsUploading] = useState(false);
   const isTypingRef = useRef(false);
@@ -66,9 +85,10 @@ const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChang
   };
 
   // Handle async image upload
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = async (rawFile) => {
     setIsUploading(true);
     try {
+      const file = await processFile(rawFile);
       const body = new FormData();
       body.append('file', file);
       const res = await fetch('/api/upload', { method: 'POST', body });

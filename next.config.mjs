@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   serverExternalPackages: ['geoip-lite'],
-  allowedDevOrigins: ['192.168.68.129', '192.168.1.15', '192.168.1.13', '192.168.1.11', '192.168.68.107', '192.168.1.7'],
+  allowedDevOrigins: ['192.168.68.129', '192.168.1.15', '192.168.1.13', '192.168.1.11', '192.168.68.107', '192.168.1.7', '192.168.1.9'],
 
   // Enable compression (gzip/brotli) for all responses
   compress: true,
