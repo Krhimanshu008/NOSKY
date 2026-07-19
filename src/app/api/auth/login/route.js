@@ -4,6 +4,18 @@ import { NextResponse } from 'next/server';
 import { getAdminLoginHistoryCollection, getAnalyticsVisitorsCollection } from '../../../../analytics/models/analyticsDb';
 import { getUsersCollection } from '../../../../lib/db';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+
+function secureCompare(a, b) {
+  a = String(a || '');
+  b = String(b || '');
+
+  // Hash both strings to handle length differences safely and prevent length leaking
+  const hashA = crypto.createHash('sha256').update(a).digest();
+  const hashB = crypto.createHash('sha256').update(b).digest();
+
+  return crypto.timingSafeEqual(hashA, hashB);
+}
 
 export async function POST(request) {
   try {
@@ -12,10 +24,19 @@ export async function POST(request) {
     const usersCollection = await getUsersCollection();
     let user = await usersCollection.findOne({ username });
 
-    // Auto-seed admin user if the database is empty and credentials match ENV
+    // Auto-seed admin user if the database is empty and credentials match ENV securely
     if (!user) {
       const userCount = await usersCollection.countDocuments();
-      if (userCount === 0 && username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+      const envUsername = process.env.ADMIN_USERNAME;
+      const envPassword = process.env.ADMIN_PASSWORD;
+
+      if (
+        userCount === 0 &&
+        envUsername &&
+        envPassword &&
+        secureCompare(username, envUsername) &&
+        secureCompare(password, envPassword)
+      ) {
         const passwordHash = await bcrypt.hash(password, 10);
         await usersCollection.insertOne({ username, passwordHash, role: 'admin', createdAt: new Date() });
         user = await usersCollection.findOne({ username });
@@ -23,6 +44,11 @@ export async function POST(request) {
     }
 
     if (user && await bcrypt.compare(password, user.passwordHash)) {
+      // Ensure JWT secret is securely configured
+      if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET environment variable is not defined');
+      }
+
       // Create JWT token
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       

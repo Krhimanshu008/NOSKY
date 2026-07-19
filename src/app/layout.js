@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import GlobalAurora from '@/components/ui/GlobalAurora';
 import FloatingConnect from '@/components/ui/FloatingConnect';
 import AnalyticsTracker from '@/components/analytics/AnalyticsTracker';
+import { sanitizeJsonLd } from '@/lib/sanitize';
 
 // Self-hosted Google Fonts via next/font — no render-blocking CSS import
 const inter = Inter({
@@ -149,15 +150,15 @@ export default function RootLayout({ children }) {
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(organizationSchema) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(websiteSchema) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(softwareSchema) }}
         />
       </head>
       <body>

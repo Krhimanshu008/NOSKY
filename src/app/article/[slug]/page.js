@@ -1,8 +1,9 @@
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import ArticleClient from './ArticleClient';
-import cache, { CACHE_TTL, CACHE_KEYS } from '@/lib/cache';
 import { verifyAuth } from '@/lib/auth';
+import { sanitizeJsonLd } from '@/lib/sanitize';
 
 // ISR: rebuild individual articles every 5 minutes
 export const revalidate = 300;
@@ -18,10 +19,10 @@ export async function generateStaticParams() {
   }
 }
 
-async function getArticleBySlug(slug) {
+const getArticleBySlug = cache(async (slug) => {
   const collection = await getDb();
   return await collection.findOne({ slug }, { projection: { _id: 0 } });
-}
+});
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -76,7 +77,7 @@ export default async function ArticleSinglePage({ params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(jsonLd) }}
       />
       <ArticleClient article={article} />
     </>

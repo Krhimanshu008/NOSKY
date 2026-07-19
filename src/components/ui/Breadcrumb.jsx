@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { sanitizeJsonLd } from '@/lib/sanitize';
 
 export default function Breadcrumb({ items }) {
   // items: [{ label: 'Home', href: '/' }, { label: 'Product', href: '/product' }, { label: 'Cloud Backup' }]
@@ -17,7 +18,7 @@ export default function Breadcrumb({ items }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(breadcrumbSchema) }}
       />
       <nav className="breadcrumb" aria-label="Breadcrumb">
         {items.map((item, index) => (

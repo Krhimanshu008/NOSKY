@@ -14,9 +14,9 @@ export async function GET(request) {
     
     let articles;
     if (isAdmin && includeUnpublished) {
-      articles = await collection.find({}).sort({ createdAt: -1 }).toArray();
+      articles = await collection.find({}).sort({ createdAt: -1 }).limit(100).toArray();
     } else {
-      articles = await collection.find({ published: 1 }).sort({ createdAt: -1 }).toArray();
+      articles = await collection.find({ published: 1 }).sort({ createdAt: -1 }).limit(100).toArray();
     }
     
     // Convert to boolean for frontend
