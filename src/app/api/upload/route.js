@@ -2,6 +2,21 @@ import { NextResponse } from 'next/server';
 import { verifyAuth } from '@/lib/auth';
 import { writeFile } from 'fs/promises';
 import path from 'path';
+import crypto from 'crypto';
+
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp'
+];
+
+const EXTENSION_MAP = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/gif': '.gif',
+  'image/webp': '.webp'
+};
 
 export async function POST(request) {
   try {
@@ -17,13 +32,18 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    // Validate MIME type
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: 'Invalid file type. Only images are allowed.' }, { status: 400 });
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create a unique filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const filename = file.name.replace(/[^a-zA-Z0-9.-]/g, '');
-    const finalName = `${uniqueSuffix}-${filename}`;
+    // Create a secure, unique filename, discarding user input
+    const extension = EXTENSION_MAP[file.type];
+    const uniqueId = crypto.randomUUID();
+    const finalName = `${uniqueId}${extension}`;
     
     // Save to public/uploads
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
