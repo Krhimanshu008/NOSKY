@@ -545,22 +545,32 @@ function EngagementTab() {
         <div className="admin-glass-panel">
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><MoveDown size={20}/> Scroll Depth Analytics</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[25, 50, 75, 100].map(depth => {
-              const stat = stats.scrollMilestones?.find(s => s._id === depth) || { count: 0 };
-              const maxCount = Math.max(...(stats.scrollMilestones?.map(s => s.count) || [1]));
-              const width = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
-              return (
-                <div key={depth}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '4px' }}>
-                    <span>Scrolled {depth}%</span>
-                    <span style={{ fontWeight: 600 }}>{stat.count} hits</span>
+            {(() => {
+              const milestones = stats.scrollMilestones || [];
+              const milestoneMap = new Map();
+              let maxCount = 1;
+
+              for (const m of milestones) {
+                milestoneMap.set(m._id, m);
+                if (m.count > maxCount) maxCount = m.count;
+              }
+
+              return [25, 50, 75, 100].map(depth => {
+                const stat = milestoneMap.get(depth) || { count: 0 };
+                const width = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
+                return (
+                  <div key={depth}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '4px' }}>
+                      <span>Scrolled {depth}%</span>
+                      <span style={{ fontWeight: 600 }}>{stat.count} hits</span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ width: `${width}%`, height: '100%', background: 'var(--color-blue)', borderRadius: '4px' }}></div>
+                    </div>
                   </div>
-                  <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
-                    <div style={{ width: `${width}%`, height: '100%', background: 'var(--color-blue)', borderRadius: '4px' }}></div>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
           </div>
         </div>
 
