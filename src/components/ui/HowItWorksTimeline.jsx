@@ -30,6 +30,22 @@ export default function HowItWorksTimeline() {
 
     stepEls.forEach(step => revealObserver.observe(step));
 
+    // Cache node measurements to avoid querying the DOM and calculating layouts on every scroll event
+    let nodeMeasurements = [];
+
+    function measureNodes() {
+      const timelineRect = timeline.getBoundingClientRect();
+      nodeMeasurements = stepEls.map(step => {
+        const node = step.querySelector('.how-step-node');
+        if (!node) return null;
+        const r = node.getBoundingClientRect();
+        return {
+          offset: r.top - timelineRect.top,
+          height: r.height
+        };
+      });
+    }
+
     // Progress line + active node based on scroll position
     function updateProgress() {
       const rect = timeline.getBoundingClientRect();
@@ -50,12 +66,15 @@ export default function HowItWorksTimeline() {
       const centerY = viewportH * 0.45;
       let activeIdx = -1;
       let minDist = Infinity;
+
       stepEls.forEach((step, i) => {
-        const node = step.querySelector('.how-step-node');
-        if (!node) return;
-        const r = node.getBoundingClientRect();
-        const nodeCenter = r.top + r.height / 2;
+        const m = nodeMeasurements[i];
+        if (!m) return;
+
+        const nodeTop = rect.top + m.offset;
+        const nodeCenter = nodeTop + m.height / 2;
         const dist = Math.abs(nodeCenter - centerY);
+
         if (nodeCenter < centerY + 80 && dist < minDist) {
           minDist = dist;
           activeIdx = i;
@@ -79,10 +98,12 @@ export default function HowItWorksTimeline() {
       }
     }
 
+    measureNodes();
     syncSvgHeight();
     updateProgress();
 
     const handleResize = () => {
+      measureNodes();
       syncSvgHeight();
       updateProgress();
     };
