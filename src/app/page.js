@@ -62,10 +62,11 @@ const faqItems = [
 export default async function Home() {
   const collection = await getDb();
   
-  // Fetch latest 5 articles
-  const latestArticles = await collection.find({ published: 1, category: 'article' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray();
-  // Fetch latest 5 achievements
-  const latestAchievements = await collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray();
+  // Fetch latest 5 articles and achievements in parallel to optimize DB query time
+  const [latestArticles, latestAchievements] = await Promise.all([
+    collection.find({ published: 1, category: 'article' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray(),
+    collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray()
+  ]);
 
   const prefetchRoutes = [
     '/achievements',
@@ -244,7 +245,7 @@ export default async function Home() {
                     <span className="cert-badge-label" style={{ fontSize: '11px', fontWeight: 600 }}>DPDP Act</span>
                     <div className="compliance-tooltip">
                       <strong>🇮🇳 DPDP Act</strong>
-                      Designed to help organizations safeguard digital personal data with secure storage, controlled access, consent-aware processing, and data retention controls aligned with India's DPDP Act.
+                      Designed to help organizations safeguard digital personal data with secure storage, controlled access, consent-aware processing, and data retention controls aligned with India&apos;s DPDP Act.
                     </div>
                   </div>
                 </div>
