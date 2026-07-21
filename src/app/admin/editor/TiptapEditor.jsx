@@ -53,29 +53,31 @@ const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChang
     }
   });
 
-  useImperativeHandle(ref, () => ({
-    simulateTyping: async (fullMarkdown) => {
-      if (!editor) return;
-      isTypingRef.current = true;
-      editor.commands.setContent('');
+  const performSimulatedTyping = async (fullMarkdown) => {
+    if (!editor) return;
+    isTypingRef.current = true;
+    editor.commands.setContent('');
+
+    const chunkSize = 4;
+    const el = document.querySelector('.tiptap-content-wrapper');
+
+    for (let i = 0; i < fullMarkdown.length; i += chunkSize) {
+      if (!isTypingRef.current) break; // aborted
+      const current = fullMarkdown.substring(0, i + chunkSize);
+      editor.commands.setContent(current, false); // false = don't emit update event
       
-      const chunkSize = 4;
-      const el = document.querySelector('.tiptap-content-wrapper');
-      
-      for (let i = 0; i < fullMarkdown.length; i += chunkSize) {
-        if (!isTypingRef.current) break; // aborted
-        const current = fullMarkdown.substring(0, i + chunkSize);
-        editor.commands.setContent(current, false); // false = don't emit update event
-        
-        if (el) el.scrollTop = el.scrollHeight;
-        await new Promise(r => setTimeout(r, 15));
-      }
-      
-      isTypingRef.current = false;
-      editor.commands.setContent(fullMarkdown);
-      onChange(fullMarkdown);
       if (el) el.scrollTop = el.scrollHeight;
+      await new Promise(r => setTimeout(r, 15));
     }
+
+    isTypingRef.current = false;
+    editor.commands.setContent(fullMarkdown);
+    onChange(fullMarkdown);
+    if (el) el.scrollTop = el.scrollHeight;
+  };
+
+  useImperativeHandle(ref, () => ({
+    simulateTyping: performSimulatedTyping
   }));
 
   const handleEditorClick = () => {
