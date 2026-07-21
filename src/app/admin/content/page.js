@@ -76,12 +76,13 @@ export default function ContentDashboard() {
     if (!confirm('Are you sure you want to delete this post?')) return;
     try {
       const res = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchArticles();
-        setSelectedItems(prev => prev.filter(itemId => itemId !== id));
-      } else {
+      if (!res.ok) {
         alert('Failed to delete post');
+        return;
       }
+
+      fetchArticles();
+      setSelectedItems(prev => prev.filter(itemId => itemId !== id));
     } catch (err) {
       console.error('Delete error', err);
     }

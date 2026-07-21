@@ -23,13 +23,14 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ username, password, visitorId })
       });
 
-      if (res.ok) {
-        router.refresh();
-        router.push('/admin/dashboard');
-      } else {
+      if (!res.ok) {
         const data = await res.json();
         setError(data.message || 'Login failed');
+        return;
       }
+
+      router.refresh();
+      router.push('/admin/dashboard');
     } catch (err) {
       setError('An error occurred during login');
     } finally {
