@@ -141,7 +141,7 @@ const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChang
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{__html: `
+      <style>{`
         @keyframes shimmerPulse {
           0% { opacity: 0.7; }
           50% { opacity: 0.2; filter: blur(1px); }
@@ -262,7 +262,7 @@ const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChang
           height: 0;
           pointer-events: none;
         }
-      `}} />
+      `}</style>
     </div>
   );
 });

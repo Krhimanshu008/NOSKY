@@ -140,8 +140,7 @@ export default function ContentClient({ item, backPath, backLabel, scrollPromptT
           </ReactMarkdown>
         </div>
 
-        <style dangerouslySetInnerHTML={{
-            __html: `
+        <style>{`
             .prose { color: var(--color-text-secondary); font-size: 1.15rem; line-height: 1.8; font-weight: 400; }
             .prose p { margin-bottom: 1.75em; }
             .prose h2, .prose h3 { color: var(--color-text-primary); font-weight: 700; margin-top: 2.2em; margin-bottom: 1em; line-height: 1.3; }
@@ -156,7 +155,7 @@ export default function ContentClient({ item, backPath, backLabel, scrollPromptT
             .prose a:hover { color: var(--color-accent); }
             .prose strong { color: var(--color-text-primary); font-weight: 600; }
             .prose img { max-width: 100%; min-width: 280px; height: auto; display: block; margin: 2rem auto; border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-          `}} />
+          `}</style>
       </article>
     );
   }
@@ -339,8 +338,7 @@ export default function ContentClient({ item, backPath, backLabel, scrollPromptT
           style={{ flex: 1, overflowY: 'auto', paddingRight: '12px', paddingBottom: '40px' }}
         >
           {/* Custom scrollbar for the internal panel */}
-          <style dangerouslySetInnerHTML={{
-            __html: `
+          <style>{`
             .left-panel-scroll::-webkit-scrollbar { display: none; }
             .left-panel-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -390,7 +388,7 @@ export default function ContentClient({ item, backPath, backLabel, scrollPromptT
               border-radius: var(--radius-lg);
               box-shadow: 0 12px 36px rgba(0,0,0,0.5);
             }
-          `}} />
+          `}</style>
 
           <div style={{ marginBottom: 'var(--space-8)' }}>
             {isScrolled ? (
