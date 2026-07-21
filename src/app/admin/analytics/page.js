@@ -6,6 +6,8 @@ import { Loader2, Activity, Users, FileText, MousePointer, Clock, MapPin, Monito
 import dynamic from 'next/dynamic';
 import AdminSettingsIcon from '@/components/ui/AdminSettingsIcon';
 
+const SCROLL_DEPTHS = [25, 50, 75, 100];
+
 const UnifiedMapViewer = dynamic(() => import('../../../components/analytics/UnifiedMapViewer'), { 
   ssr: false,
   loading: () => <div style={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}><Loader2 className="animate-spin" size={32} /></div>
@@ -506,17 +508,14 @@ function EngagementTab() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {(() => {
               const milestones = stats.scrollMilestones || [];
-              const milestoneMap = new Map();
               let maxCount = 1;
 
-              for (const m of milestones) {
-                milestoneMap.set(m._id, m);
-                if (m.count > maxCount) maxCount = m.count;
-
+              for (let i = 0; i < milestones.length; i++) {
+                if (milestones[i].count > maxCount) maxCount = milestones[i].count;
               }
 
-              return [25, 50, 75, 100].map(depth => {
-                const stat = milestoneMap.get(depth) || { count: 0 };
+              return SCROLL_DEPTHS.map(depth => {
+                const stat = milestones.find(m => m._id === depth) || { count: 0 };
                 const width = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
                 return (
                   <div key={depth}>
