@@ -57,40 +57,37 @@ export async function POST(request) {
   "required": ["title", "slug", "content"]
 }`;
 
-    let lastError = null;
-    let contentData = null;
-
-    for (const model of fallbackModels) {
-      try {
-        const interaction = await ai.interactions.create({
-          model: model,
-          input: fullPrompt,
-          system_instruction: system_instruction
-        });
-
-        const text = interaction.output_text;
-
-        // Parse the JSON string
-        contentData = JSON.parse(text);
-
-        if (contentData) {
-          console.log(`Successfully generated content with model: ${model}`);
-          break;
-        }
-      } catch (error) {
-        console.warn(`Model ${model} failed, trying next... Error:`, error.message);
-        lastError = error;
-        continue;
-      }
-    }
-
-    if (!contentData) {
-      throw new Error(`All models failed. Last error: ${lastError?.message}`);
-    }
+    const contentData = await generateWithFallback(ai, fallbackModels, fullPrompt, system_instruction);
 
     return NextResponse.json(contentData);
   } catch (error) {
     console.error('Error generating content:', error);
     return NextResponse.json({ error: 'Failed to generate content: ' + error.message }, { status: 500 });
   }
+}
+
+async function generateWithFallback(ai, models, input, system_instruction) {
+  let lastError = null;
+
+  for (const model of models) {
+    try {
+      const interaction = await ai.interactions.create({
+        model,
+        input,
+        system_instruction
+      });
+
+      const contentData = JSON.parse(interaction.output_text);
+
+      if (contentData) {
+        console.log(`Successfully generated content with model: ${model}`);
+        return contentData;
+      }
+    } catch (error) {
+      console.warn(`Model ${model} failed, trying next... Error:`, error.message);
+      lastError = error;
+    }
+  }
+
+  throw new Error(`All models failed. Last error: ${lastError?.message}`);
 }
