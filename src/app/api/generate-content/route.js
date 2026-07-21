@@ -91,6 +91,6 @@ export async function POST(request) {
     return NextResponse.json(contentData);
   } catch (error) {
     console.error('Error generating content:', error);
-    return NextResponse.json({ error: 'Failed to generate content: ' + error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate content.' }, { status: 500 });
   }
 }

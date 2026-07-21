@@ -120,6 +120,6 @@ For "teamSize", infer the team size if mentioned, otherwise assume "1-5".
     return NextResponse.json(contentData);
   } catch (error) {
     console.error('Error analyzing backup needs:', error);
-    return NextResponse.json({ error: 'Failed to analyze: ' + error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to analyze.' }, { status: 500 });
   }
 }

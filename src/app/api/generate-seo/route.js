@@ -94,6 +94,6 @@ Content: ${content}`;
     return NextResponse.json(seoData);
   } catch (error) {
     console.error('Error generating SEO:', error);
-    return NextResponse.json({ error: 'Failed to generate SEO: ' + error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate SEO.' }, { status: 500 });
   }
 }
