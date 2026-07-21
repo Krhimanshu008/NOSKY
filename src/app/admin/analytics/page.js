@@ -174,18 +174,16 @@ function JourneysTab() {
       
       currentGroup.lastTime = eventTime;
       
-      if (event.eventType === 'scroll_depth') {
+      if (event.eventType !== 'scroll_depth') {
+        currentGroup.events.push(event);
+      } else {
         const existingScrollIdx = currentGroup.events.findIndex(e => e.eventType === 'scroll_depth');
-        if (existingScrollIdx !== -1) {
+        if (existingScrollIdx !== -1 && event.metadata.depth > currentGroup.events[existingScrollIdx].metadata.depth) {
           // Update to highest depth in this session
-          if (event.metadata.depth > currentGroup.events[existingScrollIdx].metadata.depth) {
-            currentGroup.events[existingScrollIdx] = { ...event };
-          }
-        } else {
+          currentGroup.events[existingScrollIdx] = { ...event };
+        } else if (existingScrollIdx === -1) {
           currentGroup.events.push({ ...event });
         }
-      } else {
-        currentGroup.events.push(event);
       }
     });
     return groups;
@@ -204,18 +202,16 @@ function JourneysTab() {
           totalTime: 0,
         };
       }
-      if (event.eventType === 'scroll_depth') {
+      if (event.eventType !== 'scroll_depth') {
+        tree[event.path].events.push(event);
+      } else {
         const existingScrollIdx = tree[event.path].events.findIndex(e => e.eventType === 'scroll_depth');
-        if (existingScrollIdx !== -1) {
+        if (existingScrollIdx !== -1 && event.metadata.depth > tree[event.path].events[existingScrollIdx].metadata.depth) {
           // Keep the highest depth across all visits to this page
-          if (event.metadata.depth > tree[event.path].events[existingScrollIdx].metadata.depth) {
-            tree[event.path].events[existingScrollIdx] = { ...event };
-          }
-        } else {
+          tree[event.path].events[existingScrollIdx] = { ...event };
+        } else if (existingScrollIdx === -1) {
           tree[event.path].events.push({ ...event });
         }
-      } else {
-        tree[event.path].events.push(event);
       }
       
       if (event.eventType === 'page_view') tree[event.path].views++;
