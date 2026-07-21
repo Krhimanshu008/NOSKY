@@ -1,7 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { sanitizeJsonLd } from '@/lib/sanitize';
+import Lottie from 'lottie-react';
+import arrowDownAnim from '../../../public/Micro Animations/arrowDown.json';
+
+const FAQIcon = ({ isActive }) => {
+  const lottieRef = useRef(null);
+  
+  useEffect(() => {
+    if (isActive) {
+      lottieRef.current?.setDirection(1);
+      lottieRef.current?.play();
+    } else {
+      lottieRef.current?.setDirection(-1);
+      lottieRef.current?.play();
+    }
+  }, [isActive]);
+
+  return (
+    <div style={{ width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: 0.7 }}>
+      <Lottie lottieRef={lottieRef} animationData={arrowDownAnim} loop={false} autoplay={false} style={{ width: '100%', height: '100%', filter: 'invert(1)' }} />
+    </div>
+  );
+};
 
 export default function FAQ({ items, sectionTitle, sectionSub }) {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -69,7 +91,7 @@ export default function FAQ({ items, sectionTitle, sectionSub }) {
                 id={`faq-question-${index}`}
               >
                 <span>{item.question}</span>
-                <span className="faq-icon">+</span>
+                <FAQIcon isActive={activeIndex === index} />
               </button>
               <div className="faq-answer" role="region" aria-labelledby={`faq-question-${index}`}>
                 <div className="faq-answer-content">

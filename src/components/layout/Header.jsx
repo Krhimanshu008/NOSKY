@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import Lottie from 'lottie-react';
+import menuAnimation from '../../../public/Micro Animations/menuV2.json';
+import { useRef } from 'react';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -12,6 +15,7 @@ export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const lottieRef = useRef(null);
 
   // Check auth state client-side (lightweight, doesn't block SSR/ISR)
   useEffect(() => {
@@ -140,13 +144,27 @@ export default function Header() {
 
         <button
           className="mobile-toggle"
-          onClick={() => setMobileOpen(!mobileOpen)}
+          onClick={() => {
+            if (!mobileOpen) {
+              lottieRef.current?.setDirection(1);
+              lottieRef.current?.play();
+            } else {
+              lottieRef.current?.setDirection(-1);
+              lottieRef.current?.play();
+            }
+            setMobileOpen(!mobileOpen);
+          }}
           aria-label="Toggle menu"
           aria-expanded={mobileOpen}
+          style={{ background: 'none', border: 'none', padding: 0, width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
         >
-          <span style={mobileOpen ? { transform: 'rotate(45deg) translate(5px, 5px)' } : {}} />
-          <span style={mobileOpen ? { opacity: 0 } : {}} />
-          <span style={mobileOpen ? { transform: 'rotate(-45deg) translate(5px, -5px)' } : {}} />
+          <Lottie 
+            lottieRef={lottieRef} 
+            animationData={menuAnimation} 
+            loop={false} 
+            autoplay={false}
+            style={{ width: 32, height: 32, filter: 'invert(1)' }} // Inverting if it's black to make it white for dark header.
+          />
         </button>
       </div>
 

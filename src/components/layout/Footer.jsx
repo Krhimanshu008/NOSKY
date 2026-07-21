@@ -3,6 +3,23 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useRef } from 'react';
+import Lottie from 'lottie-react';
+import twitterAnim from '../../../public/Micro Animations/twitter.json';
+import arrowUpAnim from '../../../public/Micro Animations/arrowUp.json';
+
+const HoverLottie = ({ animationData, size = 18, color = 'currentColor' }) => {
+  const lottieRef = useRef(null);
+  return (
+    <div 
+      onMouseEnter={() => { lottieRef.current?.setDirection(1); lottieRef.current?.play(); }} 
+      onMouseLeave={() => { lottieRef.current?.setDirection(-1); lottieRef.current?.play(); }}
+      style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <Lottie lottieRef={lottieRef} animationData={animationData} loop={false} autoplay={false} style={{ width: '100%', height: '100%', filter: 'invert(1)' }} />
+    </div>
+  );
+};
 
 export default function Footer() {
   const pathname = usePathname();
@@ -90,7 +107,7 @@ export default function Footer() {
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
             </a>
             <a href="https://x.com/ElcomDigital22" target="_blank" rel="noopener noreferrer" aria-label="X">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              <HoverLottie animationData={twitterAnim} size={20} />
             </a>
             <a href="https://www.linkedin.com/company/elcom-digital/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
@@ -100,6 +117,15 @@ export default function Footer() {
             </a>
           </div>
         </div>
+
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="back-to-top"
+          aria-label="Back to top"
+          style={{ position: 'absolute', right: '2rem', bottom: '2rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '50%', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}
+        >
+          <HoverLottie animationData={arrowUpAnim} size={24} />
+        </button>
       </div>
     </footer>
   );

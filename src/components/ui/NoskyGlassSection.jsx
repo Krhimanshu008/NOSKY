@@ -1,6 +1,9 @@
+'use client';
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Lottie from 'lottie-react';
+import infinityAnim from '../../../public/Micro Animations/infinity.json';
 import GlassCard from './GlassCard';
 
 export default function NoskyGlassSection() {
@@ -76,7 +79,9 @@ export default function NoskyGlassSection() {
               <div className="metric-label" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Dashboard</div>
             </div>
             <div className="metric" style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' }}>
-              <div className="metric-num" style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: 'var(--color-text-primary)' }}>∞</div>
+              <div className="metric-num" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Lottie animationData={infinityAnim} loop={true} style={{ width: 48, height: 48, filter: 'invert(1)' }} />
+              </div>
               <div className="metric-label" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Workloads</div>
             </div>
           </div>

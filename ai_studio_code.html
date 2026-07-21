@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Center - Neo-Brutalist Dashboard</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Space Grotesk & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind Configuration matching the architectural theme -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: '#EAEAEA',     // Technical off-white
+            surface: '#F5F5F5',        // Soft gray inner surfaces
+            panel: '#FFFFFF',          // Pure white card faces
+            ink: '#000000',            // Deep black lines/text
+            muted: '#71717A',          // Muted metadata
+            gridline: '#CCCCCC',       // Architectural grid lines
+            accent: '#FF4B4B',         // Destructive alerts
+          },
+          fontFamily: {
+            heading: ['"Space Grotesk"', 'sans-serif'],
+            body: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom CSS for architectural grids, cross-points, and solid 3D extrusion shadows -->
+  <style>
+    /* Technical Grid Background */
+    .blueprint-bg {
+      background-color: #EAEAEA;
+      background-image: 
+        linear-gradient(to right, rgba(0, 0, 0, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Double nested-borders design helper */
+    .double-border {
+      border: 2px solid #000000;
+      position: relative;
+    }
+    .double-border::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      right: 3px;
+      bottom: 3px;
+      border: 1px solid #000000;
+      pointer-events: none;
+    }
+
+    /* Solid Neo-Brutalist 3D Shadow Block */
+    .shadow-extruded-3d {
+      box-shadow: 
+        1px 1px 0px #000000,
+        2px 2px 0px #000000,
+        3px 3px 0px #000000,
+        4px 4px 0px #000000,
+        5px 5px 0px #000000,
+        6px 6px 0px #000000,
+        7px 7px 0px #000000,
+        8px 8px 0px #000000,
+        9px 9px 0px #000000,
+        10px 10px 0px #000000,
+        11px 11px 0px #000000,
+        12px 12px 0px #000000,
+        12px 12px 20px rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    /* Pressed animation states for 3D buttons */
+    .btn-pressable {
+      transition: transform 0.05s linear, box-shadow 0.05s linear;
+    }
+    .btn-pressable:active {
+      transform: translate(6px, 6px);
+      box-shadow: 2px 2px 0px #000000 !important;
+    }
+
+    /* Skeleton Loading Shimmer Animation */
+    @keyframes blueprintShimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .shimmer-blueprint {
+      background: linear-gradient(90deg, #F5F5F5 25%, #E2E2E2 50%, #F5F5F5 75%);
+      background-size: 200% 100%;
+      animation: blueprintShimmer 1.5s infinite linear;
+    }
+  </style>
+</head>
+<body class="blueprint-bg h-screen w-screen overflow-hidden flex select-none">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="w-[240px] flex-shrink-0 bg-surface border-r-2 border-ink flex flex-col justify-between z-10 relative">
+    
+    <!-- Decorative Grid Accent inside Sidebar -->
+    <div class="absolute inset-0 blueprint-bg opacity-30 pointer-events-none"></div>
+
+    <div class="relative z-10">
+      <!-- Sidebar Brand Header (Matched directly to top-left of image) -->
+      <div class="p-6 border-b-2 border-ink flex items-center gap-4 bg-surface">
+        <div class="w-12 h-12 bg-surface double-border shadow-[4px_4px_0px_#000000] flex items-center justify-center font-heading font-bold text-xl">
+          &gt;_
+        </div>
+        <div>
+          <div class="font-heading font-bold text-sm tracking-widest text-ink leading-tight">COMMAND</div>
+          <div class="font-heading font-bold text-sm tracking-widest text-ink leading-tight">CENTER</div>
+        </div>
+      </div>
+
+      <!-- Navigation links -->
+      <nav class="p-4 space-y-3" id="sidebar-nav">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 bg-panel border-2 border-ink shadow-[3px_3px_0px_#000000] block text-ink transition-all">
+          DASHBOARD OVERVIEW
+        </button>
+        <button onclick="switchTab('prospects')" id="nav-prospects" class="w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 border-2 border-transparent block text-muted hover:text-ink transition-all">
+          PROSPECT INTEL
+        </button>
+        <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 border-2 border-transparent block text-muted hover:text-ink transition-all">
+          CONTENT ANALYTICS
+        </button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 border-2 border-transparent block text-muted hover:text-ink transition-all">
+          SYSTEM SETTINGS
+        </button>
+      </nav>
+    </div>
+
+    <!-- Interactive state toggles (At sidebar bottom) -->
+    <div class="p-4 border-t-2 border-ink bg-surface relative z-10">
+      <div class="text-[10px] text-muted mb-2 font-body font-bold tracking-wider uppercase">// PLATFORM STATE</div>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="setGlobalState('normal')" id="state-normal" class="h-8 text-[10px] font-bold border-2 border-ink bg-[#EAEAEA] text-ink rounded-none uppercase">Normal</button>
+        <button onclick="setGlobalState('loading')" id="state-loading" class="h-8 text-[10px] font-bold border border-ink text-muted hover:text-ink rounded-none uppercase">Loading</button>
+        <button onclick="setGlobalState('empty')" id="state-empty" class="h-8 text-[10px] font-bold border border-ink text-muted hover:text-ink rounded-none uppercase">Empty</button>
+        <button onclick="setGlobalState('error')" id="state-error" class="h-8 text-[10px] font-bold border border-ink text-muted hover:text-ink rounded-none uppercase">Error</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CANVAS AREA -->
+  <main class="flex-grow overflow-y-auto p-12 relative flex flex-col justify-between">
+    
+    <!-- Architectural Crosshairs Decorative Overlays -->
+    <span class="absolute top-4 left-4 text-ink opacity-40 font-heading text-lg pointer-events-none">+</span>
+    <span class="absolute top-4 right-4 text-ink opacity-40 font-heading text-lg pointer-events-none">+</span>
+    <span class="absolute bottom-4 left-4 text-ink opacity-40 font-heading text-lg pointer-events-none">+</span>
+    <span class="absolute bottom-4 right-4 text-ink opacity-40 font-heading text-lg pointer-events-none">+</span>
+
+    <!-- TAB 1: DASHBOARD OVERVIEW -->
+    <section id="tab-dashboard" class="tab-content space-y-10">
+      
+      <!-- Screen Header with crosshair points -->
+      <div class="relative pb-6 border-b border-ink/20">
+        <span class="absolute -bottom-2 -left-2 text-ink opacity-40 font-heading text-lg">+</span>
+        <h1 class="font-heading text-4xl font-bold text-ink tracking-tight uppercase">Dashboard Overview</h1>
+        <p class="text-sm text-muted font-body mt-2">High-level insights into your business performance today.</p>
+      </div>
+
+      <!-- NORMAL VIEW WRAPPER -->
+      <div class="state-dependent normal-state-container space-y-10">
+        
+        <!-- Three 3D Extruded Metric Cards (1-to-1 Style Recreation) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <!-- Card 1: Visitors -->
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-2">
+            <div class="border border-ink p-4 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-surface border border-ink flex items-center justify-center rounded-lg">
+                  <!-- User Icon -->
+                  <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[10px] font-bold text-ink uppercase tracking-wider">Today's Visitors</div>
+                  <div class="font-heading text-2xl font-bold text-ink mt-1">2</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Page Views -->
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-2">
+            <div class="border border-ink p-4 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-surface border border-ink flex items-center justify-center rounded-lg">
+                  <!-- Pulse/Wave icon -->
+                  <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[10px] font-bold text-ink uppercase tracking-wider">Total Page Views</div>
+                  <div class="font-heading text-2xl font-bold text-ink mt-1">127</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Unique Visitors -->
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-2">
+            <div class="border border-ink p-4 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-surface border border-ink flex items-center justify-center rounded-lg">
+                  <!-- BullsEye Icon -->
+                  <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="6"></circle>
+                    <circle cx="12" cy="12" r="2"></circle>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[10px] font-bold text-ink uppercase tracking-wider">Total Unique Visitors</div>
+                  <div class="font-heading text-2xl font-bold text-ink mt-1">22</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 2-Column Split Module: Top Prospects vs Most Read Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
+          
+          <!-- Top Prospects Ledger Card -->
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d flex flex-col justify-between">
+            <div class="p-5 border-b-2 border-ink flex items-center justify-between bg-surface">
+              <h2 class="font-heading text-base font-bold text-ink uppercase tracking-wide">Top Prospects</h2>
+              <button onclick="switchTab('prospects')" class="text-xs font-bold text-ink hover:underline font-body">View All</button>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-ink/40 bg-surface text-[10px] text-ink font-bold font-body">
+                    <th class="p-3">VISITOR IP</th>
+                    <th class="p-3">SCORE</th>
+                    <th class="p-3">LAST SEEN</th>
+                    <th class="p-3 text-right">ACTION</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-ink/30 text-xs font-body">
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold text-ink">146.196.34.123</td>
+                    <td class="p-3">
+                      <span class="bg-[#FCD34D]/20 border border-[#F59E0B] text-ink px-2 py-0.5 font-bold rounded-[3px]">74 🔥 Hot</span>
+                    </td>
+                    <td class="p-3 text-muted">14:45:25</td>
+                    <td class="p-3 text-right">
+                      <button onclick="triggerEngageFlow('146.196.34.123', 'Inbound IP Segment', '74')" class="h-6 px-3 bg-panel border border-ink text-[10px] font-heading font-bold hover:bg-surface">ENGAGE</button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold text-ink">192.161.1.7</td>
+                    <td class="p-3">
+                      <span class="bg-surface border border-ink text-muted px-2 py-0.5 rounded-[3px]">22 🪵 Warm</span>
+                    </td>
+                    <td class="p-3 text-muted">20:02:59</td>
+                    <td class="p-3 text-right">
+                      <button onclick="triggerEngageFlow('192.161.1.7', 'VPN Node Endpoint', '22')" class="h-6 px-3 bg-panel border border-ink text-[10px] font-heading font-bold hover:bg-surface">ENGAGE</button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold text-ink">146.196.34.123</td>
+                    <td class="p-3">
+                      <span class="bg-surface border border-ink text-muted px-2 py-0.5 rounded-[3px]">21 ☀️ Warm</span>
+                    </td>
+                    <td class="p-3 text-muted">20:02:24</td>
+                    <td class="p-3 text-right">
+                      <button onclick="triggerEngageFlow('146.196.34.123', 'Alternate Network Route', '21')" class="h-6 px-3 bg-panel border border-ink text-[10px] font-heading font-bold hover:bg-surface">ENGAGE</button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold text-ink">::1</td>
+                    <td class="p-3">
+                      <span class="bg-surface border border-ink text-muted px-2 py-0.5 rounded-[3px]">21 ☀️ Warm</span>
+                    </td>
+                    <td class="p-3 text-muted">17:16:40</td>
+                    <td class="p-3 text-right">
+                      <button onclick="triggerEngageFlow('::1', 'Localhost Tunnel Address', '21')" class="h-6 px-3 bg-panel border border-ink text-[10px] font-heading font-bold hover:bg-surface">ENGAGE</button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold text-ink">146.196.34.123</td>
+                    <td class="p-3">
+                      <span class="bg-surface border border-ink text-muted px-2 py-0.5 rounded-[3px]">18 ❄️ Cold</span>
+                    </td>
+                    <td class="p-3 text-muted">15:19:27</td>
+                    <td class="p-3 text-right">
+                      <button onclick="triggerEngageFlow('146.196.34.123', 'Stale Client Tracker', '18')" class="h-6 px-3 bg-panel border border-ink text-[10px] font-heading font-bold hover:bg-surface">ENGAGE</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Most Read Content Card -->
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d flex flex-col justify-between">
+            <div class="p-5 border-b-2 border-ink flex items-center justify-between bg-surface">
+              <h2 class="font-heading text-base font-bold text-ink uppercase tracking-wide">Most Read Content</h2>
+              <button onclick="switchTab('analytics')" class="text-xs font-bold text-ink hover:underline font-body">Manage Posts</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-ink/40 bg-surface text-[10px] text-ink font-bold font-body">
+                    <th class="p-3">CONTENT PATH</th>
+                    <th class="p-3 text-right">AVG. READ TIME</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-ink/30 text-xs font-body">
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 text-ink font-semibold truncate max-w-xs">/achievement/nirc-icai-mou-nosky</td>
+                    <td class="p-3 text-right font-bold text-ink">12s</td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 text-ink font-semibold truncate max-w-xs">/article/understanding-aes-256-gcm-gold-standard-encryption</td>
+                    <td class="p-3 text-right font-bold text-ink">10s</td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 text-ink font-semibold truncate max-w-xs">/article/understanding-the-digital-personal-data-protection-dpdp-act</td>
+                    <td class="p-3 text-right font-bold text-ink">5s</td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 text-ink font-semibold truncate max-w-xs">/article/understanding-iso-27001-gold-standard-information-security</td>
+                    <td class="p-3 text-right font-bold text-ink">5s</td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 text-ink font-semibold truncate max-w-xs">/article/understanding-hipaa-guide-to-patient-privacy</td>
+                    <td class="p-3 text-right font-bold text-ink">4s</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- DYNAMIC STATE LOADER (LOADING SHIMMERS) -->
+      <div class="state-dependent loading-state-container hidden space-y-10">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="shimmer-blueprint h-24 border-2 border-ink shadow-extruded-3d"></div>
+          <div class="shimmer-blueprint h-24 border-2 border-ink shadow-extruded-3d"></div>
+          <div class="shimmer-blueprint h-24 border-2 border-ink shadow-extruded-3d"></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div class="shimmer-blueprint h-[250px] border-2 border-ink shadow-extruded-3d"></div>
+          <div class="shimmer-blueprint h-[250px] border-2 border-ink shadow-extruded-3d"></div>
+        </div>
+      </div>
+
+      <!-- DYNAMIC STATE LOADER (EMPTY DATAPIPE) -->
+      <div class="state-dependent empty-state-container hidden text-center border-2 border-dashed border-ink p-12 bg-panel shadow-extruded-3d">
+        <h3 class="font-heading text-lg font-bold text-ink uppercase mb-2">No active visitor sessions discovered.</h3>
+        <p class="text-xs text-muted mb-6">Connect your primary webhook tracking tunnel in system settings.</p>
+        <button onclick="switchTab('settings')" class="h-10 px-6 bg-panel border-2 border-ink font-heading font-bold text-xs uppercase shadow-[3px_3px_0px_#000000] hover:bg-surface">Connect Webhook Pipeline</button>
+      </div>
+
+      <!-- DYNAMIC STATE LOADER (ERROR FAULT) -->
+      <div class="state-dependent error-state-container hidden border-2 border-accent p-12 text-center bg-[#FDF2F2] shadow-[8px_8px_0px_#FF4B4B]">
+        <div class="font-heading text-2xl font-bold text-accent uppercase mb-2">&#9888; Data pipeline severed.</div>
+        <p class="text-xs text-muted font-body">Structural pipeline handshake sequence was aborted by connection endpoints.</p>
+      </div>
+
+    </section>
+
+    <!-- TAB 2: PROSPECT INTELLIGENCE -->
+    <section id="tab-prospects" class="tab-content hidden space-y-10">
+      
+      <div class="relative pb-6 border-b border-ink/20">
+        <h1 class="font-heading text-4xl font-bold text-ink tracking-tight uppercase">Prospect Intelligence</h1>
+        <p class="text-sm text-muted font-body mt-2">Active granular ledgers documenting incoming networks & domains</p>
+      </div>
+
+      <div class="state-dependent normal-state-container space-y-6">
+        
+        <!-- Filter and Search controls -->
+        <div class="bg-panel border-2 border-ink p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-extruded-3d">
+          <div class="flex items-center gap-3 w-full md:w-auto">
+            <span class="text-xs font-bold text-ink font-body">SEARCH //</span>
+            <input type="text" placeholder="QUERY VISITOR REGISTRATION" class="bg-surface text-ink font-body border-2 border-ink h-11 px-3 text-xs w-full md:w-64 focus:outline-none focus:bg-panel">
+          </div>
+          <div class="flex gap-2">
+            <button class="bg-[#FCD34D]/20 border-2 border-ink text-ink font-heading font-bold text-xs px-4 h-9">HOT LEADS</button>
+            <button class="bg-panel border border-ink text-muted font-heading font-bold text-xs px-4 h-9 hover:text-ink">ALL VISITORS</button>
+          </div>
+        </div>
+
+        <!-- Ledger Table container -->
+        <div class="bg-panel border-2 border-ink shadow-extruded-3d overflow-hidden">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b-2 border-ink bg-surface text-xs font-bold font-heading text-ink">
+                <th class="p-4">VISITOR IDENTITY / IP</th>
+                <th class="p-4">DOMAIN</th>
+                <th class="p-4">ENGAGEMENT VALUE</th>
+                <th class="p-4">LAST RECOGNIZED PATH</th>
+                <th class="p-4 text-right">SYSTEM ACTION</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ink/30 text-xs font-body">
+              <tr class="hover:bg-surface/50 transition-colors">
+                <td class="p-4 font-bold text-ink">146.196.34.123</td>
+                <td class="p-4 text-muted">Airtel Broadband Segment</td>
+                <td class="p-4">
+                  <span class="bg-[#FCD34D]/20 border border-[#F59E0B] text-ink px-2 py-0.5 font-bold rounded-[3px]">74 🔥 Hot</span>
+                </td>
+                <td class="p-4 text-ink">/achievement/nirc-icai-mou-nosky</td>
+                <td class="p-4 text-right">
+                  <button onclick="triggerEngageFlow('146.196.34.123', 'Airtel Broadband', '74')" class="h-8 px-4 bg-panel border-2 border-ink font-heading font-bold text-xs uppercase shadow-[2px_2px_0px_#000000] hover:bg-surface">ENGAGE</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-surface/50 transition-colors">
+                <td class="p-4 font-bold text-ink">192.161.1.7</td>
+                <td class="p-4 text-muted">Cloudflare Proxy Pool</td>
+                <td class="p-4">
+                  <span class="bg-surface border border-ink text-muted px-2 py-0.5 rounded-[3px]">22 🪵 Warm</span>
+                </td>
+                <td class="p-4 text-ink">/article/understanding-aes-256-gcm-gold-standard-encryption</td>
+                <td class="p-4 text-right">
+                  <button onclick="triggerEngageFlow('192.161.1.7', 'Cloudflare Proxy Pool', '22')" class="h-8 px-4 bg-panel border-2 border-ink font-heading font-bold text-xs uppercase shadow-[2px_2px_0px_#000000] hover:bg-surface">ENGAGE</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Prospect Screen Alternate States -->
+      <div class="state-dependent loading-state-container hidden space-y-6">
+        <div class="shimmer-blueprint h-16 border-2 border-ink"></div>
+        <div class="shimmer-blueprint h-[200px] border-2 border-ink"></div>
+      </div>
+      <div class="state-dependent empty-state-container hidden text-center border-2 border-dashed border-ink p-12 bg-panel">
+        <p class="font-heading text-sm font-bold text-ink">No filtered prospects found on record.</p>
+      </div>
+      <div class="state-dependent error-state-container hidden border-2 border-accent p-12 text-center bg-[#FDF2F2]">
+        <p class="font-heading text-sm font-bold text-accent">Query failed: index lookup timeout.</p>
+      </div>
+
+    </section>
+
+    <!-- TAB 3: CONTENT ANALYTICS -->
+    <section id="tab-analytics" class="tab-content hidden space-y-10">
+      
+      <div class="relative pb-6 border-b border-ink/20">
+        <h1 class="font-heading text-4xl font-bold text-ink tracking-tight uppercase">Content Performance</h1>
+        <p class="text-sm text-muted font-body mt-2">Historical trace curves graphing article reading parameters</p>
+      </div>
+
+      <div class="state-dependent normal-state-container space-y-10">
+        
+        <!-- Architectural SVG Trend Chart Panel -->
+        <div class="bg-panel border-2 border-ink p-6 shadow-extruded-3d relative">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-heading text-sm font-bold text-ink uppercase">// HOURLY SESSIONS INDEX GRAPH</h2>
+            <div class="text-[10px] font-body text-muted uppercase">Interactive coordinate vectors</div>
+          </div>
+
+          <div class="relative w-full h-[240px] bg-surface border-2 border-ink p-4">
+            <svg viewBox="0 0 1000 200" class="w-full h-full overflow-visible" preserveAspectRatio="none">
+              <line x1="0" y1="50" x2="1000" y2="50" stroke="#000000" stroke-opacity="0.1" stroke-width="1" stroke-dasharray="4" />
+              <line x1="0" y1="100" x2="1000" y2="100" stroke="#000000" stroke-opacity="0.1" stroke-width="1" stroke-dasharray="4" />
+              <line x1="0" y1="150" x2="1000" y2="150" stroke="#000000" stroke-opacity="0.1" stroke-width="1" stroke-dasharray="4" />
+              
+              <!-- Stepped Line Path (Perfect sharp trace layout) -->
+              <path d="M 0,140 
+                       L 150,140 L 150,70 
+                       L 300,70 L 300,110 
+                       L 450,110 L 450,30 
+                       L 600,30 L 600,90 
+                       L 750,90 L 750,50 
+                       L 900,50 L 900,130 
+                       L 1000,130" 
+                    fill="none" stroke="#000000" stroke-width="3" />
+              
+              <!-- Coordinate Plot points -->
+              <rect x="146" y="66" width="8" height="8" class="fill-panel stroke-ink stroke-2 cursor-pointer" onmouseover="showNodeTooltip(event, '08:00 AM', '127 Views')" onmouseout="hideNodeTooltip()" />
+              <rect x="296" y="106" width="8" height="8" class="fill-panel stroke-ink stroke-2 cursor-pointer" onmouseover="showNodeTooltip(event, '12:00 PM', '89 Views')" onmouseout="hideNodeTooltip()" />
+              <rect x="446" y="26" width="8" height="8" class="fill-panel stroke-ink stroke-2 cursor-pointer" onmouseover="showNodeTooltip(event, '04:00 PM', '241 Views')" onmouseout="hideNodeTooltip()" />
+              <rect x="596" y="86" width="8" height="8" class="fill-panel stroke-ink stroke-2 cursor-pointer" onmouseover="showNodeTooltip(event, '08:00 PM', '110 Views')" onmouseout="hideNodeTooltip()" />
+            </svg>
+
+            <!-- Rigid Absolute Tooltip Element -->
+            <div id="chart-tooltip" class="absolute hidden bg-panel text-ink px-3 py-1.5 border border-ink text-xs font-bold rounded-none shadow-[2px_2px_0px_#000000] pointer-events-none z-20 font-body">
+              INDEX
+            </div>
+          </div>
+        </div>
+
+        <!-- Article Performance Metrics -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-panel border-2 border-ink p-5 shadow-extruded-3d">
+            <div class="text-[10px] font-bold text-muted font-body mb-2">RANK #01</div>
+            <h3 class="font-heading text-sm font-bold text-ink truncate mb-4">/achievement/nirc-icai-mou-nosky</h3>
+            <div class="flex justify-between items-center text-xs font-body border-t border-ink/20 pt-3">
+              <span>Avg time: <span class="font-bold">12s</span></span>
+              <span>1,204 Reads</span>
+            </div>
+          </div>
+          <div class="bg-panel border-2 border-ink p-5 shadow-extruded-3d">
+            <div class="text-[10px] font-bold text-muted font-body mb-2">RANK #02</div>
+            <h3 class="font-heading text-sm font-bold text-ink truncate mb-4">/article/understanding-aes-256-encryption</h3>
+            <div class="flex justify-between items-center text-xs font-body border-t border-ink/20 pt-3">
+              <span>Avg time: <span class="font-bold">10s</span></span>
+              <span>856 Reads</span>
+            </div>
+          </div>
+          <div class="bg-panel border-2 border-ink p-5 shadow-extruded-3d">
+            <div class="text-[10px] font-bold text-muted font-body mb-2">RANK #03</div>
+            <h3 class="font-heading text-sm font-bold text-ink truncate mb-4">/article/understanding-dpdp-act</h3>
+            <div class="flex justify-between items-center text-xs font-body border-t border-ink/20 pt-3">
+              <span>Avg time: <span class="font-bold">5s</span></span>
+              <span>420 Reads</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Analytics Screen Alternate States -->
+      <div class="state-dependent loading-state-container hidden space-y-8">
+        <div class="shimmer-blueprint h-56 border-2 border-ink"></div>
+      </div>
+      <div class="state-dependent empty-state-container hidden text-center border-2 border-dashed border-ink p-12 bg-panel">
+        <p class="font-heading text-sm font-bold text-ink">Publish metadata to construct chart plots.</p>
+      </div>
+      <div class="state-dependent error-state-container hidden border-2 border-accent p-12 text-center bg-[#FDF2F2]">
+        <p class="font-heading text-sm font-bold text-accent">Could not contact primary datastore.</p>
+      </div>
+
+    </section>
+
+    <!-- TAB 4: SYSTEM SETTINGS -->
+    <section id="tab-settings" class="tab-content hidden space-y-10">
+      
+      <div class="relative pb-6 border-b border-ink/20">
+        <h1 class="font-heading text-4xl font-bold text-ink tracking-tight uppercase">System Settings</h1>
+        <p class="text-sm text-muted font-body mt-2">Endpoint handshakes, tracking triggers, and dashboard preferences</p>
+      </div>
+
+      <div class="state-dependent normal-state-container max-w-4xl bg-panel border-2 border-ink shadow-extruded-3d overflow-hidden">
+        
+        <div class="flex flex-col md:flex-row">
+          
+          <!-- Left settings sub navigation -->
+          <div class="w-full md:w-[180px] bg-surface border-b-2 md:border-b-0 md:border-r-2 border-ink p-4 space-y-2">
+            <button class="w-full text-left font-heading text-xs font-bold text-ink block h-9 border-b border-ink">GENERAL</button>
+            <button class="w-full text-left font-heading text-xs text-muted block h-9">WEBHOOKS</button>
+            <button class="w-full text-left font-heading text-xs text-muted block h-9">CLEAR REGISTRY</button>
+          </div>
+
+          <!-- Settings Fields -->
+          <div class="flex-grow p-8 space-y-8 max-w-[600px]">
+            
+            <div class="space-y-2">
+              <label class="block font-heading text-xs font-bold text-ink uppercase tracking-wider">TRACKING CAPTURE ENDPOINT</label>
+              <input type="text" id="webhook-input" oninput="flagSettingsEdit()" value="https://api.verceltunnel.io/v1/neo-3d" class="w-full bg-surface text-ink border-2 border-ink focus:bg-panel focus:outline-none h-12 px-3 font-body text-xs focus:shadow-[3px_3px_0px_#000000]">
+              <span id="webhook-error" class="hidden text-xs text-accent font-body mt-1">Webhook endpoint must utilize HTTPS security.</span>
+            </div>
+
+            <!-- Square Toggle 1 (Strict Linear Slider UI) -->
+            <div class="flex items-center justify-between border-t border-ink/20 pt-6">
+              <div>
+                <div class="font-heading text-xs font-bold text-ink uppercase tracking-wider">DEEP RENDERING 3D ACCENTS</div>
+                <div class="text-[10px] font-body text-muted mt-1">Enforces extreme depth isometric outlines on all modules.</div>
+              </div>
+              <button onclick="toggleSetting('toggle-3d')" class="w-14 h-8 bg-surface border-2 border-ink p-1 flex items-center justify-start transition-colors duration-100 rounded-none relative" id="toggle-3d-bg">
+                <div class="w-5 h-5 bg-panel border border-ink transition-all duration-100 ease-linear rounded-none" id="toggle-3d-thumb"></div>
+              </button>
+            </div>
+
+            <!-- Danger Zone panel block -->
+            <div class="border-2 border-accent/40 bg-[#FDF2F2] p-6">
+              <h3 class="font-heading text-xs font-bold text-accent uppercase tracking-wider mb-2">CLEAR DATA REGISTRY</h3>
+              <p class="text-[10px] text-muted mb-4 font-body">Forcibly sever connection tunnels and clear local IP registries. This cannot be undone.</p>
+              <button onclick="executeForcedPurge()" class="h-9 border-2 border-ink bg-panel text-accent hover:bg-surface font-heading font-bold text-xs uppercase px-4 shadow-[2px_2px_0px_#000000]">
+                PURGE LOCAL REGISTRIES
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Settings Sticky Footer Save Bar -->
+      <div id="settings-save-bar" class="fixed bottom-0 right-0 left-[240px] h-20 bg-panel border-t-2 border-ink p-4 px-8 flex items-center justify-between z-30 translate-y-full transition-transform duration-300">
+        <div class="text-xs font-body text-ink font-bold">
+          <span class="text-accent">// WARN:</span> UNSAVED CHANGES CURRENTLY STAGED
+        </div>
+        <div class="flex gap-4">
+          <button onclick="discardSettingsChanges()" class="font-heading text-xs text-muted hover:text-ink font-bold uppercase tracking-wider">Discard</button>
+          <button onclick="persistSettingsChanges()" id="save-bar-btn" class="font-heading text-xs font-bold uppercase bg-panel text-ink px-6 h-10 border-2 border-ink shadow-[3px_3px_0px_#000000]">
+            SAVE CONFIGURATION
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- FOOTER LICENSE BRAND -->
+    <footer class="mt-12 pt-6 border-t border-ink/10 flex items-center justify-between text-[10px] font-body text-muted">
+      <span>COMMAND CENTER CONSOLE SYSTEM V1.0</span>
+      <span>CONFORMITY STATUS: VERIFIED 2026 // INDIA</span>
+    </footer>
+
+  </main>
+
+  <!-- SLIDE-OUT ENGAGE PANEL DRAWER (Matching Recreated Aesthetic) -->
+  <div id="engage-overlay" class="fixed inset-0 bg-ink/20 opacity-0 pointer-events-none transition-opacity duration-300 z-40" onclick="closeEngagePanel()"></div>
+  
+  <div id="engage-drawer" class="fixed right-0 top-0 bottom-0 w-[420px] bg-panel border-l-2 border-ink translate-x-full transition-transform duration-300 z-50 p-6 flex flex-col justify-between shadow-[-6px_0px_0px_#000000]">
+    <div class="space-y-6">
+      
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between border-b border-ink/40 pb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 bg-ink inline-block"></span>
+          <span class="font-heading font-bold text-sm text-ink uppercase">// CLIENT REGISTRY OUTBOUND</span>
+        </div>
+        <button onclick="closeEngagePanel()" class="text-muted hover:text-ink font-heading font-bold text-sm">CLOSE [X]</button>
+      </div>
+
+      <!-- Selected Prospect Context Card -->
+      <div class="border border-ink p-4 bg-surface">
+        <div class="text-[10px] text-muted font-body uppercase">Registry IP Identifier</div>
+        <div class="font-heading text-xl font-bold text-ink mt-1" id="drawer-prospect-name">146.196.34.123</div>
+        <div class="text-xs text-ink font-body mt-1" id="drawer-prospect-meta">Airtel Broadband Segment // Score: 74</div>
+      </div>
+
+      <!-- Action outreach Template -->
+      <div class="space-y-2">
+        <label class="block font-heading text-xs font-bold text-ink uppercase tracking-wider">// COMPOSE OUTBOUND TRANSMISSION</label>
+        <textarea id="outreach-template" readonly class="w-full h-48 bg-surface border border-ink text-ink p-3 text-xs font-body focus:outline-none leading-relaxed resize-none">
+Inbound Node Request,
+
+We noted active trace signals from your source identifier network targeting our core resources.
+
+We have mapped these sessions to specific technical benchmarks. Let us connect to construct a custom sandbox framework.
+
+Transmission,
+Command Registry Operations</textarea>
+      </div>
+
+    </div>
+
+    <!-- Actions Drawer Footer -->
+    <div class="space-y-4 pt-4 border-t border-ink/30 bg-panel">
+      <button onclick="executeTemplateCopy()" id="copy-btn" class="w-full h-12 bg-panel text-ink font-heading font-bold text-xs uppercase border-2 border-ink shadow-[4px_4px_0px_#000000] btn-pressable">
+        COPY OUTBOUND TRANSMISSION
+      </button>
+      <button onclick="closeEngagePanel()" class="w-full text-center text-xs text-muted hover:text-ink font-body uppercase">
+        Dismiss Interface
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive SPA Engine & Actions script -->
+  <script>
+    let currentTab = 'dashboard';
+    let currentFidelityState = 'normal';
+    let isSettingsDirty = false;
+    const initialWebhookVal = "https://api.verceltunnel.io/v1/neo-3d";
+
+    // Dynamic Navigation Tab switching
+    function switchTab(tabId) {
+      currentTab = tabId;
+      
+      // Update Tab panel visibilities
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+      // Update Sidebar navigation styles
+      document.querySelectorAll('#sidebar-nav button').forEach(button => {
+        button.className = "w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 border-2 border-transparent block text-muted hover:text-ink transition-all";
+      });
+      
+      const activeNav = document.getElementById('nav-' + tabId);
+      if (activeNav) {
+        activeNav.className = "w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 bg-panel border-2 border-ink shadow-[3px_3px_0px_#000000] block text-ink transition-all";
+      }
+
+      // Hide or display sticky save bar dependent on settings modifications
+      if (tabId !== 'settings') {
+        document.getElementById('settings-save-bar').classList.add('translate-y-full');
+      } else if (isSettingsDirty) {
+        document.getElementById('settings-save-bar').classList.remove('translate-y-full');
+      }
+    }
+
+    // Dynamic State switches
+    function setGlobalState(state) {
+      currentFidelityState = state;
+      
+      const states = ['normal', 'loading', 'empty', 'error'];
+      states.forEach(s => {
+        const btn = document.getElementById('state-' + s);
+        if (s === state) {
+          btn.className = "h-8 text-[10px] font-bold border-2 border-ink bg-[#EAEAEA] text-ink rounded-none uppercase";
+        } else {
+          btn.className = "h-8 text-[10px] font-bold border border-ink text-muted hover:text-ink rounded-none uppercase";
+        }
+      });
+
+      // Switch displayed components across modules based on target state
+      document.querySelectorAll('.state-dependent').forEach(el => el.classList.add('hidden'));
+      const activeTabPanel = document.getElementById('tab-' + currentTab);
+      if (activeTabPanel) {
+        const matchingContainer = activeTabPanel.querySelector('.' + state + '-state-container');
+        if (matchingContainer) matchingContainer.classList.remove('hidden');
+      }
+    }
+
+    // Interactive Engage Sliding Drawer Flow
+    function triggerEngageFlow(name, company, score) {
+      document.getElementById('drawer-prospect-name').innerText = name;
+      document.getElementById('drawer-prospect-meta').innerText = `${company} // Score Indicator: ${score}`;
+      
+      // Update template content
+      const transmissionText = `Inbound Node Request,\n\nWe noted active trace signals from your source network identifier (${name}) targeting our core resources.\n\nWe have mapped these sessions to specific technical benchmarks. Let us connect to construct a custom sandbox framework.\n\nTransmission,\nCommand Registry Operations`;
+      document.getElementById('outreach-template').value = transmissionText;
+
+      // Reset outbound copy button styling
+      const copyBtn = document.getElementById('copy-btn');
+      copyBtn.innerText = "COPY OUTBOUND TRANSMISSION";
+      copyBtn.className = "w-full h-12 bg-panel text-ink font-heading font-bold text-xs uppercase border-2 border-ink shadow-[4px_4px_0px_#000000] btn-pressable";
+
+      // Display Sliding Drawer
+      document.getElementById('engage-overlay').classList.remove('pointer-events-none', 'opacity-0');
+      document.getElementById('engage-overlay').classList.add('opacity-100');
+      document.getElementById('engage-drawer').classList.remove('translate-x-full');
+    }
+
+    function closeEngagePanel() {
+      document.getElementById('engage-overlay').classList.remove('opacity-100');
+      document.getElementById('engage-overlay').classList.add('pointer-events-none', 'opacity-0');
+      document.getElementById('engage-drawer').classList.add('translate-x-full');
+    }
+
+    // Clipboard Pipeline Utility
+    function executeTemplateCopy() {
+      const copyText = document.getElementById('outreach-template');
+      copyText.select();
+      navigator.clipboard.writeText(copyText.value);
+
+      // Instantly flash color value to invert/acknowledge execution
+      const copyBtn = document.getElementById('copy-btn');
+      copyBtn.innerText = "OUTBOUND COPIED!";
+      copyBtn.className = "w-full h-12 bg-ink text-panel font-heading font-bold text-xs uppercase border-2 border-ink shadow-[0px_0px_0px_#000000] translate-x-[4px] translate-y-[4px]";
+      
+      setTimeout(() => {
+        copyBtn.innerText = "COPY OUTBOUND TRANSMISSION";
+        copyBtn.className = "w-full h-12 bg-panel text-ink font-heading font-bold text-xs uppercase border-2 border-ink shadow-[4px_4px_0px_#000000] btn-pressable";
+      }, 2000);
+    }
+
+    // Chart Snapping Vector Tooltip
+    function showNodeTooltip(evt, label, value) {
+      const tooltip = document.getElementById('chart-tooltip');
+      tooltip.classList.remove('hidden');
+      tooltip.innerHTML = `<span class="text-muted font-normal">${label}</span><br><span class="text-ink font-bold">${value}</span>`;
+      
+      const parentRect = evt.target.parentNode.getBoundingClientRect();
+      const nodeRect = evt.target.getBoundingClientRect();
+      const left = nodeRect.left - parentRect.left + 15;
+      const top = nodeRect.top - parentRect.top - 50;
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    }
+
+    function hideNodeTooltip() {
+      document.getElementById('chart-tooltip').classList.add('hidden');
+    }
+
+    // Toggle styling helper
+    function toggleSetting(id) {
+      const bg = document.getElementById(id + '-bg');
+      const thumb = document.getElementById(id + '-thumb');
+
+      if (bg.classList.contains('border-ink') && !bg.classList.contains('bg-ink')) {
+        // Active
+        bg.className = "w-14 h-8 bg-ink border-2 border-ink p-1 flex items-center justify-end rounded-none relative";
+        thumb.className = "w-5 h-5 bg-panel border border-panel transition-all duration-100 ease-linear rounded-none";
+      } else {
+        // Off
+        bg.className = "w-14 h-8 bg-surface border-2 border-ink p-1 flex items-center justify-start rounded-none relative";
+        thumb.className = "w-5 h-5 bg-panel border border-ink transition-all duration-100 ease-linear rounded-none";
+      }
+    }
+
+    // Settings input state triggers
+    function flagSettingsEdit() {
+      const currentVal = document.getElementById('webhook-input').value;
+      const errorHint = document.getElementById('webhook-error');
+      const saveBar = document.getElementById('settings-save-bar');
+      const inputField = document.getElementById('webhook-input');
+
+      if (!currentVal.startsWith("https://")) {
+        errorHint.classList.remove('hidden');
+        inputField.className = "w-full bg-surface text-ink border-2 border-accent focus:outline-none h-12 px-3 font-body text-xs";
+      } else {
+        errorHint.classList.add('hidden');
+        inputField.className = "w-full bg-surface text-ink border-2 border-ink focus:bg-panel focus:outline-none h-12 px-3 font-body text-xs focus:shadow-[3px_3px_0px_#000000]";
+      }
+
+      if (currentVal !== initialWebhookVal) {
+        isSettingsDirty = true;
+        saveBar.classList.remove('translate-y-full');
+      } else {
+        isSettingsDirty = false;
+        saveBar.classList.add('translate-y-full');
+      }
+    }
+
+    function persistSettingsChanges() {
+      const saveBtn = document.getElementById('save-bar-btn');
+      saveBtn.innerText = "STAGED SAVED";
+      saveBtn.className = "w-full md:w-auto h-10 bg-ink text-panel font-heading font-bold text-xs uppercase px-6 border-2 border-ink shadow-[0px_0px_0px_#000000] translate-x-[3px] translate-y-[3px]";
+      
+      setTimeout(() => {
+        saveBtn.innerText = "SAVE CONFIGURATION";
+        saveBtn.className = "font-heading text-xs font-bold uppercase bg-panel text-ink px-6 h-10 border-2 border-ink shadow-[3px_3px_0px_#000000]";
+        isSettingsDirty = false;
+        document.getElementById('settings-save-bar').classList.add('translate-y-full');
+      }, 1500);
+    }
+
+    function discardSettingsChanges() {
+      document.getElementById('webhook-input').value = initialWebhookVal;
+      document.getElementById('webhook-error').classList.add('hidden');
+      isSettingsDirty = false;
+      document.getElementById('settings-save-bar').classList.add('translate-y-full');
+    }
+
+    function executeForcedPurge() {
+      const query = confirm("DANGER WARNING: Re-initialize and flush active registries?");
+      if (query) {
+        alert("Local registries cleared.");
+        setGlobalState('empty');
+      }
+    }
+  </script>
+</body>
+</html>

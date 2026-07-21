@@ -1,6 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import GlassCard from './GlassCard';
+import Lottie from 'lottie-react';
+import activityAnim from '../../../public/Micro Animations/activity.json';
+import alertCircleAnim from '../../../public/Micro Animations/alertCircle.json';
 import {
   hC, IC, UV, GV, _V, Rb, lq, JV
 } from './advisorData';
@@ -509,8 +512,7 @@ export default function BackupAdvisorInline() {
 
   const renderAnalyzing = () => (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '400px', gap: 'var(--space-6)' }}>
-      <div style={{ width: '48px', height: '48px', border: '3px solid rgba(245, 166, 35, 0.2)', borderTopColor: 'var(--color-accent)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+      <Lottie animationData={activityAnim} loop={true} style={{ width: 80, height: 80 }} />
       <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>Engineering your backup strategy...</h3>
       <p style={{ color: 'var(--color-text-secondary)' }}>Mapping your exact requirements to our infrastructure.</p>
     </div>
@@ -539,7 +541,7 @@ export default function BackupAdvisorInline() {
         {assumptions && assumptions.length > 0 && (
           <div style={{ background: 'rgba(245, 166, 35, 0.05)', border: '1px solid var(--color-accent)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)', width: '100%' }}>
             <h4 style={{ color: 'var(--color-accent)', fontSize: '16px', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <Lottie animationData={alertCircleAnim} loop={false} style={{ width: 24, height: 24, filter: 'invert(0.5) sepia(1) saturate(5) hue-rotate(350deg)' }} />
               What we assumed
             </h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', color: 'var(--color-text-secondary)', listStyle: 'disc', paddingLeft: '20px', marginBottom: '12px' }}>

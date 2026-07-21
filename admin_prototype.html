@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neo-Brutalist Admin Dashboard Prototype</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Space Grotesk & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind Configuration matching the architectural theme -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: '#EAEAEA',
+            surface: '#F5F5F5',
+            panel: '#FFFFFF',
+            ink: '#1A1A1A',
+            muted: '#71717A',
+            gridline: '#CCCCCC',
+            accent: '#FF4B4B',
+          },
+          fontFamily: {
+            heading: ['"Space Grotesk"', 'sans-serif'],
+            body: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Technical Grid Background */
+    .blueprint-bg {
+      background-color: #EAEAEA;
+      background-image: 
+        linear-gradient(to right, rgba(0, 0, 0, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Solid Neo-Brutalist 3D Shadow Block */
+    .shadow-extruded-3d {
+      box-shadow: 
+        1px 1px 0px #1A1A1A,
+        2px 2px 0px #1A1A1A,
+        3px 3px 0px #1A1A1A,
+        4px 4px 0px #1A1A1A,
+        5px 5px 0px #1A1A1A,
+        6px 6px 0px #1A1A1A,
+        7px 7px 0px #1A1A1A,
+        8px 8px 0px #1A1A1A,
+        9px 9px 0px #1A1A1A,
+        10px 10px 0px #1A1A1A,
+        11px 11px 0px #1A1A1A,
+        12px 12px 0px #1A1A1A,
+        12px 12px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .shadow-small {
+      box-shadow: 2px 2px 0px #1A1A1A;
+    }
+
+    /* Pressed animation states for 3D buttons */
+    .btn-pressable {
+      transition: transform 0.05s linear, box-shadow 0.05s linear;
+    }
+    .btn-pressable:active {
+      transform: translate(6px, 6px);
+      box-shadow: 2px 2px 0px #1A1A1A !important;
+    }
+    
+    /* Table styles */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid rgba(26, 26, 26, 0.2);
+    }
+    th {
+      border-bottom: 2px solid #1A1A1A;
+    }
+    
+    /* Tab switching */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+  </style>
+</head>
+<body class="blueprint-bg h-screen w-screen overflow-hidden flex select-none font-body text-ink bg-background">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="w-[240px] flex-shrink-0 bg-surface border-r-2 border-ink flex flex-col justify-between z-10 relative">
+    <div class="absolute inset-0 blueprint-bg opacity-30 pointer-events-none"></div>
+
+    <div class="relative z-10">
+      <div class="p-6 border-b-2 border-ink flex items-center gap-4 bg-surface">
+        <div class="w-12 h-12 bg-surface border-2 border-ink shadow-small flex items-center justify-center font-heading font-bold text-xl">
+          &gt;_
+        </div>
+        <div>
+          <div class="font-heading font-bold text-sm tracking-widest text-ink leading-tight">COMMAND</div>
+          <div class="font-heading font-bold text-sm tracking-widest text-ink leading-tight">CENTER</div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-3" id="sidebar-nav">
+        <button onclick="switchTab('dashboard')" class="nav-btn active w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 flex items-center transition-all bg-panel border-2 border-ink shadow-[3px_3px_0px_#1A1A1A] text-ink" data-target="dashboard">
+          DASHBOARD OVERVIEW
+        </button>
+        <button onclick="switchTab('content')" class="nav-btn w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 flex items-center transition-all border-2 border-transparent text-muted hover:text-ink" data-target="content">
+          CONTENT MANAGEMENT
+        </button>
+        <button onclick="switchTab('analytics')" class="nav-btn w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 flex items-center transition-all border-2 border-transparent text-muted hover:text-ink" data-target="analytics">
+          ANALYTICS
+        </button>
+        <button onclick="switchTab('settings')" class="nav-btn w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 flex items-center transition-all border-2 border-transparent text-muted hover:text-ink" data-target="settings">
+          SYSTEM SETTINGS
+        </button>
+      </nav>
+    </div>
+
+    <div class="relative z-10 p-4 border-t-2 border-ink bg-surface">
+      <button class="w-full h-12 bg-panel border-2 border-ink font-heading font-bold tracking-widest text-xs btn-pressable flex justify-center items-center gap-2 hover:bg-ink hover:text-white transition-colors">
+        RETURN TO SITE
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 h-full overflow-y-auto p-10 relative z-0">
+    <div class="max-w-7xl mx-auto space-y-10">
+
+      <!-- ============================================== -->
+      <!-- DASHBOARD PAGE                                 -->
+      <!-- ============================================== -->
+      <section id="dashboard" class="page-section active space-y-10">
+        <div class="relative pb-6 border-b border-ink/20 flex justify-between items-end">
+          <span class="absolute -bottom-2 -left-2 text-ink opacity-40 font-heading text-lg">+</span>
+          <div>
+            <h1 class="font-heading text-4xl font-bold text-ink tracking-tight uppercase">Dashboard Overview</h1>
+            <p class="text-sm text-muted font-body mt-2">High-level insights into your business performance today.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-4">
+            <div class="text-[10px] font-bold text-ink uppercase tracking-wider mb-2">Today's Visitors</div>
+            <div class="font-heading text-4xl font-bold text-ink">342</div>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-4">
+            <div class="text-[10px] font-bold text-ink uppercase tracking-wider mb-2">Total Page Views</div>
+            <div class="font-heading text-4xl font-bold text-ink">1,405</div>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-4">
+            <div class="text-[10px] font-bold text-ink uppercase tracking-wider mb-2">New Leads</div>
+            <div class="font-heading text-4xl font-bold text-ink">12</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d flex flex-col justify-between">
+            <div class="p-4 border-b-2 border-ink flex items-center justify-between bg-surface">
+              <h2 class="font-heading text-base font-bold text-ink uppercase tracking-wide">Top Prospects</h2>
+              <span class="text-xs font-bold text-ink hover:underline cursor-pointer">View All</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left bg-panel">
+                <thead>
+                  <tr class="bg-surface">
+                    <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider">Visitor IP</th>
+                    <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider">Score</th>
+                    <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider text-right">Last Seen</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm font-body">
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold">146.196.34.123</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-accent text-white text-[10px] font-bold uppercase border border-ink">Hot</span></td>
+                    <td class="p-3 text-right text-muted">14:45:25</td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold">192.168.1.7</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-[#FF9500] text-ink text-[10px] font-bold uppercase border border-ink">Warm</span></td>
+                    <td class="p-3 text-right text-muted">20:02:59</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d flex flex-col justify-between">
+            <div class="p-4 border-b-2 border-ink flex items-center justify-between bg-surface">
+              <h2 class="font-heading text-base font-bold text-ink uppercase tracking-wide">Most Read Content</h2>
+              <span class="text-xs font-bold text-ink hover:underline cursor-pointer">Manage</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left bg-panel">
+                <thead>
+                  <tr class="bg-surface">
+                    <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider">Content Path</th>
+                    <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider text-right">Avg. Read Time</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm font-body">
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold text-xs">/article/understanding-hipaa</td>
+                    <td class="p-3 text-right font-bold">4m 12s</td>
+                  </tr>
+                  <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="p-3 font-bold text-xs">/achievements</td>
+                    <td class="p-3 text-right font-bold">2m 45s</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- CONTENT PAGE                                   -->
+      <!-- ============================================== -->
+      <section id="content" class="page-section space-y-10">
+        <div class="relative pb-6 border-b border-ink/20 flex justify-between items-end">
+          <span class="absolute -bottom-2 -left-2 text-ink opacity-40 font-heading text-lg">+</span>
+          <div>
+            <h1 class="font-heading text-4xl font-bold text-ink tracking-tight uppercase">Content Management</h1>
+            <p class="text-sm text-muted font-body mt-2">Manage your articles, achievements, and site content.</p>
+          </div>
+          <button class="h-10 px-6 bg-ink text-surface font-heading font-bold text-xs tracking-widest uppercase flex items-center justify-center border-2 border-ink shadow-[3px_3px_0px_rgba(0,0,0,0.2)] hover:bg-surface hover:text-ink transition-all">
+            + New Post
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-4 flex flex-col justify-center">
+            <div class="text-[10px] font-bold text-ink uppercase tracking-wider mb-2">Total Posts</div>
+            <div class="font-heading text-3xl font-bold text-ink">5</div>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-4 flex flex-col justify-center">
+            <div class="text-[10px] font-bold text-ink uppercase tracking-wider mb-2">Published</div>
+            <div class="font-heading text-3xl font-bold text-ink">5</div>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-4 flex flex-col justify-center">
+            <div class="text-[10px] font-bold text-ink uppercase tracking-wider mb-2">Drafts</div>
+            <div class="font-heading text-3xl font-bold text-ink">0</div>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-4 flex flex-col justify-center">
+            <div class="text-[10px] font-bold text-ink uppercase tracking-wider mb-2">Achievements</div>
+            <div class="font-heading text-3xl font-bold text-ink">1</div>
+          </div>
+        </div>
+
+        <div class="bg-panel border-2 border-ink shadow-extruded-3d p-4 flex justify-between items-center flex-wrap gap-4">
+          <div class="flex gap-4 items-center">
+            <input type="text" placeholder="Search posts..." class="bg-surface border-2 border-ink text-ink py-2 px-3 outline-none text-sm font-body w-64 focus:bg-white" />
+            <select class="bg-surface border-2 border-ink text-ink py-2 px-3 outline-none text-sm font-body font-bold uppercase focus:bg-white">
+              <option>All Status</option>
+            </select>
+            <select class="bg-surface border-2 border-ink text-ink py-2 px-3 outline-none text-sm font-body font-bold uppercase focus:bg-white">
+              <option>All Categories</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bg-panel border-2 border-ink shadow-extruded-3d overflow-x-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="bg-surface">
+                <th class="p-3 w-10 text-center"><input type="checkbox" /></th>
+                <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider">Title</th>
+                <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider">Category</th>
+                <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider">Status</th>
+                <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider">Date</th>
+                <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm font-body bg-panel">
+              <tr class="hover:bg-surface/50 transition-colors">
+                <td class="p-3 text-center"><input type="checkbox" /></td>
+                <td class="p-3 font-bold hover:underline cursor-pointer">Understanding HIPAA: A Comprehensive Guide</td>
+                <td class="p-3"><span class="px-2 py-0.5 border border-ink text-[10px] font-bold uppercase bg-surface">Article</span></td>
+                <td class="p-3 font-bold text-ink">Published</td>
+                <td class="p-3 text-muted text-xs">Jul 10, 2026</td>
+                <td class="p-3 text-right">
+                  <button class="px-3 py-1 border border-ink bg-surface text-xs font-bold uppercase hover:bg-ink hover:text-white transition-colors">Edit</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-surface/50 transition-colors">
+                <td class="p-3 text-center"><input type="checkbox" /></td>
+                <td class="p-3 font-bold hover:underline cursor-pointer">NIRC of ICAI Signs MoU</td>
+                <td class="p-3"><span class="px-2 py-0.5 border border-ink text-[10px] font-bold uppercase bg-surface">Achievement</span></td>
+                <td class="p-3 font-bold text-ink">Published</td>
+                <td class="p-3 text-muted text-xs">Jul 8, 2026</td>
+                <td class="p-3 text-right">
+                  <button class="px-3 py-1 border border-ink bg-surface text-xs font-bold uppercase hover:bg-ink hover:text-white transition-colors">Edit</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ANALYTICS PAGE                                 -->
+      <!-- ============================================== -->
+      <section id="analytics" class="page-section space-y-10">
+        <div class="relative pb-6 border-b border-ink/20">
+          <span class="absolute -bottom-2 -left-2 text-ink opacity-40 font-heading text-lg">+</span>
+          <h1 class="font-heading text-4xl font-bold text-ink tracking-tight uppercase">Enterprise Command Center</h1>
+          <p class="text-sm text-muted font-body mt-2">Advanced tracking, behavioral analytics, and engagement metrics.</p>
+        </div>
+        
+        <div class="flex gap-4 border-b-2 border-ink pb-4 mb-8">
+          <button class="font-heading font-bold text-xs tracking-wider px-4 py-2 border-2 uppercase transition-all bg-ink text-white border-ink shadow-[3px_3px_0px_rgba(0,0,0,0.2)]">
+            Overview
+          </button>
+          <button class="font-heading font-bold text-xs tracking-wider px-4 py-2 border-2 uppercase transition-all border-transparent text-muted hover:text-ink hover:border-ink">
+            Customer Journeys
+          </button>
+          <button class="font-heading font-bold text-xs tracking-wider px-4 py-2 border-2 uppercase transition-all border-transparent text-muted hover:text-ink hover:border-ink">
+            Engagement & Events
+          </button>
+          <button class="font-heading font-bold text-xs tracking-wider px-4 py-2 border-2 uppercase transition-all border-transparent text-muted hover:text-ink hover:border-ink">
+            Live Map
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-6">
+            <div class="text-[10px] font-bold text-muted uppercase tracking-wider mb-2">Total Unique Visitors</div>
+            <div class="font-heading text-4xl font-bold text-ink">24</div>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-6">
+            <div class="text-[10px] font-bold text-muted uppercase tracking-wider mb-2">Visitors Today</div>
+            <div class="font-heading text-4xl font-bold text-ink">2</div>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-6">
+            <div class="text-[10px] font-bold text-muted uppercase tracking-wider mb-2">Total Page Views</div>
+            <div class="font-heading text-4xl font-bold text-ink">131</div>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d p-6">
+            <div class="text-[10px] font-bold text-muted uppercase tracking-wider mb-2">Bot Traffic (Blocked)</div>
+            <div class="font-heading text-4xl font-bold text-ink">0</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d">
+            <div class="p-4 border-b-2 border-ink bg-surface">
+              <h3 class="font-heading text-lg font-bold">Top Pages</h3>
+            </div>
+            <table class="w-full text-left bg-panel border-0">
+              <thead>
+                <tr class="bg-surface">
+                  <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider border-0 border-b-2 border-ink">Page Path</th>
+                  <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider text-right border-0 border-b-2 border-ink">Views</th>
+                </tr>
+              </thead>
+              <tbody class="text-sm font-body">
+                <tr class="border-b border-ink/20">
+                  <td class="p-3 border-0">Home Page</td>
+                  <td class="p-3 text-right font-bold border-0">71</td>
+                </tr>
+                <tr class="border-b border-ink/20">
+                  <td class="p-3 border-0">/article</td>
+                  <td class="p-3 text-right font-bold border-0">14</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="bg-panel border-2 border-ink shadow-extruded-3d">
+            <div class="p-4 border-b-2 border-ink bg-surface">
+              <h3 class="font-heading text-lg font-bold">Top Countries</h3>
+            </div>
+            <table class="w-full text-left bg-panel border-0">
+              <thead>
+                <tr class="bg-surface">
+                  <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider border-0 border-b-2 border-ink">Country</th>
+                  <th class="p-3 text-[10px] font-bold text-ink uppercase tracking-wider text-right border-0 border-b-2 border-ink">Visitors</th>
+                </tr>
+              </thead>
+              <tbody class="text-sm font-body">
+                <tr class="border-b border-ink/20">
+                  <td class="p-3 border-0">Unknown</td>
+                  <td class="p-3 text-right font-bold border-0">9</td>
+                </tr>
+                <tr class="border-b border-ink/20">
+                  <td class="p-3 border-0">IN</td>
+                  <td class="p-3 text-right font-bold border-0">8</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- SETTINGS PAGE                                  -->
+      <!-- ============================================== -->
+      <section id="settings" class="page-section space-y-10">
+        <div class="w-full h-[60vh] flex flex-col items-center justify-center">
+          <h2 class="font-heading text-4xl font-bold text-ink mb-2">Settings</h2>
+          <p class="text-muted text-sm uppercase tracking-widest">Coming Soon</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Script for toggling tabs -->
+  <script>
+    function switchTab(tabId) {
+      // Hide all pages
+      document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+      // Show targeted page
+      document.getElementById(tabId).classList.add('active');
+
+      // Update sidebar nav styling
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if(btn.dataset.target === tabId) {
+          btn.className = 'nav-btn active w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 flex items-center transition-all bg-panel border-2 border-ink shadow-[3px_3px_0px_#1A1A1A] text-ink';
+        } else {
+          btn.className = 'nav-btn w-full text-left font-heading font-bold text-xs tracking-wider h-11 px-4 flex items-center transition-all border-2 border-transparent text-muted hover:text-ink';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

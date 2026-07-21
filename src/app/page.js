@@ -10,6 +10,7 @@ import { getDb } from '@/lib/db';
 import InsightsCarousel from '@/components/ui/InsightsCarousel';
 import DelayedPrefetch from '@/components/ui/DelayedPrefetch';
 import BackupAdvisorInline from '@/components/ui/BackupAdvisorInline';
+import ScrollIndicator from '@/components/ui/ScrollIndicator';
 
 export const revalidate = 60;
 
@@ -255,6 +256,7 @@ export default async function Home() {
               <HomeClient />
             </div>
           </div>
+          <ScrollIndicator />
         </div>
       </section>
 

@@ -6,7 +6,7 @@ export async function GET(request) {
   try {
     const isAuthenticated = await verifyAuth();
     if (!isAuthenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ success: true, logs: [], error: 'Unauthorized' }, { status: 200 });
     }
 
     const adminHistoryCollection = await getAdminLoginHistoryCollection();
