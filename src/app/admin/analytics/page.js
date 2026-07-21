@@ -12,6 +12,23 @@ const UnifiedMapViewer = dynamic(() => import('../../../components/analytics/Uni
 
 });
 
+function addOrUpdateEvent(events, event) {
+  if (event.eventType !== 'scroll_depth') {
+    events.push(event);
+    return;
+  }
+
+  const existingIdx = events.findIndex(e => e.eventType === 'scroll_depth');
+  if (existingIdx === -1) {
+    events.push({ ...event });
+    return;
+  }
+
+  if (event.metadata.depth > events[existingIdx].metadata.depth) {
+    events[existingIdx] = { ...event };
+  }
+}
+
 export default function AnalyticsDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -174,19 +191,7 @@ function JourneysTab() {
       
       currentGroup.lastTime = eventTime;
       
-      if (event.eventType === 'scroll_depth') {
-        const existingScrollIdx = currentGroup.events.findIndex(e => e.eventType === 'scroll_depth');
-        if (existingScrollIdx !== -1) {
-          // Update to highest depth in this session
-          if (event.metadata.depth > currentGroup.events[existingScrollIdx].metadata.depth) {
-            currentGroup.events[existingScrollIdx] = { ...event };
-          }
-        } else {
-          currentGroup.events.push({ ...event });
-        }
-      } else {
-        currentGroup.events.push(event);
-      }
+      addOrUpdateEvent(currentGroup.events, event);
     });
     return groups;
   }, [journey]);
@@ -204,19 +209,7 @@ function JourneysTab() {
           totalTime: 0,
         };
       }
-      if (event.eventType === 'scroll_depth') {
-        const existingScrollIdx = tree[event.path].events.findIndex(e => e.eventType === 'scroll_depth');
-        if (existingScrollIdx !== -1) {
-          // Keep the highest depth across all visits to this page
-          if (event.metadata.depth > tree[event.path].events[existingScrollIdx].metadata.depth) {
-            tree[event.path].events[existingScrollIdx] = { ...event };
-          }
-        } else {
-          tree[event.path].events.push({ ...event });
-        }
-      } else {
-        tree[event.path].events.push(event);
-      }
+      addOrUpdateEvent(tree[event.path].events, event);
       
       if (event.eventType === 'page_view') tree[event.path].views++;
       if (event.eventType === 'time_on_page') tree[event.path].totalTime += (event.metadata.durationSeconds || 0);
