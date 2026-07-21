@@ -114,11 +114,12 @@ export default function ArticleEditor({ params }) {
       });
       
       const data = await res.json();
-      if (res.ok && data.url) {
-        setFormData(prev => ({ ...prev, coverImage: data.url }));
-      } else {
+      if (!res.ok || !data.url) {
         alert(data.error || 'Failed to upload image');
+        return;
       }
+
+      setFormData(prev => ({ ...prev, coverImage: data.url }));
     } catch (err) {
       console.error(err);
       alert('Error uploading image');
@@ -193,17 +194,18 @@ export default function ArticleEditor({ params }) {
       });
       
       const data = await res.json();
-      if (res.ok) {
-        setFormData(prev => ({
-          ...prev,
-          metaDescription: data.metaDescription || prev.metaDescription,
-          metaKeywords: data.metaKeywords || prev.metaKeywords,
-          geoRegion: data.geoRegion || prev.geoRegion,
-          cityLocation: data.cityLocation || prev.cityLocation
-        }));
-      } else {
+      if (!res.ok) {
         alert(data.error || 'Failed to generate SEO');
+        return;
       }
+
+      setFormData(prev => ({
+        ...prev,
+        metaDescription: data.metaDescription || prev.metaDescription,
+        metaKeywords: data.metaKeywords || prev.metaKeywords,
+        geoRegion: data.geoRegion || prev.geoRegion,
+        cityLocation: data.cityLocation || prev.cityLocation
+      }));
     } catch (err) {
       console.error(err);
       alert('Error generating SEO');
@@ -235,25 +237,26 @@ export default function ArticleEditor({ params }) {
       });
       
       const data = await res.json();
-      if (res.ok) {
-        setFormData(prev => ({
-          ...prev,
-          title: data.title || prev.title,
-          slug: data.slug || prev.slug
-        }));
-        setIsContentAIOpen(false);
-        setContentAIPrompt('');
-        
-        if (data.content) {
-          if (editorRef.current) {
-            editorRef.current.simulateTyping(data.content);
-          } else {
-            setFormData(prev => ({ ...prev, content: data.content }));
-            setEditorKey(prev => prev + 1);
-          }
-        }
-      } else {
+      if (!res.ok) {
         alert(data.error || 'Failed to generate content');
+        return;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        title: data.title || prev.title,
+        slug: data.slug || prev.slug
+      }));
+      setIsContentAIOpen(false);
+      setContentAIPrompt('');
+
+      if (data.content) {
+        if (editorRef.current) {
+          editorRef.current.simulateTyping(data.content);
+        } else {
+          setFormData(prev => ({ ...prev, content: data.content }));
+          setEditorKey(prev => prev + 1);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -282,11 +285,12 @@ export default function ArticleEditor({ params }) {
       });
       
       const data = await res.json();
-      if (res.ok && data.content) {
-        setFormData(prev => ({ ...prev, aiSummary: data.content }));
-      } else {
+      if (!res.ok || !data.content) {
         alert(data.error || 'Failed to generate summary');
+        return;
       }
+
+      setFormData(prev => ({ ...prev, aiSummary: data.content }));
     } catch (err) {
       console.error(err);
       alert('Error generating summary');
@@ -310,11 +314,12 @@ export default function ArticleEditor({ params }) {
         body: JSON.stringify(formData)
       });
 
-      if (res.ok) {
-        router.push('/admin/dashboard');
-      } else {
+      if (!res.ok) {
         alert('Failed to save article');
+        return;
       }
+
+      router.push('/admin/dashboard');
     } catch (err) {
       console.error(err);
       alert('An error occurred');
