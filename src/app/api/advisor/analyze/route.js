@@ -1,6 +1,25 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 
+async function attemptAnalysis(ai, model, input, system_instruction) {
+  const interaction = await ai.interactions.create({
+    model: model,
+    input: input,
+    system_instruction: system_instruction
+  });
+
+  const text = interaction.output_text;
+
+  let jsonStr = text;
+  if (text.startsWith('```json')) {
+    jsonStr = text.replace(/^```json/, '').replace(/```$/, '').trim();
+  } else if (text.startsWith('```')) {
+    jsonStr = text.replace(/^```/, '').replace(/```$/, '').trim();
+  }
+
+  return JSON.parse(jsonStr);
+}
+
 export async function POST(request) {
   try {
     const { description, structured } = await request.json();
@@ -85,22 +104,7 @@ For "teamSize", infer the team size if mentioned, otherwise assume "1-5".
 
     for (const model of fallbackModels) {
       try {
-        const interaction = await ai.interactions.create({
-          model: model,
-          input: fullPrompt,
-          system_instruction: system_instruction
-        });
-
-        const text = interaction.output_text;
-        
-        let jsonStr = text;
-        if (text.startsWith('\`\`\`json')) {
-          jsonStr = text.replace(/^\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
-        } else if (text.startsWith('\`\`\`')) {
-          jsonStr = text.replace(/^\`\`\`/, '').replace(/\`\`\`$/, '').trim();
-        }
-
-        contentData = JSON.parse(jsonStr);
+        contentData = await attemptAnalysis(ai, model, fullPrompt, system_instruction);
 
         if (contentData) {
           console.log(`Successfully analyzed with model: ${model}`);
