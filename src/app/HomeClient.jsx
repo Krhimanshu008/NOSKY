@@ -109,44 +109,44 @@ export default function HomeClient() {
         const newCurrent = prev.active.current + increment;
         
         // Rollover logic: we let the current value overshoot the target by 0.6 to create a ~1.5s "Complete ✓" pause
-        if (newCurrent >= prev.active.target + 0.6) {
-          const nextName = taskNames[taskIndex];
-          taskIndex = (taskIndex + 1) % taskNames.length;
-          
-          const newTarget = Math.random() * (45 - 5) + 5; // 5-45 GB target
-          const newStart = Math.random() * (2 - 0.5) + 0.5; // Starts from 0.5-2 GB
-          
-          const newlyCompleted = { name: prev.active.name, size: `${prev.active.target.toFixed(1)} GB`, status: '✓' };
-          const nextCompleted = [...prev.completed, newlyCompleted];
-          
-          // Keep up to 20 completed items for scrolling
-          if (nextCompleted.length > 20) {
-            nextCompleted.shift();
-          }
-          
-          const now = new Date();
-          const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-          
-          const newLog = {
-            id: Date.now(),
-            time: timeString,
-            type: '[BACKUP]',
-            color: 'var(--color-success)',
-            message: `${prev.active.name} fully encrypted and synced (${prev.active.target.toFixed(1)} GB)`,
-            highlight: true
-          };
-          const nextLogs = [newLog, ...prev.logs].slice(0, 50);
-          
+        if (newCurrent < prev.active.target + 0.6) {
           return {
-            active: { name: nextName, current: newStart, target: newTarget },
-            completed: nextCompleted,
-            logs: nextLogs
+            ...prev,
+            active: { ...prev.active, current: newCurrent }
           };
         }
+
+        const nextName = taskNames[taskIndex];
+        taskIndex = (taskIndex + 1) % taskNames.length;
+
+        const newTarget = Math.random() * (45 - 5) + 5; // 5-45 GB target
+        const newStart = Math.random() * (2 - 0.5) + 0.5; // Starts from 0.5-2 GB
+
+        const newlyCompleted = { name: prev.active.name, size: `${prev.active.target.toFixed(1)} GB`, status: '✓' };
+        const nextCompleted = [...prev.completed, newlyCompleted];
+
+        // Keep up to 20 completed items for scrolling
+        if (nextCompleted.length > 20) {
+          nextCompleted.shift();
+        }
+
+        const now = new Date();
+        const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+        const newLog = {
+          id: Date.now(),
+          time: timeString,
+          type: '[BACKUP]',
+          color: 'var(--color-success)',
+          message: `${prev.active.name} fully encrypted and synced (${prev.active.target.toFixed(1)} GB)`,
+          highlight: true
+        };
+        const nextLogs = [newLog, ...prev.logs].slice(0, 50);
         
         return {
-          ...prev,
-          active: { ...prev.active, current: newCurrent }
+          active: { name: nextName, current: newStart, target: newTarget },
+          completed: nextCompleted,
+          logs: nextLogs
         };
       });
     }, 500);
