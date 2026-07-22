@@ -12,6 +12,10 @@ export async function PUT(request, { params }) {
     }
 
     const { id } = await params;
+    if (!id) {
+      return NextResponse.json({ error: 'Article ID is required' }, { status: 400 });
+    }
+
     const body = await request.json();
     const collection = await getDb();
 
@@ -60,6 +64,10 @@ export async function DELETE(request, { params }) {
     }
 
     const { id } = await params;
+    if (!id) {
+      return NextResponse.json({ error: 'Article ID is required' }, { status: 400 });
+    }
+
     const collection = await getDb();
     
     // Get slug before deleting for cache invalidation
