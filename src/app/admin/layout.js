@@ -1,7 +1,7 @@
 'use client';
 
 import './admin.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
@@ -12,13 +12,16 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-bod
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(() => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedState = localStorage.getItem('nosky_admin_sidebar_collapsed');
-      return savedState === 'true';
+      if (savedState === 'true') {
+        setIsCollapsed(true);
+      }
     }
-    return false;
-  });
+  }, []);
 
   const toggleSidebar = () => {
     setIsCollapsed(prev => {
@@ -48,30 +51,31 @@ export default function AdminLayout({ children }) {
           {/* Sidebar Brand Header */}
           <div className="admin-sidebar-header">
             {isCollapsed ? (
-              // COLLAPSED: only show expand button, perfectly centred
+              // COLLAPSED: centered clickable >_ logo box
               <button
                 onClick={toggleSidebar}
-                className="admin-collapse-btn"
+                className="admin-collapsed-logo-btn"
                 title="Expand Sidebar"
               >
-                <ChevronRight size={18} />
+                <div className="admin-sidebar-icon font-heading font-bold">
+                  &gt;_
+                </div>
               </button>
             ) : (
-              // EXPANDED: logo + title + collapse button
+              // EXPANDED: logo icon + NOSKY ADMIN title + collapse button
               <>
                 <div className="admin-sidebar-logo">
                   <div className="admin-sidebar-icon font-heading font-bold">
                     &gt;_
                   </div>
                   <div className="admin-sidebar-title">
-                    <span>COMMAND</span>
-                    <span>CENTER</span>
+                    NOSKY ADMIN
                   </div>
                 </div>
                 <button
                   onClick={toggleSidebar}
                   className="admin-collapse-btn"
-                  title="Minimize Sidebar"
+                  title="Collapse Sidebar"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -91,7 +95,7 @@ export default function AdminLayout({ children }) {
                   className={`admin-nav-item ${isActive ? 'active' : ''} ${isCollapsed ? 'collapsed-item' : ''}`}
                   title={item.label}
                 >
-                  <Icon size={18} strokeWidth={2} />
+                  <Icon size={18} strokeWidth={2} className="admin-nav-icon" />
                   {!isCollapsed && <span>{item.label}</span>}
                 </Link>
               );
@@ -106,7 +110,7 @@ export default function AdminLayout({ children }) {
               title="Return to Site"
             >
               <div className="admin-return-icon">
-                <Home size={14} />
+                <Home size={16} />
               </div>
               {!isCollapsed && <span className="admin-return-text">Return to Site</span>}
             </Link>

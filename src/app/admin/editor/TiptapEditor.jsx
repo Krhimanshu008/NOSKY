@@ -32,8 +32,11 @@ const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChang
   const isTypingRef = useRef(false);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        link: false,
+      }),
       Image,
       Link.configure({
         openOnClick: false,
@@ -195,7 +198,7 @@ const TiptapEditor = forwardRef(function TiptapEditor({ initialMarkdown, onChang
           letter-spacing: 0.05em;
         }
         .tiptap-content-wrapper .ProseMirror {
-          min-height: 600px;
+          min-height: 375px;
           padding: 1.5rem;
           outline: none;
           color: var(--color-text-primary);
