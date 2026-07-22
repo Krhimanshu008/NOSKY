@@ -24,6 +24,23 @@ const processFile = async (file) => {
   return file;
 };
 
+const uploadImageFile = async (rawFile) => {
+  const file = await processFile(rawFile);
+  const body = new FormData();
+  body.append('file', file);
+
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    body
+  });
+
+  const data = await res.json();
+  if (res.ok && data.url) {
+    return data.url;
+  }
+  throw new Error(data.error || 'Failed to upload image');
+};
+
 const TiptapEditor = dynamic(
   () => import('./TiptapEditor'),
   { ssr: false }
@@ -121,30 +138,16 @@ export default function ArticleEditor({ params }) {
   };
 
   const handleCoverUpload = async (e) => {
-    let file = e.target.files?.[0];
+    const file = e.target.files?.[0];
     if (!file) return;
-
-    file = await processFile(file);
 
     setIsUploadingImage(true);
     try {
-      const body = new FormData();
-      body.append('file', file);
-      
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body
-      });
-      
-      const data = await res.json();
-      if (res.ok && data.url) {
-        setFormData(prev => ({ ...prev, coverImage: data.url }));
-      } else {
-        alert(data.error || 'Failed to upload image');
-      }
+      const url = await uploadImageFile(file);
+      setFormData(prev => ({ ...prev, coverImage: url }));
     } catch (err) {
       console.error(err);
-      alert('Error uploading image');
+      alert(err.message || 'Error uploading image');
     } finally {
       setIsUploadingImage(false);
       e.target.value = '';
@@ -164,20 +167,10 @@ export default function ArticleEditor({ params }) {
     setIsUploadingImage(true);
     try {
       const uploadPromises = Array.from(files).map(async (rawFile) => {
-        const file = await processFile(rawFile);
-        const body = new FormData();
-        body.append('file', file);
-        
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body
-        });
-        
-        const data = await res.json();
-        if (res.ok && data.url) {
-          return data.url;
-        } else {
-          console.error(data.error || 'Failed to upload image');
+        try {
+          return await uploadImageFile(rawFile);
+        } catch (err) {
+          console.error(err.message || 'Failed to upload image');
           return null;
         }
       });
