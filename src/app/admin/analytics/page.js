@@ -6,7 +6,7 @@ import { Loader2, Activity, Users, FileText, MousePointer, Clock, MapPin, Monito
 import dynamic from 'next/dynamic';
 import AdminSettingsIcon from '@/components/ui/AdminSettingsIcon';
 
-const UnifiedMapViewer = dynamic(() => import('../../../components/analytics/UnifiedMapViewer'), { 
+const UnifiedMapViewer = dynamic(() => import('../../../components/analytics/UnifiedMapViewer'), {
   ssr: false,
   loading: () => <div style={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}><Loader2 className="animate-spin" size={32} /></div>
 
@@ -504,33 +504,7 @@ function EngagementTab() {
         <div className="neo-card" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><MoveDown size={20}/> Scroll Depth Analytics</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {(() => {
-              const milestones = stats.scrollMilestones || [];
-              const milestoneMap = new Map();
-              let maxCount = 1;
-
-              for (const m of milestones) {
-                milestoneMap.set(m._id, m);
-                if (m.count > maxCount) maxCount = m.count;
-
-              }
-
-              return [25, 50, 75, 100].map(depth => {
-                const stat = milestoneMap.get(depth) || { count: 0 };
-                const width = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
-                return (
-                  <div key={depth}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '4px' }}>
-                      <span>Scrolled {depth}%</span>
-                      <span style={{ fontWeight: 600 }}>{stat.count} hits</span>
-                    </div>
-                    <div style={{ width: '100%', height: '8px', background: 'rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{ width: `${width}%`, height: '100%', background: 'var(--color-blue)', borderRadius: '4px' }}></div>
-                    </div>
-                  </div>
-                );
-              });
-            })()}
+            <ScrollDepthChart milestones={stats.scrollMilestones} />
           </div>
         </div>
 
@@ -591,7 +565,7 @@ function LiveMapTab() {
   }, []);
 
   const uniqueCountries = new Set(visitors.map(v => v.country));
-  
+
   // Get top 5 countries for sidebar
   const countryCounts = {};
   visitors.forEach(v => {
@@ -605,14 +579,14 @@ function LiveMapTab() {
 
   return (
     <div style={{ display: 'flex', gap: '2rem', height: 'calc(100vh - 250px)', minHeight: '500px' }}>
-      
+
       {/* LEFT: Visualization Container (70%) */}
-      <div 
+      <div
         ref={fullscreenRef}
-        className="neo-card-inner" 
+        className="neo-card-inner"
         style={{ flex: '7', padding: 0, overflow: 'hidden', position: 'relative', background: '#000' }}
       >
-        <button 
+        <button
           onClick={toggleFullscreen}
           style={{
             position: 'absolute',
@@ -638,15 +612,15 @@ function LiveMapTab() {
           <Maximize size={18} />
         </button>
 
-        <UnifiedMapViewer 
-          selectedCountry={selectedCountry} 
-          onCountrySelect={setSelectedCountry} 
+        <UnifiedMapViewer
+          selectedCountry={selectedCountry}
+          onCountrySelect={setSelectedCountry}
         />
       </div>
 
       {/* RIGHT: Analytics Sidebar (30%) */}
       <div style={{ flex: '3', display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto' }} className="no-scrollbar">
-        
+
         <div className="neo-card-inner" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem' }}>
           <Activity size={32} style={{ color: '#000000' }} />
           <div>
@@ -669,12 +643,12 @@ function LiveMapTab() {
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {topCountries.map(([country, count], i) => (
-              <div 
-                key={country} 
+              <div
+                key={country}
                 onClick={() => setSelectedCountry(country)}
-                style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                   background: 'rgba(0,0,0,0.1)',
                   padding: '0.75rem 1rem',
@@ -702,4 +676,35 @@ function LiveMapTab() {
 
     </div>
   );
-}
+}
+
+
+function ScrollDepthChart({ milestones = [] }) {
+  const milestoneMap = new Map();
+  let maxCount = 1;
+
+  for (const m of milestones) {
+    milestoneMap.set(m._id, m);
+    if (m.count > maxCount) maxCount = m.count;
+  }
+
+  return (
+    <>
+      {[25, 50, 75, 100].map(depth => {
+        const stat = milestoneMap.get(depth) || { count: 0 };
+        const width = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
+        return (
+          <div key={depth}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '4px' }}>
+              <span>Scrolled {depth}%</span>
+              <span style={{ fontWeight: 600 }}>{stat.count} hits</span>
+            </div>
+            <div style={{ width: '100%', height: '8px', background: 'rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: `${width}%`, height: '100%', background: 'var(--color-blue)', borderRadius: '4px' }}></div>
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+}
