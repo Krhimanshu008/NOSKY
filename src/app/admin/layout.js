@@ -23,6 +23,11 @@ export default function AdminLayout({ children }) {
     }
   }, []);
 
+  // If on login page (/admin), render clean children without sidebar wrapper
+  if (pathname === '/admin') {
+    return children;
+  }
+
   const toggleSidebar = () => {
     setIsCollapsed(prev => {
       const next = !prev;
