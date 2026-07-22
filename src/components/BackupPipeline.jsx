@@ -42,12 +42,6 @@ export default function BackupPipeline() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Avoid hydration mismatch by not rendering the desktop-only layout until mounted
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) return null; // Or a simple skeleton
-
   return (
     <div ref={containerRef} style={{ position: 'relative', maxWidth: '800px', margin: '0 auto', padding: 'var(--space-8) 0' }}>
       

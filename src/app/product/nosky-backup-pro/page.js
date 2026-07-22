@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import BackupPipeline from '@/components/BackupPipeline';
-import { 
-  ShieldCheck, Server, Cloud, HardDrive, Lock, FileText, Share2, 
-  RefreshCcw, AlertTriangle, Zap, Activity, Clock, FileWarning, HelpCircle, 
+import {
+  ShieldCheck, Server, Cloud, HardDrive, Lock, FileText, Share2,
+  RefreshCcw, AlertTriangle, Zap, Activity, Clock, FileWarning, HelpCircle,
   CheckCircle, Database, GitBranch, Terminal, Shield, ArrowDown, ArrowRight
 } from 'lucide-react';
 
@@ -84,16 +84,16 @@ export default function NoskyBackupProPage() {
           <div className="badge badge-accent" style={{ marginBottom: 'var(--space-6)' }}>
             Enterprise Backup & Disaster Recovery Platform
           </div>
-          
+
           <h1 style={{ marginBottom: 'var(--space-6)' }}>
             Secure. Compressed.<br />
             <span className="text-gradient-blue">Encrypted. Verified.</span>
           </h1>
-          
+
           <p style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-8)', maxWidth: '700px', color: 'var(--color-text-secondary)' }}>
             Protect your business-critical data with enterprise-grade backup technology designed for physical servers, virtual machines, cloud workloads, databases, NAS devices, endpoints, and hybrid environments.
           </p>
-          
+
           <div className="card card-highlight" style={{ marginBottom: 'var(--space-8)', padding: 'var(--space-4) var(--space-8)' }}>
             <span style={{ fontSize: 'var(--text-lg)', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>
               Your Data. Always Available. Always Protected.
@@ -118,7 +118,7 @@ export default function NoskyBackupProPage() {
             <h2>Why Backup Matters</h2>
             <p>Every day businesses lose valuable information. Without a verified backup strategy, recovering lost information may be impossible.</p>
           </div>
-          
+
           <div className="grid grid-4" style={{ gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
             {threats.map((threat, idx) => (
               <div key={idx} className="card" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-4)' }}>
@@ -207,7 +207,7 @@ export default function NoskyBackupProPage() {
               <h3>Encryption</h3>
               <p className="card-desc">Military-grade AES-256 encryption protects your data both in transit (TLS) and at rest.</p>
             </div>
-            
+
             <div className="card">
               <div className="card-icon"><ShieldCheck /></div>
               <h3>Authentication & Access</h3>
@@ -243,7 +243,7 @@ export default function NoskyBackupProPage() {
                 ))}
               </ul>
             </div>
-            
+
             <div>
               <h2 style={{ marginBottom: 'var(--space-6)' }}>Recovery Capabilities</h2>
               <ul style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -286,7 +286,7 @@ export default function NoskyBackupProPage() {
             <h2>Backup & Security Knowledge Hub</h2>
             <p>Explore our deep-dive technical articles to understand the mechanics of data protection.</p>
           </div>
-          
+
           <div className="grid grid-3" style={{ marginTop: 'var(--space-12)' }}>
             <Link href="/article/what-is-backup-vs-cloud-storage" className="card" style={{ textDecoration: 'none' }}>
               <h4 style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--space-2)' }}>Backup vs Cloud Storage</h4>
