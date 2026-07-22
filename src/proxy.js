@@ -14,7 +14,7 @@ export async function proxy(request) {
 
   if (token) {
     try {
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'nosky_jwt_secret_key_default');
       await jwtVerify(token, secret);
       isAuthenticated = true;
     } catch (err) {
