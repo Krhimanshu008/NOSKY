@@ -13,40 +13,39 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch stats
-        try {
-          const statsRes = await fetch('/api/analytics/dashboard');
-          if (statsRes.ok) {
-            const statsData = await statsRes.json();
-            setStats(statsData);
-          }
-        } catch (e) {
-          console.error('Error fetching analytics stats:', e);
+        const [statsRes, visitorsRes, historyRes] = await Promise.all([
+          fetch('/api/analytics/dashboard').catch(e => {
+            console.error('Error fetching analytics stats:', e);
+            return null;
+          }),
+          fetch('/api/analytics/visitors').catch(e => {
+            console.error('Error fetching visitors:', e);
+            return null;
+          }),
+          fetch('/api/admin/login-history').catch(e => {
+            console.error('Error fetching login history:', e);
+            return null;
+          })
+        ]);
+
+        if (statsRes?.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData);
         }
 
-        // Fetch visitors
-        try {
-          const visitorsRes = await fetch('/api/analytics/visitors');
-          if (visitorsRes.ok) {
-            const visitorsData = await visitorsRes.json();
-            if (Array.isArray(visitorsData)) {
-              setVisitors(visitorsData.sort((a, b) => (b.leadScore || 0) - (a.leadScore || 0)).slice(0, 5));
-            }
+        if (visitorsRes?.ok) {
+          const visitorsData = await visitorsRes.json();
+          if (Array.isArray(visitorsData)) {
+            setVisitors(visitorsData.sort((a, b) => (b.leadScore || 0) - (a.leadScore || 0)).slice(0, 5));
           }
-        } catch (e) {
-          console.error('Error fetching visitors:', e);
         }
 
-        // Fetch login history
-        try {
-          const historyRes = await fetch('/api/admin/login-history');
-          if (historyRes.ok) {
-            const historyData = await historyRes.json();
-            setLoginHistory(historyData.logs || []);
-          }
-        } catch (e) {
-          console.error('Error fetching login history:', e);
+        if (historyRes?.ok) {
+          const historyData = await historyRes.json();
+          setLoginHistory(historyData.logs || []);
         }
+      } catch (err) {
+        console.error('Failed to process dashboard data:', err);
       } finally {
         setLoading(false);
       }
