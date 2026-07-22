@@ -32,9 +32,16 @@ export default function HowItWorksTimeline() {
 
     // Cache node measurements to avoid querying the DOM and calculating layouts on every scroll event
     let nodeMeasurements = [];
+    let timelineMetrics = { absoluteTop: 0, height: 0, viewportH: 0 };
 
     function measureNodes() {
       const timelineRect = timeline.getBoundingClientRect();
+      const scrollY = window.scrollY;
+
+      timelineMetrics.absoluteTop = timelineRect.top + scrollY;
+      timelineMetrics.height = timelineRect.height || timeline.offsetHeight;
+      timelineMetrics.viewportH = window.innerHeight;
+
       nodeMeasurements = stepEls.map(step => {
         const node = step.querySelector('.how-step-node');
         if (!node) return null;
@@ -48,17 +55,18 @@ export default function HowItWorksTimeline() {
 
     // Progress line + active node based on scroll position
     function updateProgress() {
-      const rect = timeline.getBoundingClientRect();
-      const viewportH = window.innerHeight;
+      const scrollY = window.scrollY;
+      const rectTop = timelineMetrics.absoluteTop - scrollY;
+      const viewportH = timelineMetrics.viewportH;
+      const total = timelineMetrics.height;
 
       const start = viewportH * 0.9;
       const end = viewportH * 0.3;
 
-      const total = rect.height;
-      let progress = (start - rect.top) / (total + start - end);
+      let progress = (start - rectTop) / (total + start - end);
       progress = Math.max(0, Math.min(1, progress));
 
-      const length = timeline.offsetHeight || 1000;
+      const length = total || 1000;
       progressFill.style.strokeDasharray = length;
       progressFill.style.strokeDashoffset = length * (1 - progress);
 
@@ -71,7 +79,7 @@ export default function HowItWorksTimeline() {
         const m = nodeMeasurements[i];
         if (!m) return;
 
-        const nodeTop = rect.top + m.offset;
+        const nodeTop = rectTop + m.offset;
         const nodeCenter = nodeTop + m.height / 2;
         const dist = Math.abs(nodeCenter - centerY);
 
@@ -88,7 +96,7 @@ export default function HowItWorksTimeline() {
 
     // Sync SVG viewBox to timeline height
     function syncSvgHeight() {
-      const h = timeline.offsetHeight;
+      const h = timelineMetrics.height;
       if (h > 0 && progressSvg && track && progressFill) {
         progressSvg.setAttribute('viewBox', `0 0 4 ${h}`);
         track.setAttribute('y2', h);
