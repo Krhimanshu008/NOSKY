@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server';
 import { verifyAuth } from '@/lib/auth';
 import { GoogleGenAI } from '@google/genai';
 
+async function attemptModelGeneration(ai, model, prompt, system_instruction) {
+  try {
+    const interaction = await ai.interactions.create({
+      model: model,
+      input: prompt,
+      system_instruction: system_instruction
+    });
+
+    const text = interaction.output_text;
+
+    // Parse the JSON string
+    const seoData = JSON.parse(text);
+
+    // If successful, return the data
+    if (seoData) {
+      console.log(`Successfully generated SEO with model: ${model}`);
+      return { seoData, error: null };
+    }
+    return { seoData: null, error: new Error('Parsed data is empty') };
+  } catch (error) {
+    console.warn(`Model ${model} failed, trying next... Error:`, error.message);
+    return { seoData: null, error };
+  }
+}
+
 export async function POST(request) {
   try {
     const isAuthenticated = await verifyAuth();
@@ -63,28 +88,14 @@ Content: ${content}`;
     let seoData = null;
 
     for (const model of fallbackModels) {
-      try {
-        const interaction = await ai.interactions.create({
-          model: model,
-          input: prompt,
-          system_instruction: system_instruction
-        });
-        
-        const text = interaction.output_text;
-        
-        // Parse the JSON string
-        seoData = JSON.parse(text);
-        
-        // If successful, break out of the fallback loop
-        if (seoData) {
-          console.log(`Successfully generated SEO with model: ${model}`);
-          break;
-        }
-      } catch (error) {
-        console.warn(`Model ${model} failed, trying next... Error:`, error.message);
-        lastError = error;
-        continue;
+      const result = await attemptModelGeneration(ai, model, prompt, system_instruction);
+
+      if (result.seoData) {
+        seoData = result.seoData;
+        break;
       }
+
+      lastError = result.error;
     }
 
     if (!seoData) {
