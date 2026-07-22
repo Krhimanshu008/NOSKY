@@ -92,9 +92,18 @@ export default function ContentDashboard() {
     if (!confirm(`Are you sure you want to delete ${selectedItems.length} posts?`)) return;
     
     try {
-      await Promise.all(selectedItems.map(id => 
-        fetch(`/api/articles/${id}`, { method: 'DELETE' })
-      ));
+      const res = await fetch('/api/articles/bulk-delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: selectedItems }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to bulk delete');
+      }
+
       setSelectedItems([]);
       fetchArticles();
     } catch (err) {
