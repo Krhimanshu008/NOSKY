@@ -255,7 +255,7 @@ export default function BackupAdvisorInline() {
     return (
       <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', height: '100%' }}>
         <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: '4px' }}>Select your software</h3>
-        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>Search or tap the tools you use. Add anything we're missing.</p>
+        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>Search or tap the tools you use. Add anything we&apos;re missing.</p>
         
         <input 
           type="text" 
@@ -697,7 +697,7 @@ export default function BackupAdvisorInline() {
               </div>
               <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 800, lineHeight: 1.2, maxWidth: '600px', background: 'linear-gradient(to right, #fff, #f5a623)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 'var(--space-6)' }}>Get Your Personalized Backup Strategy</h2>
               <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-secondary)', maxWidth: '520px', lineHeight: 'var(--leading-relaxed)', marginBottom: 'var(--space-6)' }}>
-                Tell us the software you use — we'll engineer a complete backup plan with storage estimates, recovery targets, and encryption recommendations. <strong style={{ color: 'var(--color-text-primary)' }}>Takes under 60 seconds.</strong>
+                Tell us the software you use — we&apos;ll engineer a complete backup plan with storage estimates, recovery targets, and encryption recommendations. <strong style={{ color: 'var(--color-text-primary)' }}>Takes under 60 seconds.</strong>
               </p>
               <button onClick={() => setIsExpanded(true)} className="btn btn-primary btn-lg" style={{ padding: '16px 36px', fontSize: '1rem', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 0 40px rgba(245, 166, 35, 0.2)', cursor: 'pointer' }}>
                 Launch Backup Advisor

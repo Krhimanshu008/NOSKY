@@ -4,47 +4,23 @@ export async function getDashboardStats() {
   const eventsCollection = await getAnalyticsEventsCollection();
   const visitorsCollection = await getAnalyticsVisitorsCollection();
 
-  // 1. Get total distinct visitors (non-bot)
-  const totalVisitors = await visitorsCollection.countDocuments({ isBot: false });
-
-  // 2. Get today's distinct visitors
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
-  const todayVisitors = await visitorsCollection.countDocuments({ 
-    isBot: false, 
-    lastVisit: { $gte: startOfDay } 
-  });
 
-  // 3. Get total page views
-  const totalViews = await eventsCollection.countDocuments({ 
-    eventType: 'page_view', 
-    isBot: false 
-  });
-
-  // 4. Get total bot traffic count
-  const botTraffic = await eventsCollection.countDocuments({ 
-    isBot: true 
-  });
-
-  // 5. Get top pages (aggregation)
   const topPagesPipeline = [
     { $match: { eventType: 'page_view', isBot: false } },
     { $group: { _id: "$path", views: { $sum: 1 } } },
     { $sort: { views: -1 } },
     { $limit: 5 }
   ];
-  const topPages = await eventsCollection.aggregate(topPagesPipeline).toArray();
 
-  // 6. Get top countries (aggregation)
   const topCountriesPipeline = [
     { $match: { isBot: false } },
     { $group: { _id: "$country", count: { $sum: 1 } } },
     { $sort: { count: -1 } },
     { $limit: 5 }
   ];
-  const topCountries = await visitorsCollection.aggregate(topCountriesPipeline).toArray();
 
-  // 7. Get top content by average retention time (articles and achievements)
   const topContentByRetentionPipeline = [
     { 
       $match: { 
@@ -66,7 +42,24 @@ export async function getDashboardStats() {
     { $sort: { avgRetentionSeconds: -1 } },
     { $limit: 5 }
   ];
-  const topContentByRetention = await eventsCollection.aggregate(topContentByRetentionPipeline).toArray();
+
+  const [
+    totalVisitors,
+    todayVisitors,
+    totalViews,
+    botTraffic,
+    topPages,
+    topCountries,
+    topContentByRetention
+  ] = await Promise.all([
+    visitorsCollection.countDocuments({ isBot: false }).catch(() => 0),
+    visitorsCollection.countDocuments({ isBot: false, lastVisit: { $gte: startOfDay } }).catch(() => 0),
+    eventsCollection.countDocuments({ eventType: 'page_view', isBot: false }).catch(() => 0),
+    eventsCollection.countDocuments({ isBot: true }).catch(() => 0),
+    eventsCollection.aggregate(topPagesPipeline).toArray().catch(() => []),
+    visitorsCollection.aggregate(topCountriesPipeline).toArray().catch(() => []),
+    eventsCollection.aggregate(topContentByRetentionPipeline).toArray().catch(() => [])
+  ]);
 
   return {
     totalVisitors,
@@ -122,33 +115,17 @@ export async function getEngagementStats(period = 30, customStartDate = null, cu
     matchFilter.timestamp = { $gte: cutoffDate };
   }
 
-  // 1. Average Retention Time (time_on_page)
   const retentionPipeline = [
     { $match: { ...matchFilter, eventType: 'time_on_page' } },
     { $group: { _id: null, avgTime: { $avg: "$metadata.durationSeconds" } } }
   ];
-  const retentionResult = await eventsCollection.aggregate(retentionPipeline).toArray();
-  const avgRetentionSeconds = retentionResult.length > 0 ? Math.round(retentionResult[0].avgTime) : 0;
 
-  // 2. Event Log (recent clicks, downloads, etc)
-  const recentEvents = await eventsCollection
-    .find({ 
-      ...matchFilter,
-      eventType: { $in: ['click', 'email_click', 'tel_click', 'pdf_download', 'outbound_link'] }
-    })
-    .sort({ timestamp: -1 })
-    .limit(10)
-    .toArray();
-
-  // 3. Scroll Depth Drop-off (average max depth across all page views)
   const scrollPipeline = [
     { $match: { ...matchFilter, eventType: 'scroll_depth' } },
     { $group: { _id: "$metadata.depth", count: { $sum: 1 } } },
     { $sort: { _id: 1 } }
   ];
-  const scrollMilestones = await eventsCollection.aggregate(scrollPipeline).toArray();
 
-  // 4. CTA Performance (Most clicked elements)
   const ctaPipeline = [
     { $match: { ...matchFilter, eventType: 'click', "metadata.text": { $exists: true, $ne: "" } } },
     { $group: { _id: { text: "$metadata.text", path: "$path" }, count: { $sum: 1 } } },
@@ -156,20 +133,36 @@ export async function getEngagementStats(period = 30, customStartDate = null, cu
     { $limit: 10 },
     { $project: { _id: 0, text: "$_id.text", path: "$_id.path", count: 1 } }
   ];
-  const ctaPerformance = await eventsCollection.aggregate(ctaPipeline).toArray();
 
-  // 5. Retention by Page
   const pageRetentionPipeline = [
     { $match: { ...matchFilter, eventType: 'time_on_page' } },
     { $group: { _id: "$path", avgTime: { $avg: "$metadata.durationSeconds" }, views: { $sum: 1 } } },
     { $sort: { avgTime: -1 } },
     { $limit: 10 }
   ];
-  const retentionByPage = await eventsCollection.aggregate(pageRetentionPipeline).toArray();
 
-  // 6. Conversions
-  const totalClicks = await eventsCollection.countDocuments({ ...matchFilter, eventType: 'click' });
-  const totalDownloads = await eventsCollection.countDocuments({ ...matchFilter, eventType: 'pdf_download' });
+  const [
+    retentionResult,
+    recentEvents,
+    scrollMilestones,
+    ctaPerformance,
+    retentionByPage,
+    totalClicks,
+    totalDownloads
+  ] = await Promise.all([
+    eventsCollection.aggregate(retentionPipeline).toArray().catch(() => []),
+    eventsCollection.find({
+      ...matchFilter,
+      eventType: { $in: ['click', 'email_click', 'tel_click', 'pdf_download', 'outbound_link'] }
+    }).sort({ timestamp: -1 }).limit(10).toArray().catch(() => []),
+    eventsCollection.aggregate(scrollPipeline).toArray().catch(() => []),
+    eventsCollection.aggregate(ctaPipeline).toArray().catch(() => []),
+    eventsCollection.aggregate(pageRetentionPipeline).toArray().catch(() => []),
+    eventsCollection.countDocuments({ ...matchFilter, eventType: 'click' }).catch(() => 0),
+    eventsCollection.countDocuments({ ...matchFilter, eventType: 'pdf_download' }).catch(() => 0)
+  ]);
+
+  const avgRetentionSeconds = retentionResult.length > 0 ? Math.round(retentionResult[0].avgTime) : 0;
 
   return {
     avgRetentionSeconds,

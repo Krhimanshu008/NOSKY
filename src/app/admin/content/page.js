@@ -1,13 +1,32 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import useSWR from 'swr';
+
+const fetcher = (url) => fetch(url).then(async (res) => {
+  if (res.status === 401) {
+    const error = new Error('Not authorized');
+    error.status = 401;
+    throw error;
+  }
+  return res.json();
+});
 
 export default function ContentDashboard() {
-  const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { data: articles = [], error, mutate, isLoading } = useSWR('/api/articles?all=true', fetcher, {
+    onError: (err) => {
+      if (err.status === 401) {
+        router.push('/admin');
+      }
+    }
+  });
+
+  const loading = isLoading;
+
   const [viewMode, setViewMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('nosky_admin_content_view_mode') || 'list';
@@ -29,8 +48,6 @@ export default function ContentDashboard() {
   }); 
   const [selectedItems, setSelectedItems] = useState([]);
   
-  const router = useRouter();
-
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
     if (typeof window !== 'undefined') {
@@ -52,26 +69,6 @@ export default function ContentDashboard() {
     }
   };
 
-  const fetchArticles = useCallback(async () => {
-    try {
-      const res = await fetch('/api/articles?all=true');
-      if (res.status === 401) {
-        router.push('/admin');
-        return;
-      }
-      const data = await res.json();
-      setArticles(data);
-    } catch (err) {
-      console.error('Failed to fetch articles', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
-
-  useEffect(() => {
-    setTimeout(() => fetchArticles(), 0);
-  }, [fetchArticles]);
-
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this post?')) return;
     try {
@@ -81,7 +78,7 @@ export default function ContentDashboard() {
         return;
       }
 
-      fetchArticles();
+      mutate();
       setSelectedItems(prev => prev.filter(itemId => itemId !== id));
     } catch (err) {
       console.error('Delete error', err);
@@ -106,7 +103,7 @@ export default function ContentDashboard() {
       }
 
       setSelectedItems([]);
-      fetchArticles();
+      mutate();
     } catch (err) {
       console.error('Bulk delete error', err);
       alert('Some posts failed to delete.');
