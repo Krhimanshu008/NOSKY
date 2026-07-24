@@ -1,57 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import useSWR from 'swr';
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null);
-  const [visitors, setVisitors] = useState([]);
-  const [loginHistory, setLoginHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: stats, error: statsError, isLoading: statsLoading } = useSWR('/api/analytics/dashboard', fetcher);
+  const { data: rawVisitors, error: visitorsError, isLoading: visitorsLoading } = useSWR('/api/analytics/visitors', fetcher);
+  const { data: historyData, error: historyError, isLoading: historyLoading } = useSWR('/api/admin/login-history', fetcher);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsRes, visitorsRes, historyRes] = await Promise.all([
-          fetch('/api/analytics/dashboard').catch(e => {
-            console.error('Error fetching analytics stats:', e);
-            return null;
-          }),
-          fetch('/api/analytics/visitors').catch(e => {
-            console.error('Error fetching visitors:', e);
-            return null;
-          }),
-          fetch('/api/admin/login-history').catch(e => {
-            console.error('Error fetching login history:', e);
-            return null;
-          })
-        ]);
+  const visitors = Array.isArray(rawVisitors)
+    ? [...rawVisitors].sort((a, b) => (b.leadScore || 0) - (a.leadScore || 0)).slice(0, 5)
+    : [];
 
-        if (statsRes?.ok) {
-          const statsData = await statsRes.json();
-          setStats(statsData);
-        }
+  const loginHistory = historyData?.logs || [];
 
-        if (visitorsRes?.ok) {
-          const visitorsData = await visitorsRes.json();
-          if (Array.isArray(visitorsData)) {
-            setVisitors(visitorsData.sort((a, b) => (b.leadScore || 0) - (a.leadScore || 0)).slice(0, 5));
-          }
-        }
-
-        if (historyRes?.ok) {
-          const historyData = await historyRes.json();
-          setLoginHistory(historyData.logs || []);
-        }
-      } catch (err) {
-        console.error('Failed to process dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const loading = statsLoading || visitorsLoading || historyLoading;
 
   const getLeadBadge = (score = 0) => {
     if (score >= 50) return <span className="neo-badge hot">Hot</span>;

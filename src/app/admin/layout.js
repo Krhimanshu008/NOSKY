@@ -12,16 +12,13 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-bod
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  useEffect(() => {
+  const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedState = localStorage.getItem('nosky_admin_sidebar_collapsed');
-      if (savedState === 'true') {
-        setIsCollapsed(true);
-      }
+      return savedState === 'true';
     }
-  }, []);
+    return false;
+  });
 
   // If on login page (/admin), render clean children without sidebar wrapper
   if (pathname === '/admin') {

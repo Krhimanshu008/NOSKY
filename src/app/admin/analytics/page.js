@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Loader2, Activity, Users, FileText, MousePointer, Clock, MapPin, Monitor, ChevronDown, ChevronRight, Eye, ArrowDownToLine, MoveDown, Globe2, Maximize } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import AdminSettingsIcon from '@/components/ui/AdminSettingsIcon';
+import useSWR from 'swr';
+
+const fetcher = (url) => fetch(url).then(res => res.json());
 
 const UnifiedMapViewer = dynamic(() => import('../../../components/analytics/UnifiedMapViewer'), {
   ssr: false,
@@ -60,12 +63,10 @@ export default function AnalyticsDashboard() {
 }
 
 function OverviewTab() {
-  const [stats, setStats] = useState(null);
-  useEffect(() => {
-    fetch('/api/analytics/dashboard').then(res => res.json()).then(setStats);
-  }, []);
+  const { data: stats, error, isLoading } = useSWR('/api/analytics/dashboard', fetcher);
 
-  if (!stats) return <div style={{display:'flex',justifyContent:'center'}}><Loader2 className="animate-spin" size={32} /></div>;
+  if (isLoading) return <div style={{display:'flex',justifyContent:'center'}}><Loader2 className="animate-spin" size={32} /></div>;
+  if (!stats) return null;
 
   return (
     <>
@@ -122,21 +123,13 @@ function OverviewTab() {
 }
 
 function JourneysTab() {
-  const [visitors, setVisitors] = useState([]);
+  const { data, error, isLoading } = useSWR('/api/analytics/visitors', fetcher);
+  const visitors = Array.isArray(data) ? [...data].sort((a, b) => (b.leadScore || 0) - (a.leadScore || 0)) : [];
+  const loading = isLoading;
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   const [journey, setJourney] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState({});
   const [viewMode, setViewMode] = useState('chronological');
-
-  useEffect(() => {
-    fetch('/api/analytics/visitors').then(res => res.json()).then(data => {
-      // Sort by lead score by default (highest first)
-      const sorted = data.sort((a, b) => (b.leadScore || 0) - (a.leadScore || 0));
-      setVisitors(sorted);
-      setLoading(false);
-    });
-  }, []);
 
   const getLeadBadge = (score = 0) => {
     if (score >= 50) return <span style={{ padding: '2px 6px', background: 'rgba(255, 59, 48, 0.2)', color: '#ff3b30', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>🔥 Hot</span>;
@@ -371,33 +364,21 @@ function JourneysTab() {
 }
 
 function EngagementTab() {
-  const [stats, setStats] = useState(null);
   const [period, setPeriod] = useState('30'); // '7', '30', '90', 'all', 'custom'
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Only fetch custom if dates are provided
-    if (period === 'custom' && (!startDate || !endDate)) return;
+  const shouldFetch = !(period === 'custom' && (!startDate || !endDate));
+  let url = `/api/analytics/engagement?period=${period}`;
+  if (period === 'custom') {
+    url += `&startDate=${startDate}&endDate=${endDate}`;
+  }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    let url = `/api/analytics/engagement?period=${period}`;
-    if (period === 'custom') {
-      url += `&startDate=${startDate}&endDate=${endDate}`;
-    }
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        setStats(data);
-        setLoading(false);
-      });
-  }, [period, startDate, endDate]);
+  const { data: stats, error, isLoading } = useSWR(shouldFetch ? url : null, fetcher);
+  const loading = isLoading && shouldFetch;
 
   // If initial load and no stats yet
-  if (!stats && loading) return <div style={{display:'flex',justifyContent:'center'}}><Loader2 className="animate-spin" size={32} /></div>;
+  if (loading) return <div style={{display:'flex',justifyContent:'center'}}><Loader2 className="animate-spin" size={32} /></div>;
   if (!stats) return null;
 
   return (
@@ -535,8 +516,6 @@ function EngagementTab() {
 
 function LiveMapTab() {
   const [selectedCountry, setSelectedCountry] = useState(null);
-  const [visitors, setVisitors] = useState([]);
-  const [loading, setLoading] = useState(true);
   const fullscreenRef = useRef(null);
 
   const toggleFullscreen = () => {
@@ -551,14 +530,8 @@ function LiveMapTab() {
     }
   };
 
-  useEffect(() => {
-    fetch('/api/analytics/globe')
-      .then(res => res.json())
-      .then(data => {
-        setVisitors(data);
-        setLoading(false);
-      });
-  }, []);
+  const { data: visitors = [], error, isLoading } = useSWR('/api/analytics/globe', fetcher, { refreshInterval: 10000 });
+  const loading = isLoading;
 
   const uniqueCountries = new Set(visitors.map(v => v.country));
 
