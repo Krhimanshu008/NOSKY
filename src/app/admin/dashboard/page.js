@@ -1,4 +1,5 @@
 'use client';
+import { useMemo } from 'react';
 
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
@@ -6,14 +7,17 @@ import useSWR from 'swr';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
+
 export default function AdminDashboard() {
   const { data: stats, error: statsError, isLoading: statsLoading } = useSWR('/api/analytics/dashboard', fetcher);
   const { data: rawVisitors, error: visitorsError, isLoading: visitorsLoading } = useSWR('/api/analytics/visitors', fetcher);
   const { data: historyData, error: historyError, isLoading: historyLoading } = useSWR('/api/admin/login-history', fetcher);
 
-  const visitors = Array.isArray(rawVisitors)
-    ? [...rawVisitors].sort((a, b) => (b.leadScore || 0) - (a.leadScore || 0)).slice(0, 5)
-    : [];
+  const visitors = useMemo(() => {
+    return Array.isArray(rawVisitors)
+      ? [...rawVisitors].sort((a, b) => (b.leadScore || 0) - (a.leadScore || 0)).slice(0, 5)
+      : [];
+  }, [rawVisitors]);
 
   const loginHistory = historyData?.logs || [];
 

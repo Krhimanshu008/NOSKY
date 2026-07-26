@@ -533,16 +533,20 @@ function LiveMapTab() {
   const { data: visitors = [], error, isLoading } = useSWR('/api/analytics/globe', fetcher, { refreshInterval: 10000 });
   const loading = isLoading;
 
-  const uniqueCountries = new Set(visitors.map(v => v.country));
+  const { uniqueCountries, topCountries } = useMemo(() => {
+    const uniqueCountries = new Set(visitors.map(v => v.country));
 
-  // Get top 5 countries for sidebar
-  const countryCounts = {};
-  visitors.forEach(v => {
-    countryCounts[v.country] = (countryCounts[v.country] || 0) + 1;
-  });
-  const topCountries = Object.entries(countryCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+    // Get top 5 countries for sidebar
+    const countryCounts = {};
+    visitors.forEach(v => {
+      countryCounts[v.country] = (countryCounts[v.country] || 0) + 1;
+    });
+    const topCountries = Object.entries(countryCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    return { uniqueCountries, topCountries };
+  }, [visitors]);
 
   if (loading) return <div style={{display:'flex',justifyContent:'center'}}><Loader2 className="animate-spin" size={32} /></div>;
 

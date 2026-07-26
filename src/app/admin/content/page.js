@@ -116,6 +116,26 @@ export default function ContentDashboard() {
     );
   };
 
+  // Workaround for React Compiler warning
+  const filteredArticles = useMemo(() => {
+    const sorted = [...articles].filter(article => {
+      const matchesSearch = !searchQuery ||
+        article.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.category?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesStatus = filterStatus === 'all' ||
+        (filterStatus === 'published' && article.published) ||
+        (filterStatus === 'draft' && !article.published);
+
+      const articleCat = article.category?.toLowerCase() || 'article';
+      const matchesCategory = filterCategory === 'all' || articleCat === filterCategory;
+
+      return matchesSearch && matchesStatus && matchesCategory;
+    });
+
+    return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [articles, searchQuery, filterStatus, filterCategory]);
+
   const toggleSelectAll = () => {
     if (selectedItems.length === filteredArticles.length) {
       setSelectedItems([]);
@@ -123,21 +143,6 @@ export default function ContentDashboard() {
       setSelectedItems(filteredArticles.map(a => a.id));
     }
   };
-
-  const filteredArticles = articles.filter(article => {
-    const matchesSearch = !searchQuery || 
-      article.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      article.category?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = filterStatus === 'all' || 
-      (filterStatus === 'published' && article.published) ||
-      (filterStatus === 'draft' && !article.published);
-      
-    const articleCat = article.category?.toLowerCase() || 'article';
-    const matchesCategory = filterCategory === 'all' || articleCat === filterCategory;
-
-    return matchesSearch && matchesStatus && matchesCategory;
-  }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const stats = useMemo(() => {
     const total = articles.length;

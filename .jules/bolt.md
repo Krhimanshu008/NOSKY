@@ -1,0 +1,3 @@
+## $(date +%Y-%m-%d) - React Compiler and useMemo
+**Learning:** In Next.js projects with the React Compiler enabled, using manual `useMemo` hooks with inline array mutations (like `articles.filter(...).sort(...)`) can trigger a `react-hooks/preserve-manual-memoization` compiler error. The compiler struggles to preserve the manual memoization when the return value is mutated in place.
+**Action:** To safely use `useMemo` and satisfy the compiler, separate the immutable operation (e.g., filtering a cloned array) from the in-place mutation (e.g., sorting). For example: `const sorted = [...items].filter(...); return sorted.sort(...);`.
