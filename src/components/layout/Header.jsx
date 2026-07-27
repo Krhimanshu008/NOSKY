@@ -5,29 +5,33 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Lottie from 'lottie-react';
+import useSWR from 'swr';
 import menuAnimation from '../../../public/Micro Animations/menuV2.json';
 import { useRef } from 'react';
+
+// Fetcher for SWR
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const lottieRef = useRef(null);
 
   // Check auth state client-side (lightweight, doesn't block SSR/ISR)
-  useEffect(() => {
-    fetch('/api/auth/check')
-      .then(res => res.json())
-      .then(data => setIsAuthenticated(data.authenticated))
-      .catch(() => setIsAuthenticated(false));
-  }, [pathname]);
+  // Expected impact: Eliminates redundant network calls for /api/auth/check when navigating
+  // Note: We use a static key and rely on SWR's background revalidation instead of forcing it
+  // on every pathname change, which would cause UI flicker and defeat the caching.
+  const { data: authData, mutate } = useSWR('/api/auth/check', fetcher, { revalidateOnFocus: false, revalidateOnReconnect: false, errorRetryCount: 1 });
+  const isAuthenticated = authData?.authenticated || false;
 
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
+      // Optimistically update the UI to avoid waiting for a reload or refetch
+      mutate({ authenticated: false }, false);
       window.location.href = '/';
     } catch (error) {
       console.error('Logout failed', error);

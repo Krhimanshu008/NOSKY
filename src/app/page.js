@@ -61,13 +61,23 @@ const faqItems = [
 ];
 
 export default async function Home() {
-  const collection = await getDb();
-  
-  // Fetch latest 5 articles and achievements in parallel to optimize DB query time
-  const [latestArticles, latestAchievements] = await Promise.all([
-    collection.find({ published: 1, category: 'article' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray(),
-    collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray()
-  ]);
+  let latestArticles = [];
+  let latestAchievements = [];
+
+  try {
+    const collection = await getDb();
+
+    // Fetch latest 5 articles and achievements in parallel to optimize DB query time
+    const [articles, achievements] = await Promise.all([
+      collection.find({ published: 1, category: 'article' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray(),
+      collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).limit(5).toArray()
+    ]);
+
+    latestArticles = articles;
+    latestAchievements = achievements;
+  } catch (err) {
+    console.warn('Database connection unavailable during build:', err.message);
+  }
 
   const prefetchRoutes = [
     '/achievements',

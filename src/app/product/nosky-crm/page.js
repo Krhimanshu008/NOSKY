@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Breadcrumbs from '@/components/seo/Breadcrumbs';
+import FaqSection from '@/components/seo/FaqSection';
 import { 
   Users, BarChart, Settings, FileText, CreditCard, 
   MessageSquare, Calendar, Kanban, CheckCircle, ArrowRight,
@@ -7,16 +9,49 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'NoSky CRM - Turn Every Lead into a Long-Term Customer',
-  description: 'Manage leads, streamline your sales pipeline, automate follow-ups, and gain complete visibility into your sales process.',
+  title: 'NoSky CRM — Lead Management, Sales Automation & Pipeline Control',
+  description: 'Manage leads, automate follow-ups, generate quotations, and close deals faster with NoSky CRM software designed for growing B2B businesses.',
+  keywords: ['NoSky CRM', 'CRM software', 'lead management', 'sales pipeline', 'B2B CRM', 'quotation generator', 'Zoho CRM alternative'],
+  alternates: {
+    canonical: 'https://nosky.io/product/nosky-crm',
+  },
+  openGraph: {
+    title: 'NoSky CRM — Sales Automation & Pipeline Control',
+    description: 'Turn every lead into a long-term customer with NoSky CRM.',
+    url: 'https://nosky.io/product/nosky-crm',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NoSky CRM' }],
+  },
 };
+
+const crmFaqs = [
+  {
+    question: "What makes NoSky CRM different from traditional CRMs like Zoho or HubSpot?",
+    answer: "NoSky CRM combines intuitive visual kanban pipelines, integrated quotation/invoicing, automated WhatsApp & email follow-ups, and native India data security with zero hidden seat fees."
+  },
+  {
+    question: "Can NoSky CRM integrate with my existing ERP or cloud backup?",
+    answer: "Yes, NoSky CRM seamlessly connects with NoSky Backup Pro, NoSky FinVault, and external REST APIs/webhooks for ERP, GST invoicing, and payment gateway sync."
+  },
+  {
+    question: "Is NoSky CRM suitable for manufacturing and B2B distributors?",
+    answer: "Absolutely. NoSky CRM includes custom industry templates tailored for manufacturing, distribution, IT services, real estate, and healthcare with multi-stage approval workflows."
+  },
+  {
+    question: "Does NoSky CRM support mobile access and offline sync?",
+    answer: "Yes, NoSky CRM is fully responsive with native PWA support, allowing field sales representatives to capture leads, check inventory, and submit quotes on mobile devices."
+  }
+];
 
 export default function NoskyCRMPage() {
   return (
     <div className="crm-page">
       {/* Hero Section */}
-      <section className="section section-lg" style={{ paddingTop: 'calc(var(--nav-height) + var(--space-20))', textAlign: 'center', background: 'var(--gradient-hero)' }}>
+      <section className="section section-lg" style={{ paddingTop: 'calc(var(--nav-height) + var(--space-8))', textAlign: 'center', background: 'var(--gradient-hero)' }}>
         <div className="container container-narrow flex-col flex-center">
+          <div style={{ marginBottom: 'var(--space-6)', width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <Breadcrumbs items={[{ name: 'Products', url: '/products' }, { name: 'NoSky CRM', url: '/product/nosky-crm' }]} />
+          </div>
+
           <div className="badge badge-accent" style={{ marginBottom: 'var(--space-6)' }}>
             Customer Relationship Management
           </div>
@@ -314,6 +349,9 @@ export default function NoskyCRMPage() {
         </div>
       </section>
       
+      {/* FAQ SECTION */}
+      <FaqSection faqs={crmFaqs} title="NoSky CRM — FAQs & Specifications" subtitle="Everything you need to know about setting up and scaling NoSky CRM." />
+
       {/* Final CTA */}
       <section className="section section-border" style={{ textAlign: 'center', background: 'var(--color-bg-tertiary)' }}>
         <div className="container">

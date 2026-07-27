@@ -318,6 +318,28 @@ export default function ArticleEditor({ params }) {
     setLoading(true);
 
     try {
+      let payload = { ...formData };
+
+      // Auto-populate SEO metadata using AI if missing
+      if (payload.title && payload.content && (!payload.metaDescription || !payload.metaKeywords)) {
+        try {
+          const seoRes = await fetch('/api/generate-seo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: payload.title, content: payload.content })
+          });
+          if (seoRes.ok) {
+            const seoData = await seoRes.json();
+            payload.metaDescription = payload.metaDescription || seoData.metaDescription || '';
+            payload.metaKeywords = payload.metaKeywords || seoData.metaKeywords || '';
+            payload.geoRegion = payload.geoRegion || seoData.geoRegion || '';
+            payload.cityLocation = payload.cityLocation || seoData.cityLocation || '';
+          }
+        } catch (seoErr) {
+          console.warn('Auto SEO generation warning:', seoErr);
+        }
+      }
+
       const p = await params;
       const url = isEditing ? `/api/articles/${p.id}` : '/api/articles';
       const method = isEditing ? 'PUT' : 'POST';
@@ -325,7 +347,7 @@ export default function ArticleEditor({ params }) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {

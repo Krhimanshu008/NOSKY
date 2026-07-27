@@ -1,0 +1,3 @@
+## 2024-05-15 - SWR Optimization for Auth Check
+**Learning:** Found that replacing a manual `fetch` in `useEffect` with `useSWR` for the global `/api/auth/check` endpoint eliminates redundant network calls on route changes. Adding dynamic variables like `pathname` to the `useSWR` dependency key array (e.g., `useSWR(['/api/endpoint', pathname])`) to force re-fetches causes severe UI flashing. It forces the cache to reset to `undefined` on every client-side navigation.
+**Action:** To correctly cache data globally while preventing UI flicker, keep a static key string in `useSWR` and handle state invalidation manually when necessary (e.g., calling `mutate({ authenticated: false }, false)` upon logout).

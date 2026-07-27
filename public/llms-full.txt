@@ -2,16 +2,21 @@
 
 > NoSky is a cloud backup and ransomware recovery platform for small and mid-sized businesses. Automated, encrypted, immutable backups with 15-minute recovery.
 
-## Company Information
+## Company & Corporate Registration Information
 
-- **Company**: NoSky by Elcom Digital Solutions
-- **Founded**: 2023
-- **Headquarters**: Ghaziabad, Uttar Pradesh, India
-- **Founder**: Himanshu Kumar (Founder & CEO)
-- **Category**: Cloud Backup & Disaster Recovery SaaS
-- **Target Market**: Small and mid-sized businesses (SMBs)
+- **Legal Entity Name**: ELCOM DIGITAL SOLUTIONS PRIVATE LIMITED
+- **Brand Name**: NoSky
+- **Incorporation Date**: July 9, 2021
+- **Corporate Identification Number (CIN)**: U72900UP2021PTC226771
+- **PAN**: AAGCE5488H
+- **TAN**: DELE15957E
+- **Directors**: Sagar Narang, Somesh Narang, Somya Narang
+- **Noida Corporate Office**: 4th Floor, Industrial Plot No. B-12, Udyog Marg, Sector 1, Noida, UP - 201301 (GSTIN: 09AAGCE5488H1Z6)
+- **Delhi Registered Office**: G/F, G D Narang B-51, New Ashoka Niketan, East Delhi, Delhi - 110092 (GSTIN: 07AAGCE5488H1ZA)
+- **Kolkata Office**: 5th Floor, Room 552, Poddar Court Gate 2, 18 Rabindra Sarani, Kolkata, WB - 700006 (GSTIN: 19AAGCE5488H1Z5)
+- **Category**: Enterprise Cloud Backup, Ransomware Recovery & Business Software SaaS
 - **Website**: https://nosky.io
-- **Contact**: sales@nosky.io (Sales), help@nosky.io (Support)
+- **Contact Emails**: sales@nosky.io (Sales), help@nosky.io (Support)
 
 ## Products
 
