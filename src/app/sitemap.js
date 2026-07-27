@@ -17,6 +17,11 @@ export default async function sitemap() {
     { url: `${BASE_URL}/product/nosky-crm`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE_URL}/product/nosky-manage`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE_URL}/product/nosky-finvault`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    // Comparison pages
+    { url: `${BASE_URL}/compare`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE_URL}/compare/nosky-vs-acronis`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE_URL}/compare/nosky-vs-veeam`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE_URL}/compare/nosky-vs-zoho-crm`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
   ];
 
   // Dynamic pages from database

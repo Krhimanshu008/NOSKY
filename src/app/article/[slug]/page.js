@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import ArticleClient from './ArticleClient';
 import { verifyAuth } from '@/lib/auth';
-import { sanitizeJsonLd } from '@/lib/sanitize';
+import JsonLdScript from '@/components/seo/JsonLdScript';
+import { getArticleSchema } from '@/lib/schema';
 
 // ISR: rebuild individual articles every 5 minutes
 export const revalidate = 300;
@@ -20,8 +21,12 @@ export async function generateStaticParams() {
 }
 
 const getArticleBySlug = cache(async (slug) => {
-  const collection = await getDb();
-  return await collection.findOne({ slug }, { projection: { _id: 0 } });
+  try {
+    const collection = await getDb();
+    return await collection.findOne({ slug }, { projection: { _id: 0 } });
+  } catch {
+    return null;
+  }
 });
 
 export async function generateMetadata({ params }) {
@@ -31,13 +36,16 @@ export async function generateMetadata({ params }) {
   if (!article) return { title: 'Article Not Found' };
 
   return {
-    title: `${article.title} | NoSky`,
+    title: `${article.title} | NoSky Knowledge Hub`,
     description: article.metaDescription || article.content.substring(0, 160),
     keywords: article.metaKeywords,
+    alternates: {
+      canonical: `https://nosky.io/article/${article.slug}`,
+    },
     openGraph: {
       title: article.title,
       description: article.metaDescription,
-      images: article.coverImage ? [article.coverImage] : [],
+      images: article.coverImage ? [article.coverImage] : ['/og-image.png'],
       type: 'article',
       publishedTime: new Date(article.createdAt).toISOString(),
       modifiedTime: new Date(article.updatedAt).toISOString(),
@@ -60,25 +68,11 @@ export default async function ArticleSinglePage({ params }) {
     }
   }
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: article.title,
-    image: article.coverImage ? [article.coverImage] : [],
-    datePublished: new Date(article.createdAt).toISOString(),
-    dateModified: new Date(article.updatedAt).toISOString(),
-    contentLocation: {
-      '@type': 'Place',
-      name: article.geoRegion || article.cityLocation || 'Global'
-    }
-  };
+  const jsonLd = getArticleSchema(article);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(jsonLd) }}
-      />
+      <JsonLdScript data={jsonLd} />
       <ArticleClient article={article} />
     </>
   );

@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import BackupPipeline from '@/components/BackupPipeline';
+import Breadcrumbs from '@/components/seo/Breadcrumbs';
+import FaqSection from '@/components/seo/FaqSection';
 import {
   ShieldCheck, Server, Cloud, HardDrive, Lock, FileText, Share2,
   RefreshCcw, AlertTriangle, Zap, Activity, Clock, FileWarning, HelpCircle,
@@ -7,9 +9,43 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'NoSky Backup Pro - Enterprise Backup & Disaster Recovery Platform',
-  description: 'Protect your business-critical data with enterprise-grade backup technology. Secure, compressed, encrypted, and verified.',
+  title: 'NoSky Backup Pro — Enterprise Cloud Backup & Disaster Recovery Platform',
+  description: 'Automated encrypted cloud backup with 15-minute ransomware recovery, AES-256 encryption, immutable storage, and DPDP Act compliance for SMBs.',
+  keywords: ['NoSky Backup Pro', 'enterprise backup', 'cloud backup', 'ransomware recovery', 'immutable storage', 'AES-256 backup', 'disaster recovery'],
+  alternates: {
+    canonical: 'https://nosky.io/product/nosky-backup-pro',
+  },
+  openGraph: {
+    title: 'NoSky Backup Pro — Enterprise Cloud Backup Platform',
+    description: 'Automated encrypted cloud backup with 15-minute recovery and immutable storage.',
+    url: 'https://nosky.io/product/nosky-backup-pro',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'NoSky Backup Pro' }],
+  },
 };
+
+const backupFaqs = [
+  {
+    question: "What encryption standards does NoSky Backup Pro use?",
+    answer: "NoSky Backup Pro uses AES-256 end-to-end encryption for all backup data before it leaves your device. Data in transit is protected using TLS 1.3, and backups at rest are immutable."
+  },
+  {
+    question: "How fast can NoSky recover data after a ransomware attack?",
+    answer: "NoSky features 15-minute Recovery Point Objective (RPO) and instant virtual machine spin-up capabilities, enabling full system recovery in under 15 minutes."
+  },
+  {
+    question: "Which operating systems and applications are supported?",
+    answer: "NoSky Backup Pro supports Windows, Windows Server, Linux, macOS, VMware, Hyper-V, Microsoft 365 (Exchange, SharePoint, OneDrive, Teams), and SQL Server / MySQL databases."
+  },
+  {
+    question: "How does NoSky deduplication and compression reduce cloud storage costs?",
+    answer: "Using block-level Change Block Tracking (CBT) and LZ4 compression, NoSky deduplicates repeated data blocks across endpoints, reducing cloud storage overhead by up to 70%."
+  },
+  {
+    question: "Is NoSky compliant with Indian DPDP Act and global standards?",
+    answer: "Yes. NoSky offers native India data residency across tier-IV datacenters in Mumbai, and maintains ISO 27001, SOC 2 Type II, HIPAA, GDPR, and DPDP Act compliance."
+  }
+];
+
 
 const threats = [
   { icon: <HelpCircle />, label: "Human Error" },
@@ -79,8 +115,12 @@ export default function NoskyBackupProPage() {
   return (
     <div className="backup-page">
       {/* ── HERO ── */}
-      <section className="section section-lg" style={{ paddingTop: 'calc(var(--nav-height) + var(--space-20))', textAlign: 'center', background: 'var(--gradient-hero)' }}>
+      <section className="section section-lg" style={{ paddingTop: 'calc(var(--nav-height) + var(--space-8))', textAlign: 'center', background: 'var(--gradient-hero)' }}>
         <div className="container container-narrow flex-col flex-center">
+          <div style={{ marginBottom: 'var(--space-6)', width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <Breadcrumbs items={[{ name: 'Products', url: '/products' }, { name: 'NoSky Backup Pro', url: '/product/nosky-backup-pro' }]} />
+          </div>
+
           <div className="badge badge-accent" style={{ marginBottom: 'var(--space-6)' }}>
             Enterprise Backup & Disaster Recovery Platform
           </div>
@@ -315,6 +355,9 @@ export default function NoskyBackupProPage() {
           </div>
         </div>
       </section>
+
+      {/* ── FAQ SECTION ── */}
+      <FaqSection faqs={backupFaqs} title="NoSky Backup Pro — FAQs & Specs" subtitle="Technical questions answered directly by our backup architecture team." />
 
       {/* ── CTA ── */}
       <section className="section section-border" style={{ textAlign: 'center', background: 'var(--color-bg-tertiary)' }}>

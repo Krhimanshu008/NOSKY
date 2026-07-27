@@ -17,11 +17,16 @@ async function getAchievements() {
   const cached = cache.get(cacheKey);
   if (cached) return cached;
 
-  const collection = await getDb();
-  const articles = await collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).toArray();
+  try {
+    const collection = await getDb();
+    const articles = await collection.find({ published: 1, category: 'achievement' }).project({ _id: 0 }).sort({ createdAt: -1 }).toArray();
 
-  cache.set(cacheKey, articles, CACHE_TTL.ACHIEVEMENTS_LIST);
-  return articles;
+    cache.set(cacheKey, articles, CACHE_TTL.ACHIEVEMENTS_LIST);
+    return articles;
+  } catch (err) {
+    console.warn('Database connection unavailable during build:', err.message);
+    return [];
+  }
 }
 
 export default async function AchievementsPage() {

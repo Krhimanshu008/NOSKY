@@ -20,8 +20,12 @@ export async function generateStaticParams() {
 }
 
 const getAchievementBySlug = cache(async (slug) => {
-  const collection = await getDb();
-  return await collection.findOne({ slug }, { projection: { _id: 0 } });
+  try {
+    const collection = await getDb();
+    return await collection.findOne({ slug }, { projection: { _id: 0 } });
+  } catch {
+    return null;
+  }
 });
 
 export async function generateMetadata({ params }) {
