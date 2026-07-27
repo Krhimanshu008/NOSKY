@@ -53,6 +53,14 @@ export default function Footer() {
       ]
     },
     {
+      title: 'Compare',
+      links: [
+        { label: 'NoSky vs Acronis', href: '/compare/nosky-vs-acronis' },
+        { label: 'NoSky vs Veeam', href: '/compare/nosky-vs-veeam' },
+        { label: 'NoSky vs Zoho CRM', href: '/compare/nosky-vs-zoho-crm' },
+      ]
+    },
+    {
       title: 'Company',
       links: [
         { label: 'About', href: '/about' },
