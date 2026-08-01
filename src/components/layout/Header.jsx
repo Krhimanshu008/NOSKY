@@ -7,23 +7,29 @@ import Image from 'next/image';
 import Lottie from 'lottie-react';
 import menuAnimation from '../../../public/Micro Animations/menuV2.json';
 import { useRef } from 'react';
+import useSWR from 'swr';
+
+const fetcher = (url) => fetch(url).then(res => res.json());
+
+const productLinks = [
+  { label: 'Nosky Backup Pro', href: '/product/nosky-backup-pro', logo: '/logos/Layer-1.png' },
+  { label: 'Nosky CRM', href: '/product/nosky-crm', logo: '/logos/CRM - White.png' },
+  { label: 'Nosky Manage 2.0', href: '/product/nosky-manage', logo: '/logos/Manage  - White.png' },
+  { label: 'Nosky Finvault', href: '/product/nosky-finvault', logo: '/logos/finvault-white.png' },
+];
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const lottieRef = useRef(null);
 
   // Check auth state client-side (lightweight, doesn't block SSR/ISR)
-  useEffect(() => {
-    fetch('/api/auth/check')
-      .then(res => res.json())
-      .then(data => setIsAuthenticated(data.authenticated))
-      .catch(() => setIsAuthenticated(false));
-  }, [pathname]);
+  // useSWR caches this result, eliminating redundant requests on route navigation.
+  const { data } = useSWR('/api/auth/check', fetcher);
+  const isAuthenticated = data ? data.authenticated : false;
 
   const handleLogout = async () => {
     try {
@@ -67,13 +73,6 @@ export default function Header() {
       document.body.style.overflow = '';
     }
   }, [mobileOpen]);
-
-  const productLinks = [
-    { label: 'Nosky Backup Pro', href: '/product/nosky-backup-pro', logo: '/logos/Layer-1.png' },
-    { label: 'Nosky CRM', href: '/product/nosky-crm', logo: '/logos/CRM - White.png' },
-    { label: 'Nosky Manage 2.0', href: '/product/nosky-manage', logo: '/logos/Manage  - White.png' },
-    { label: 'Nosky Finvault', href: '/product/nosky-finvault', logo: '/logos/finvault-white.png' },
-  ];
 
   // Hide the global public Header on admin routes and reading pages
   if (

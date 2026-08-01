@@ -20,6 +20,42 @@ const HoverLottie = ({ animationData, size = 18, color = 'currentColor' }) => {
     </div>
   );
 };
+const columns = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'Nosky Backup Pro', href: '/product/nosky-backup-pro' },
+      { label: 'Nosky CRM', href: '/product/nosky-crm' },
+      { label: 'Nosky Manage 2.0', href: '/product/nosky-manage' },
+      { label: 'Nosky Finvault', href: '/product/nosky-finvault' },
+    ]
+  },
+  {
+    title: 'Discover',
+    links: [
+      { label: 'Achievements', href: '/achievements' },
+      { label: 'Article', href: '/article' },
+      { label: 'Careers', href: '/careers' },
+      { label: 'Testimonials', href: '/testimonials' },
+    ]
+  },
+  {
+    title: 'Compare',
+    links: [
+      { label: 'NoSky vs Acronis', href: '/compare/nosky-vs-acronis' },
+      { label: 'NoSky vs Veeam', href: '/compare/nosky-vs-veeam' },
+      { label: 'NoSky vs Zoho CRM', href: '/compare/nosky-vs-zoho-crm' },
+    ]
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'About', href: '/about' },
+      { label: 'Contact', href: '/contact' },
+      { label: 'Security', href: '/security' },
+    ]
+  }
+];
 
 export default function Footer() {
   const pathname = usePathname();
@@ -32,43 +68,6 @@ export default function Footer() {
   ) {
     return null;
   }
-
-  const columns = [
-    {
-      title: 'Product',
-      links: [
-        { label: 'Nosky Backup Pro', href: '/product/nosky-backup-pro' },
-        { label: 'Nosky CRM', href: '/product/nosky-crm' },
-        { label: 'Nosky Manage 2.0', href: '/product/nosky-manage' },
-        { label: 'Nosky Finvault', href: '/product/nosky-finvault' },
-      ]
-    },
-    {
-      title: 'Discover',
-      links: [
-        { label: 'Achievements', href: '/achievements' },
-        { label: 'Article', href: '/article' },
-        { label: 'Careers', href: '/careers' },
-        { label: 'Testimonials', href: '/testimonials' },
-      ]
-    },
-    {
-      title: 'Compare',
-      links: [
-        { label: 'NoSky vs Acronis', href: '/compare/nosky-vs-acronis' },
-        { label: 'NoSky vs Veeam', href: '/compare/nosky-vs-veeam' },
-        { label: 'NoSky vs Zoho CRM', href: '/compare/nosky-vs-zoho-crm' },
-      ]
-    },
-    {
-      title: 'Company',
-      links: [
-        { label: 'About', href: '/about' },
-        { label: 'Contact', href: '/contact' },
-        { label: 'Security', href: '/security' },
-      ]
-    }
-  ];
 
   return (
     <footer className="footer" id="site-footer">
