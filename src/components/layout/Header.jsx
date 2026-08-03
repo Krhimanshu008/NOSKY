@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import useSWR, { mutate } from 'swr';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,26 +9,24 @@ import Lottie from 'lottie-react';
 import menuAnimation from '../../../public/Micro Animations/menuV2.json';
 import { useRef } from 'react';
 
+const fetcher = (url) => fetch(url).then(res => res.json());
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const lottieRef = useRef(null);
 
   // Check auth state client-side (lightweight, doesn't block SSR/ISR)
-  useEffect(() => {
-    fetch('/api/auth/check')
-      .then(res => res.json())
-      .then(data => setIsAuthenticated(data.authenticated))
-      .catch(() => setIsAuthenticated(false));
-  }, [pathname]);
+  const { data } = useSWR('/api/auth/check', fetcher);
+  const isAuthenticated = data ? data.authenticated : false;
 
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
+      mutate('/api/auth/check');
       window.location.href = '/';
     } catch (error) {
       console.error('Logout failed', error);
