@@ -5,32 +5,39 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Lottie from 'lottie-react';
+import useSWR from 'swr';
 import menuAnimation from '../../../public/Micro Animations/menuV2.json';
 import { useRef } from 'react';
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const lottieRef = useRef(null);
 
-  // Check auth state client-side (lightweight, doesn't block SSR/ISR)
-  useEffect(() => {
-    fetch('/api/auth/check')
-      .then(res => res.json())
-      .then(data => setIsAuthenticated(data.authenticated))
-      .catch(() => setIsAuthenticated(false));
-  }, [pathname]);
+  // ⚡ Bolt: Optimize auth check with SWR. By providing a static key, SWR handles deduplication
+  // and caching across the app. We avoid appending dynamic variables like pathname to the key,
+  // which would bust the cache, and we do not manually force mutate() on route changes.
+  const { data: authData, mutate } = useSWR('/api/auth/check', fetcher, {
+    fallbackData: { authenticated: false },
+  });
+
+  const isAuthenticated = authData?.authenticated || false;
 
   const handleLogout = async () => {
     try {
+      // ⚡ Bolt: Optimistically update UI
+      mutate({ authenticated: false }, false);
       await fetch('/api/auth/logout', { method: 'POST' });
       window.location.href = '/';
     } catch (error) {
       console.error('Logout failed', error);
+      // ⚡ Bolt: Revert optimistic update on failure
+      mutate();
     }
   };
 
